@@ -1,0 +1,9 @@
+{
+  "name": "qa-agent",
+  "version": "0.1.0",
+  "description": "Intelligent QA agent that tests web applications like a human would - with intuition, pattern recognition, and deep inspection capabilities",
+  "author": {
+    "name": "Kelsey Ruger",
+    "email": "kelsey@kenziecreative.com"
+  }
+}

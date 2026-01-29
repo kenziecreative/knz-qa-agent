@@ -1,0 +1,16 @@
+# macOS
+.DS_Store
+
+# Editor
+*.swp
+*.swo
+*~
+
+# Node (if any tooling added later)
+node_modules/
+
+# Local plugin state (if used as plugin)
+*.local.md
+
+# Specs for future projects (not part of this repo)
+SPEC-*.md
