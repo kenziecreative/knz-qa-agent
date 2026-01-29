@@ -233,7 +233,7 @@ Baseline accessibility is part of every test - not a separate pass:
 - Color contrast measurement
 - Complex ARIA widget patterns
 
-See [SPEC-advanced-accessibility-agent.md](SPEC-advanced-accessibility-agent.md) for the planned advanced accessibility agent that will handle these.
+An advanced accessibility agent is planned as a separate project to handle these automated checks using axe-core and browser DevTools Protocol.
 
 ## Project Structure
 
@@ -241,7 +241,6 @@ See [SPEC-advanced-accessibility-agent.md](SPEC-advanced-accessibility-agent.md)
 knz-qa-agent/
 ├── README.md                           # This file
 ├── LEARNINGS.md                        # Decisions, patterns, lessons learned
-├── SPEC-advanced-accessibility-agent.md # Spec for future a11y agent
 ├── commands/                           # Source commands (copy to ~/.claude/commands/qa/)
 │   ├── check.md
 │   ├── run.md
@@ -275,7 +274,7 @@ knz-qa-agent/
 
 ## Related Projects
 
-- **Advanced Accessibility Agent** (planned) - See [SPEC-advanced-accessibility-agent.md](SPEC-advanced-accessibility-agent.md)
+- **Advanced Accessibility Agent** (planned) - Separate project for automated a11y testing with axe-core
 - **GSD** - Project orchestration that integrates with `/qa:check`
 
 ## License
