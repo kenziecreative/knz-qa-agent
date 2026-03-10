@@ -174,6 +174,51 @@ Apply the same confidence framework (certainty × severity) to network issues:
 
 Include network findings in the confidence-grouped summary alongside functional findings.
 
+## Multi-Viewport Testing
+
+Systematic approach to testing across screen sizes:
+
+- **Default viewports:** mobile (375x812), tablet (768x1024), desktop (1280x800)
+- Specs can override — narrow to specific viewports or add custom sizes (e.g., 1920x1080 for wide desktop)
+- Every scenario runs at each viewport in the active set, unless the spec explicitly narrows it
+- Use Playwright's `mcp__playwright__browser_resize` to change viewport between runs
+
+**What to check at each viewport:**
+
+- Responsive breakpoint issues — overlapping elements, text truncation, hidden content that shouldn't be hidden
+- Touch target sizes at mobile viewports — interactive elements should be at least 44x44px. Use Playwright to get element bounding boxes and flag undersized targets
+- Horizontal scrolling — should not appear at any defined viewport. Check document width vs viewport width
+- Navigation patterns — hamburger menus at mobile, full nav at desktop
+- Content reflow — text and images should reflow gracefully, not overlap or get clipped
+
+**Reporting viewport findings:**
+
+- Note which viewport the issue appears at
+- Screenshot at the problematic viewport
+- If an issue appears at only one viewport, it's likely a responsive CSS issue
+
+## Multi-Persona Testing
+
+Systematic approach to testing across user roles:
+
+- Run scenarios as each persona defined in the spec
+- Auth method is spec-defined per persona — some use full login flow (email/password), others may use token/cookie injection
+- Between persona switches: log out current persona, clear relevant state, log in as next persona
+- Use judgment on which scenarios benefit from multi-persona testing — not every scenario needs every persona
+
+**What to check per persona:**
+
+- Role-based content visibility — admin sees admin controls, regular user does not
+- Permission-based actions — can admin delete? Can regular user? Test what each persona can and cannot do
+- If an unauthorized persona can access restricted content, that's a High confidence finding (security issue)
+- Auth flow itself — login works, session persists, logout clears session
+
+**Orchestration order:**
+
+- Run all scenarios at all viewports for persona A, then switch to persona B
+- This minimizes auth flow overhead (fewer login/logout cycles)
+- If a scenario fails for one persona, continue testing other personas — don't stop the run
+
 ## Security Observations
 
 Flag if you notice:
