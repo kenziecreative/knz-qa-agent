@@ -6,7 +6,7 @@ This milestone transforms the QA agent from a functional prototype into a robust
 
 ## Phases
 
-- [ ] **Phase 1: Cleanup & Foundation** - Fix stale references, consolidate to skills, bundle Playwright MCP, update plugin manifest
+- [x] **Phase 1: Cleanup & Foundation** - Fix stale references, consolidate to skills, bundle Playwright MCP, update plugin manifest
 - [ ] **Phase 2: Agent Architecture** - Agent memory, background execution, hook system, confidence levels
 - [ ] **Phase 3: Deep Web Testing** - Network intelligence, multi-viewport/persona orchestration, form testing, SPA awareness, error recovery
 - [ ] **Phase 4: Structured Accessibility** - Focus management, trapping, landmarks, zoom, touch targets, reduced motion, heading audits, form error patterns
@@ -35,8 +35,8 @@ This milestone transforms the QA agent from a functional prototype into a robust
 
 Plans:
 
-- [ ] 01-01-PLAN.md — Delete stale files, rewrite agent, update skills/MCP/manifest
-- [ ] 01-02-PLAN.md — Update documentation, delete old global commands, set up dev symlink
+- [x] 01-01-PLAN.md — Delete stale files, rewrite agent, update skills/MCP/manifest
+- [x] 01-02-PLAN.md — Update documentation, delete old global commands, set up dev symlink
 
 ### Phase 2: Agent Architecture
 
@@ -149,7 +149,7 @@ Phases execute in order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 
 | Phase | Plans Complete | Status | Completed |
 | ----- | ------------- | ------ | --------- |
-| 1. Cleanup & Foundation | 0/2 | Planned | - |
+| 1. Cleanup & Foundation | 2/2 | Complete ✓ | 2026-03-10 |
 | 2. Agent Architecture | 0/TBD | Not started | - |
 | 3. Deep Web Testing | 0/TBD | Not started | - |
 | 4. Structured Accessibility | 0/TBD | Not started | - |

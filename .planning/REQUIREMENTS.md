@@ -1,180 +1,157 @@
 # Requirements: QA Agent v0.2
 
-**Defined:** 2026-01-31
+**Defined:** 2026-03-10
 **Core Value:** Tests verify features actually work for users
 
 ## v0.2 Requirements
 
-Requirements for CLI testing support. Each maps to roadmap phases.
+Requirements for making the web/UI QA agent robust. Each maps to roadmap phases.
 
-### Mode Detection
+### Plugin Foundation (Phase 1)
 
-- [ ] **MODE-01**: Agent detects CLI mode from `## Type: cli` header in spec
-- [ ] **MODE-02**: Agent defaults to web mode when no type header present (backwards compatible)
-- [ ] **MODE-03**: `/qa:run` executes CLI specs without additional flags
+- [ ] **FOUND-01**: Skills are the primary invocation pattern (commands removed or converted)
+- [ ] **FOUND-02**: Agent tool list includes `mcp__playwright__*`, `Read`, `Write`, `Bash`, `Glob`, `Grep`
+- [ ] **FOUND-03**: Plugin bundles Playwright MCP configuration via `.mcp.json`
+- [ ] **FOUND-04**: Plugin manifest (`plugin.json`) includes version, settings defaults
+- [ ] **FOUND-05**: Stale `Task` tool references replaced with `Agent` in all files
+- [ ] **FOUND-06**: `mcp__MCP_DOCKER__browser_*` references updated to `mcp__playwright__*`
 
-### CLI Assertions
+### Agent Architecture (Phase 2)
 
-- [ ] **ASSERT-01**: Agent can verify exit code matches expected value
-- [ ] **ASSERT-02**: Agent can verify stdout contains/equals/matches pattern
-- [ ] **ASSERT-03**: Agent can verify stderr contains/equals/is empty
-- [ ] **ASSERT-04**: Agent can verify file exists at path
-- [ ] **ASSERT-05**: Agent can verify file does not exist at path
-- [ ] **ASSERT-06**: Agent can verify file contains text
-- [ ] **ASSERT-07**: Agent can verify directory exists
-- [ ] **ASSERT-08**: Agent can verify JSON field equals value (using jq)
-- [ ] **ASSERT-09**: Agent can verify command succeeds (exit 0)
-- [ ] **ASSERT-10**: Agent can verify duration under threshold
+- [ ] **ARCH-01**: qa-tester agent has `memory: project` for cross-session pattern learning
+- [ ] **ARCH-02**: qa-tester agent supports `background: true` for non-blocking test execution
+- [ ] **ARCH-03**: Plugin defines hooks in `hooks/hooks.json`
+- [ ] **ARCH-04**: `Stop` hook suggests QA check when GSD phase context detected
+- [ ] **ARCH-05**: `SessionStart` hook loads project QA context (last run results, known issues)
+- [ ] **ARCH-06**: Agent reports include confidence levels (high/medium/low) for every finding
 
-### Execution Modes
+### Deep Web Testing (Phase 3)
 
-- [ ] **EXEC-01**: Agent can run commands locally via Bash tool
-- [ ] **EXEC-02**: Agent uses project root as default working directory
-- [ ] **EXEC-03**: Agent supports per-scenario working directory override
-- [ ] **EXEC-04**: Agent can run commands in Docker containers
-- [ ] **EXEC-05**: Agent pulls Docker image when not present locally
-- [ ] **EXEC-06**: Agent builds Docker image when `build_context` specified
-- [ ] **EXEC-07**: Agent mounts volumes as specified in spec
-- [ ] **EXEC-08**: Agent cleans up containers after test (--rm)
-- [ ] **EXEC-09**: Agent captures stdout and stderr separately
+#### Network Intelligence
 
-### Path Handling
+- [ ] **NET-01**: Agent validates API response status codes during UI interactions
+- [ ] **NET-02**: Agent flags slow API calls (> 1s by default, configurable per spec)
+- [ ] **NET-03**: Agent detects failed network requests and correlates with UI behavior
+- [ ] **NET-04**: Agent identifies over-fetching (API responses larger than what UI displays)
+- [ ] **NET-05**: Agent checks for mixed content (HTTP on HTTPS pages)
 
-- [ ] **PATH-01**: Agent expands `~` to host $HOME in local mode
-- [ ] **PATH-02**: Agent expands `~` to container $HOME in Docker mode
-- [ ] **PATH-03**: Agent expands `./` relative to project root in local mode
-- [ ] **PATH-04**: Agent expands `$PROJECT` to project root
+#### Multi-Viewport Orchestration
 
-### Interactive Commands
+- [ ] **VIEW-01**: Agent systematically tests each scenario at each viewport defined in spec
+- [ ] **VIEW-02**: Agent detects responsive breakpoint issues (overlapping elements, hidden content)
+- [ ] **VIEW-03**: Agent verifies touch target sizes at mobile viewports (minimum 44x44px)
+- [ ] **VIEW-04**: Agent checks horizontal scrolling doesn't appear at any defined viewport
 
-- [ ] **INTER-01**: Agent pipes stdin inputs to commands (from `**Input:**` block)
-- [ ] **INTER-02**: Agent applies 30-second default timeout
-- [ ] **INTER-03**: Agent supports per-scenario timeout override
-- [ ] **INTER-04**: Agent reports clear message on timeout
+#### Multi-Persona Testing
 
-### Environment Variables
+- [ ] **PERS-01**: Agent runs scenarios as each persona defined in spec
+- [ ] **PERS-02**: Agent handles authentication flows per persona (login/logout between personas)
+- [ ] **PERS-03**: Agent verifies role-based content visibility (admin sees X, user sees Y)
 
-- [ ] **ENV-01**: Agent loads environment variables from `.env` file
-- [ ] **ENV-02**: Agent passes environment variables to commands
-- [ ] **ENV-03**: Agent masks sensitive values in reports
-- [ ] **ENV-04**: Agent warns if required variables are missing
+#### Form Intelligence
 
-### Setup and Teardown
+- [ ] **FORM-01**: Agent tests all validation states (empty, invalid, boundary values)
+- [ ] **FORM-02**: Agent verifies error message placement and association with fields
+- [ ] **FORM-03**: Agent tests submission states (loading, success, error)
+- [ ] **FORM-04**: Agent checks autofill behavior and field type attributes
+- [ ] **FORM-05**: Agent tests multi-step forms with back/forward navigation
 
-- [ ] **SETUP-01**: Agent runs setup actions before each scenario
-- [ ] **SETUP-02**: Agent runs teardown actions after each scenario
-- [ ] **SETUP-03**: Agent runs teardown even when scenario fails
-- [ ] **SETUP-04**: Agent logs teardown failures as warnings (not failures)
-- [ ] **SETUP-05**: Docker mode uses fresh container per scenario (implicit teardown)
+#### SPA Awareness
 
-### Reporting
+- [ ] **SPA-01**: Agent verifies client-side route changes update URL and page title
+- [ ] **SPA-02**: Agent tests browser back/forward through client-side routes
+- [ ] **SPA-03**: Agent checks state persistence across navigation
+- [ ] **SPA-04**: Agent detects hydration mismatches (SSR content vs client render)
 
-- [ ] **REPORT-01**: CLI reports include command executed
-- [ ] **REPORT-02**: CLI reports include exit code (actual vs expected)
-- [ ] **REPORT-03**: CLI reports include stdout/stderr output
-- [ ] **REPORT-04**: CLI reports include file system check results
-- [ ] **REPORT-05**: CLI reports include duration
-- [ ] **REPORT-06**: CLI reports follow same structure as web reports
+#### Error Recovery
 
-### Command Updates
+- [ ] **ERR-01**: Agent tests behavior when API returns errors (4xx, 5xx)
+- [ ] **ERR-02**: Agent verifies user-facing error messages are helpful (not raw stack traces)
+- [ ] **ERR-03**: Agent checks recovery paths (can user retry? does page recover?)
 
-- [ ] **CMD-01**: `/qa:init --type cli` creates CLI spec template
-- [ ] **CMD-02**: `/qa:gen --command` generates spec from command
-- [ ] **CMD-03**: `/qa:gen --from` generates spec from existing test script
-- [ ] **CMD-04**: `/qa:check` works with CLI specs automatically
+### Structured Accessibility (Phase 4)
 
-### Documentation
+#### Focus Management
 
-- [ ] **DOC-01**: README mentions both web and CLI testing
-- [ ] **DOC-02**: README has CLI Testing section parallel to web docs
-- [ ] **DOC-03**: README documents `Type: cli` and CLI-specific fields
-- [ ] **DOC-04**: README includes CLI spec examples
+- [ ] **A11Y-01**: Agent verifies focus moves into modals/dialogs when opened
+- [ ] **A11Y-02**: Agent verifies focus returns to trigger element when modal closes
+- [ ] **A11Y-03**: Agent verifies focus is trapped within modals (Tab doesn't escape)
+- [ ] **A11Y-04**: Agent verifies dynamically added content is announced (aria-live)
+- [ ] **A11Y-05**: Agent verifies skip links exist and function correctly
 
-## Future Requirements
+#### Page Structure
 
-Deferred to later milestones.
+- [ ] **A11Y-06**: Agent audits heading hierarchy (h1-h6 tree, no skipped levels, single h1)
+- [ ] **A11Y-07**: Agent verifies landmark regions (main, nav, banner, contentinfo)
+- [ ] **A11Y-08**: Agent checks page title changes on SPA navigation
+- [ ] **A11Y-09**: Agent verifies `lang` attribute on html element
 
-### Advanced CLI
+#### Interactive Elements
 
-- **ADV-01**: Parallel scenario execution
-- **ADV-02**: Test matrix (multiple env configs)
-- **ADV-03**: CI/CD integration helpers
+- [ ] **A11Y-10**: Agent measures touch target sizes (minimum 44x44px)
+- [ ] **A11Y-11**: Agent verifies color is not sole indicator for state changes
+- [ ] **A11Y-12**: Agent checks `prefers-reduced-motion` is respected (animations can be stopped)
+- [ ] **A11Y-13**: Agent verifies zoom to 200% works without horizontal scroll or content loss
+
+#### Form Accessibility
+
+- [ ] **A11Y-14**: Agent verifies error summary exists after form submission with errors
+- [ ] **A11Y-15**: Agent verifies error summary links to individual fields
+- [ ] **A11Y-16**: Agent checks `aria-invalid` is set on errored fields
+- [ ] **A11Y-17**: Agent verifies focus moves to first error after submission
+
+### Spec Format v2 (Phase 5)
+
+- [ ] **SPEC-01**: Specs support scenario dependencies (`depends_on: scenario-1`)
+- [ ] **SPEC-02**: Specs support data-driven scenarios (test same flow with multiple data sets)
+- [ ] **SPEC-03**: Specs support tags for selective execution (`tags: [smoke, critical, regression]`)
+- [ ] **SPEC-04**: Specs support environment profiles (local, staging, production URLs and credentials)
+- [ ] **SPEC-05**: Specs support `## Accessibility Focus` section for Tier 2 a11y depth
+- [ ] **SPEC-06**: `/qa:gen` generates specs with a11y sections when `--a11y-depth deep` passed
+- [ ] **SPEC-07**: `/qa:run` supports `--tag` flag to run subset of scenarios
+- [ ] **SPEC-08**: `/qa:run` supports `--env` flag to select environment profile
+
+### Continuous Monitoring & Reporting (Phase 6)
+
+- [ ] **MON-01**: `/qa:monitor` skill sets up recurring test execution via `/loop`
+- [ ] **MON-02**: Monitor runs smoke tests at configurable interval against target URL
+- [ ] **MON-03**: Monitor alerts on regression (test that previously passed now fails)
+- [ ] **RPT-01**: `/qa:report` reads from `.qa/reports/` directory (not just conversation context)
+- [ ] **RPT-02**: Reports include trend analysis from HISTORY.md data
+- [ ] **RPT-03**: Reports identify recurring failures across multiple runs
+- [ ] **RPT-04**: Reports can generate GitHub issues from critical findings (via `gh` CLI)
+- [ ] **RPT-05**: Cross-session report reading works without prior conversation context
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| Screen reader testing | Separate accessibility agent project |
-| Color contrast | Separate accessibility agent project |
-| Complex ARIA | Separate accessibility agent project |
-| GUI testing (non-web) | Different tooling required (e.g., Appium) |
-| Windows batch/PowerShell | Unix-first, can add later |
+| CLI/terminal testing | Different domain; separate agent project |
+| Screen reader testing | Requires VoiceOver/NVDA/JAWS integration |
+| Color contrast ratio calculation | Requires computed color analysis + WCAG math |
+| Complex ARIA widget validation | Requires deep a11y expertise; accessibility agent |
+| GUI testing (non-web) | Different tooling (Appium, etc.) |
+| Parallel scenario execution | Complexity vs. value; sequential sufficient |
+| Full WCAG 2.2 AA compliance audit | Scope of dedicated accessibility agent |
 
 ## Traceability
 
-Which phases cover which requirements. Updated during roadmap creation.
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| MODE-01 | Phase 1 | Pending |
-| MODE-02 | Phase 1 | Pending |
-| MODE-03 | Phase 1 | Pending |
-| EXEC-01 | Phase 2 | Pending |
-| EXEC-02 | Phase 2 | Pending |
-| EXEC-03 | Phase 2 | Pending |
-| EXEC-09 | Phase 2 | Pending |
-| PATH-03 | Phase 2 | Pending |
-| PATH-04 | Phase 2 | Pending |
-| ASSERT-01 | Phase 2 | Pending |
-| ASSERT-02 | Phase 2 | Pending |
-| ASSERT-03 | Phase 2 | Pending |
-| ASSERT-04 | Phase 2 | Pending |
-| ASSERT-05 | Phase 2 | Pending |
-| ASSERT-06 | Phase 2 | Pending |
-| ASSERT-07 | Phase 2 | Pending |
-| ASSERT-08 | Phase 2 | Pending |
-| ASSERT-09 | Phase 2 | Pending |
-| ASSERT-10 | Phase 2 | Pending |
-| ENV-01 | Phase 3 | Pending |
-| ENV-02 | Phase 3 | Pending |
-| ENV-03 | Phase 3 | Pending |
-| ENV-04 | Phase 3 | Pending |
-| SETUP-01 | Phase 3 | Pending |
-| SETUP-02 | Phase 3 | Pending |
-| SETUP-03 | Phase 3 | Pending |
-| SETUP-04 | Phase 3 | Pending |
-| SETUP-05 | Phase 3 | Pending |
-| INTER-01 | Phase 3 | Pending |
-| INTER-02 | Phase 3 | Pending |
-| INTER-03 | Phase 3 | Pending |
-| INTER-04 | Phase 3 | Pending |
-| PATH-01 | Phase 3 | Pending |
-| PATH-02 | Phase 3 | Pending |
-| EXEC-04 | Phase 4 | Pending |
-| EXEC-05 | Phase 4 | Pending |
-| EXEC-06 | Phase 4 | Pending |
-| EXEC-07 | Phase 4 | Pending |
-| EXEC-08 | Phase 4 | Pending |
-| REPORT-01 | Phase 5 | Pending |
-| REPORT-02 | Phase 5 | Pending |
-| REPORT-03 | Phase 5 | Pending |
-| REPORT-04 | Phase 5 | Pending |
-| REPORT-05 | Phase 5 | Pending |
-| REPORT-06 | Phase 5 | Pending |
-| CMD-01 | Phase 5 | Pending |
-| CMD-02 | Phase 5 | Pending |
-| CMD-03 | Phase 5 | Pending |
-| CMD-04 | Phase 5 | Pending |
-| DOC-01 | Phase 5 | Pending |
-| DOC-02 | Phase 5 | Pending |
-| DOC-03 | Phase 5 | Pending |
-| DOC-04 | Phase 5 | Pending |
+| FOUND-01 through FOUND-06 | Phase 1 | Complete |
+| ARCH-01 through ARCH-06 | Phase 2 | Pending |
+| NET-01 through NET-05 | Phase 3 | Pending |
+| VIEW-01 through VIEW-04 | Phase 3 | Pending |
+| PERS-01 through PERS-03 | Phase 3 | Pending |
+| FORM-01 through FORM-05 | Phase 3 | Pending |
+| SPA-01 through SPA-04 | Phase 3 | Pending |
+| ERR-01 through ERR-03 | Phase 3 | Pending |
+| A11Y-01 through A11Y-17 | Phase 4 | Pending |
+| SPEC-01 through SPEC-08 | Phase 5 | Pending |
+| MON-01 through MON-03 | Phase 6 | Pending |
+| RPT-01 through RPT-05 | Phase 6 | Pending |
 
-**Coverage:**
-- v0.2 requirements: 39 total
-- Mapped to phases: 39
-- Unmapped: 0 ✓
+Coverage: 64 total requirements, 64 mapped to phases, 0 unmapped.
 
 ---
-*Requirements defined: 2026-01-31*
-*Last updated: 2026-01-31 after roadmap consolidation (8 → 5 phases)*
+*Requirements defined: 2026-03-10*
