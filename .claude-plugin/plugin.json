@@ -1,9 +1,21 @@
 {
   "name": "qa-agent",
-  "version": "0.1.0",
+  "version": "0.2.0-alpha",
   "description": "Intelligent QA agent that tests web applications like a human would - with intuition, pattern recognition, and deep inspection capabilities",
   "author": {
     "name": "Kelsey Ruger",
     "email": "kelsey@kenziecreative.com"
+  },
+  "settings": {
+    "defaults": {
+      "headless": true,
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "reportFormat": "markdown",
+      "slowThreshold": 1000,
+      "screenshotsEnabled": true
+    }
   }
 }
