@@ -127,6 +127,14 @@ Execute this test assignment following your QA methodology. Remember to:
   - Use Playwright route interception to simulate API failures when spec requests error testing
   - Verify error messages are user-friendly (no raw stack traces)
   - Check that recovery paths exist (retry button, navigate away, dismiss error)
+- Perform structured accessibility checks on every page/flow:
+  - Focus management: When modals/dialogs open, verify focus moves in, is trapped (Tab cycles within), and returns to trigger on close
+  - Skip links: Tab once on page load — check for skip link, activate it, verify focus moves to target
+  - Heading hierarchy: Audit h1-h6 tree — single h1, no skipped levels. Flag component-internal gaps as Medium confidence
+  - Landmark regions: Verify main, banner, contentinfo, navigation roles exist
+  - Page title: Verify title updates on SPA route changes
+  - Lang attribute: Check html element has valid lang attribute
+  - aria-live: When dynamic content appears, verify aria-live region exists and receives content
 
 Begin testing.
 ```
@@ -147,6 +155,7 @@ The agent will provide:
   - Network observations (slow calls, failed requests, over-fetching, mixed content)
   - SPA issues (route sync, history, state persistence, hydration)
   - Error recovery observations (how the app handles failures)
+  - Accessibility findings (focus management, page structure, skip links, landmarks)
 
 ## Examples
 
