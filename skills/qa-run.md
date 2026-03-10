@@ -135,6 +135,11 @@ Execute this test assignment following your QA methodology. Remember to:
   - Page title: Verify title updates on SPA route changes
   - Lang attribute: Check html element has valid lang attribute
   - aria-live: When dynamic content appears, verify aria-live region exists and receives content
+  - Touch targets: At mobile viewport, measure all interactive elements — flag any below 44x44px
+  - Color sole indicator: When testing state changes, verify non-color indicators exist (text, icon, border)
+  - Reduced motion: Use emulateMedia to set prefers-reduced-motion: reduce, verify animations stop
+  - Zoom: At desktop viewport, simulate 200% text zoom and check for overflow or content loss
+  - Form errors: After submission with errors, check for error summary, links to fields, aria-invalid on errored fields, and focus on first error
 
 Begin testing.
 ```
@@ -155,7 +160,7 @@ The agent will provide:
   - Network observations (slow calls, failed requests, over-fetching, mixed content)
   - SPA issues (route sync, history, state persistence, hydration)
   - Error recovery observations (how the app handles failures)
-  - Accessibility findings (focus management, page structure, skip links, landmarks)
+  - Accessibility findings (focus management, page structure, skip links, landmarks, touch targets, reduced motion, zoom, form error patterns)
 
 ## Examples
 
