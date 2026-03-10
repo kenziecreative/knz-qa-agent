@@ -5,36 +5,36 @@
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** Tests verify features actually work for users
-**Current focus:** Phase 1 complete, ready for Phase 2
+**Current focus:** Phase 2 in progress — confidence-grouped findings complete
 
 ## Current Position
 
 Phase: 2 of 6 (Agent Architecture) — In progress
-Plan: 1 of N in current phase
+Plan: 2 of N in current phase
 Status: In progress
-Last activity: 2026-03-10 — Completed 02-01-PLAN.md (memory + background execution)
+Last activity: 2026-03-10 — Completed 02-02-PLAN.md (confidence-grouped QA findings)
 
-Progress: [███-------] 25%
+Progress: [████------] 33%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 2
-- Average duration: 2 minutes
-- Total execution time: ~4 minutes
+- Total plans completed: 4
+- Average duration: ~2 minutes
+- Total execution time: ~9 minutes
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 | ----- | ----- | ----- | -------- |
 | 01-cleanup-foundation | 2/2 | ~4 min | 2 min |
-| 02-agent-architecture | 1/N | ~1 min | 1 min |
+| 02-agent-architecture | 2/N | ~5 min | ~2.5 min |
 
 **Recent Trend:**
 
-- Last 5 plans: 01-01 (2 min), 01-02 (2 min), 02-01 (1 min)
-- Trend: Stable (1-2 min/plan)
+- Last 5 plans: 01-01 (2 min), 01-02 (2 min), 02-01 (1 min), 02-02 (3 min)
+- Trend: Stable (1-3 min/plan)
 
 ## Accumulated Context
 
@@ -55,6 +55,9 @@ Recent decisions affecting current work:
 - [02-01]: Background concurrency = 1 — one Playwright session at a time to prevent resource contention
 - [02-01]: Default mode = foreground — background is opt-in via --background flag
 - [02-01]: Memory auto-expires after 30 days of no update
+- [02-02]: Confidence = certainty x severity — High means definitely real AND impactful
+- [02-02]: All confidence levels shown in reports — no filtering of low-confidence findings
+- [02-02]: Three groups: Definite Issues (high), Likely Issues (medium), Possible Issues (low)
 
 ### Pending Todos
 
@@ -66,6 +69,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-10T12:46:50Z
-Stopped at: Completed 02-01-PLAN.md (memory + background execution for qa-tester agent)
+Last session: 2026-03-10T12:49:15Z
+Stopped at: Completed 02-02-PLAN.md (confidence-grouped findings in qa-run, qa-report, qa-check)
 Resume file: None
