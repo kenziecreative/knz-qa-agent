@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-03-10)
 
 ## Current Position
 
-Phase: 2 of 6 (Agent Architecture) — COMPLETE ✓
-Plan: 3 of 3 in current phase
-Status: Phase verified and complete
-Last activity: 2026-03-10 — Phase 2 verified (6/6 must-haves passed)
+Phase: 3 of 6 (Deep Web Testing) — In progress
+Plan: 1 of N in current phase
+Status: In progress
+Last activity: 2026-03-10 — Completed 03-01-PLAN.md (Network Intelligence)
 
-Progress: [████------] 33%
+Progress: [█████-----] 40%
 
 ## Performance Metrics
 
@@ -62,6 +62,9 @@ Recent decisions affecting current work:
 - [02-03]: Stop hook change classification: source/styles/config/API routes trigger QA; docs/tests/planning/lock files do not
 - [02-03]: GSD suggestion is conditional (no .planning/, 5+ changes, no marker file) and one-time
 - [02-03]: SessionStart shows full report on findings, one-liner on clean pass
+- [03-01]: Passive network monitoring by default — active route interception deferred to Plan 04
+- [03-01]: Over-fetching = Low confidence (optimization, not a bug)
+- [03-01]: Network response time thresholds are defaults; specs can override
 
 ### Pending Todos
 
@@ -74,5 +77,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-10
-Stopped at: Phase 2 complete and verified, ready for Phase 3 planning
+Stopped at: Completed 03-01-PLAN.md (Network Intelligence)
 Resume file: None
