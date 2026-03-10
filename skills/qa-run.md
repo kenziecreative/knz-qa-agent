@@ -96,6 +96,13 @@ Execute this test assignment following your QA methodology. Remember to:
 - Try relevant edge cases
 - Report findings with full context
 - Escalate if you see repeated failures
+- Assign a confidence level to every finding:
+  - **High**: Definitely real AND impactful (certainty x severity)
+  - **Medium**: Likely real but impact uncertain, OR definitely real but low severity
+  - **Low**: Possible issue, needs further investigation or human judgment
+- Group findings in your summary by confidence: "Definite Issues" (high), "Likely Issues" (medium), "Possible Issues" (low)
+- Include a brief rationale for each confidence assignment
+- Show ALL findings — do not filter out low-confidence items
 
 Begin testing.
 ```
@@ -108,8 +115,11 @@ The agent will provide:
 - Console/network observations
 - Final summary with:
   - Overall result (Pass / Fail / Pass with Concerns)
-  - Detailed findings
-  - Recommendations
+  - Definite Issues (high confidence) — these need immediate attention
+  - Likely Issues (medium confidence) — should be investigated
+  - Possible Issues (low confidence) — worth noting for future review
+  - Observations (things that worked but are worth noting)
+  - Recommendations (if any)
 
 ## Examples
 
