@@ -4,52 +4,26 @@ An intelligent QA agent for Claude Code that tests web applications like a human
 
 ## Overview
 
-This project provides QA testing commands that integrate with Claude Code. Unlike traditional E2E testing that follows rigid scripts, this agent:
+This is a Claude Code plugin that provides QA testing for web applications. Unlike traditional E2E testing that follows rigid scripts, this agent:
 
 - **Tests with judgment** - Understands intent, not just steps
 - **Inspects deeply** - Console errors, network requests, timing, visual anomalies
 - **Recognizes patterns** - Escalates after repeated failures instead of blindly retrying
 - **Questions discrepancies** - When behavior differs from spec, asks which is correct
-- **Includes accessibility** - Keyboard navigation and basic ARIA checks are part of every test
+- **Checks accessibility** - Keyboard navigation and ARIA checks are part of every test
 
 ## Installation
 
-The commands are installed as global Claude Code commands in `~/.claude/commands/qa/`.
-
-**First-time install:**
-```bash
-mkdir -p ~/.claude/commands/qa
-cp commands/*.md ~/.claude/commands/qa/
-```
-
-**To update:**
-```bash
-cp commands/*.md ~/.claude/commands/qa/
-```
-
-After installation, restart Claude Code. Commands will be available as `/qa:check`, `/qa:run`, etc.
-
-## Commands
-
-### `/qa:check` - Phase Verification Gate
-
-Quick verification that a phase's deliverables actually work. Designed for GSD integration.
+Clone or install this plugin into your Claude Code plugins directory:
 
 ```bash
-/qa:check --url http://localhost:3000
-/qa:check --url http://localhost:3000 --phase 3
+# As a Claude Code plugin
+git clone <repo-url> ~/.claude/plugins/qa-agent
 ```
 
-**Use when:** After completing a feature/phase, before moving on.
+Playwright MCP is bundled — no separate setup required. The `.claude-plugin/.mcp.json` configuration launches the Playwright MCP server automatically when the plugin loads.
 
-**What it does:**
-1. Reads phase context (goal, plan, deliverables)
-2. Runs targeted browser tests to verify functionality
-3. Checks console, network, accessibility
-4. Reports pass/fail with evidence
-5. Writes report to `.qa/reports/`
-
-**Escalation:** After 3 failures, recommends pausing to reconsider the implementation approach.
+## Skills
 
 ### `/qa:run` - Full Spec Execution
 
@@ -69,7 +43,16 @@ Run comprehensive QA tests from spec files or ad-hoc descriptions.
 /qa:run --project ~/Projects/my-app --spec login --url https://staging.example.com
 ```
 
-**Use when:** Full QA pass on a feature, regression testing, exploring new functionality.
+### `/qa:check` - Phase Verification Gate
+
+Quick verification that a phase's deliverables actually work. Designed for GSD integration.
+
+```bash
+/qa:check --url http://localhost:3000
+/qa:check --url http://localhost:3000 --phase 3
+```
+
+**Escalation:** After 3 failures, recommends pausing to reconsider the implementation approach.
 
 ### `/qa:init` - Initialize QA Structure
 
@@ -77,12 +60,8 @@ Set up the `.qa/` directory in a project with templates.
 
 ```bash
 /qa:init ~/Projects/my-app
-/qa:init .  # current directory
+/qa:init .
 ```
-
-**Creates:**
-- `.qa/README.md` - Quick reference
-- `.qa/smoke-test.md` - Starter template
 
 ### `/qa:gen` - Generate Specs
 
@@ -99,11 +78,9 @@ Generate QA specs from descriptions, documentation, or live exploration.
 /qa:gen profile --from http://localhost:3000/profile
 ```
 
-**Use when:** Bootstrapping specs for new features, converting PRDs to testable specs.
-
 ### `/qa:report` - Compile Results
 
-Generate a summary report from the current session's test runs.
+Generate a summary report from QA test runs.
 
 ```bash
 /qa:report
@@ -167,28 +144,18 @@ http://localhost:3000
 - Form should be keyboard navigable
 ```
 
+See [examples/SPEC-FORMAT.md](examples/SPEC-FORMAT.md) for full format documentation.
+
 ## Reports
 
 Test results are written to `.qa/reports/` in the project being tested:
 
-```
+```text
 .qa/reports/
 ├── HISTORY.md                          # Running log of all QA activity
 ├── check-phase-3-2024-01-29-143022.md  # Individual check reports
 └── run-login-2024-01-29-150145.md      # Individual run reports
 ```
-
-## GSD Integration
-
-For web projects using GSD, add to `PROJECT.md`:
-
-```markdown
-## Verification
-
-This is a web application. After completing each phase, run `/qa:check --url http://localhost:3000` to verify the deliverables work before proceeding.
-```
-
-GSD's executor will see this and run QA checks at phase boundaries.
 
 ## QA Methodology
 
@@ -211,16 +178,14 @@ If the same test fails 3+ times:
 
 ### Spec Skepticism
 
-When observed behavior differs from spec:
-- Notes the discrepancy
-- Assesses if it seems intentional or buggy
-- Asks for clarification if ambiguous
+When observed behavior differs from spec, the agent notes the discrepancy, assesses whether it seems intentional or buggy, and asks for clarification if ambiguous.
 
 ## Accessibility
 
 Baseline accessibility is part of every test - not a separate pass:
 
 **Always checked:**
+
 - Keyboard navigation (Tab, Enter, Escape, arrows)
 - Visible focus indicators
 - Form labels and error association
@@ -228,54 +193,62 @@ Baseline accessibility is part of every test - not a separate pass:
 - Semantic HTML (real buttons, real links)
 - Basic ARIA (expanded states, live regions)
 
-**Out of scope (needs specialized tools):**
+**Planned (Tier 2 - structured a11y testing):**
+
+- Focus management in modals (move in, trap, return)
+- Skip links, landmarks, heading hierarchy
+- Touch target sizing, zoom behavior, reduced motion
+- Form error patterns (summary, field links, aria-invalid)
+
+**Out of scope (Tier 3 - separate agent):**
+
 - Screen reader testing
 - Color contrast measurement
 - Complex ARIA widget patterns
 
-An advanced accessibility agent is planned as a separate project to handle these automated checks using axe-core and browser DevTools Protocol.
+## GSD Integration
+
+For web projects using GSD, add to `PROJECT.md`:
+
+```markdown
+## Verification
+
+This is a web application. After completing each phase, run `/qa:check --url http://localhost:3000` to verify the deliverables work before proceeding.
+```
 
 ## Project Structure
 
-```
+```text
 knz-qa-agent/
-├── README.md                           # This file
-├── LEARNINGS.md                        # Decisions, patterns, lessons learned
-├── commands/                           # Source commands (copy to ~/.claude/commands/qa/)
-│   ├── check.md
-│   ├── run.md
-│   ├── init.md
-│   ├── gen.md
-│   └── report.md
-├── agents/                             # Agent definition (reference)
-│   └── qa-tester.md
-├── skills/                             # Original skill files (reference)
-│   └── ...
-└── examples/
-    ├── SPEC-FORMAT.md                  # Spec format documentation
-    └── sample-login-spec.md            # Example spec
+├── .claude-plugin/
+│   ├── plugin.json          # Plugin manifest
+│   └── .mcp.json            # Playwright MCP server config (bundled)
+├── agents/
+│   └── qa-tester.md         # QA tester agent definition
+├── skills/
+│   ├── qa-run.md            # Full test execution
+│   ├── qa-check.md          # Phase verification gate
+│   ├── qa-init.md           # Initialize QA structure
+│   ├── qa-gen.md            # Generate specs
+│   └── qa-report.md         # Compile results
+├── examples/
+│   ├── SPEC-FORMAT.md       # Spec format documentation
+│   └── sample-login-spec.md # Example spec
+├── LEARNINGS.md             # Decisions, patterns, lessons learned
+└── README.md                # This file
 ```
-
-**Installed commands location:** `~/.claude/commands/qa/`
 
 ## Requirements
 
 - Claude Code
-- Docker MCP with Playwright browser tools enabled
+- Playwright MCP (bundled via `.claude-plugin/.mcp.json` — no separate install)
 - Web application running locally or accessible URL
 
 ## Development Notes
 
-- Commands use the Docker MCP's Playwright browser tools
-- Reports use Write tool to persist to `.qa/reports/`
-- Phase context is read from GSD's `.planning/` structure when available
-- Accessibility checks are integrated into the main test flow, not separate
 - See [LEARNINGS.md](LEARNINGS.md) for architectural decisions and patterns
-
-## Related Projects
-
-- **Advanced Accessibility Agent** (planned) - Separate project for automated a11y testing with axe-core
-- **GSD** - Project orchestration that integrates with `/qa:check`
+- Planning tracked in `.planning/` directory (GSD workflow)
+- Current milestone: v0.2 - Robust Web/UI Testing (6 phases)
 
 ## License
 
@@ -283,8 +256,15 @@ MIT
 
 ## Version History
 
+- **0.2.0** (in progress) - Robust web/UI testing
+  - Plugin foundation cleanup (skills-only, Playwright MCP bundled via `.mcp.json`)
+  - Agent architecture (memory, hooks, background execution)
+  - Deep web testing (network, viewports, personas, forms, SPA, error recovery)
+  - Structured accessibility (Tier 2 — focus management, landmarks, zoom, touch targets)
+  - Spec format v2 (dependencies, data-driven, tags, environments)
+  - Continuous monitoring and cross-session reporting
 - **0.1.0** - Initial release
-  - Core commands: check, run, init, gen, report
+  - Five skills: `/qa:run`, `/qa:check`, `/qa:init`, `/qa:gen`, `/qa:report`
   - GSD integration via `/qa:check`
   - Baseline accessibility built into methodology
   - Report output to `.qa/reports/` with HISTORY.md log
