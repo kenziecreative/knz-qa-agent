@@ -84,6 +84,20 @@ Structure the output as:
 ## Base URL
 {URL from --from flag or [TODO: Set base URL]}
 
+## Viewports
+- Mobile: 375x812
+- Tablet: 768x1024
+- Desktop: 1280x800
+
+## Personas
+### Default User
+- **Role:** Regular user
+- **Auth:** [TODO: Set login credentials or auth method]
+
+### Admin (if applicable)
+- **Role:** Administrator
+- **Auth:** [TODO: Set admin credentials or auth method]
+
 ## Test Scenarios
 
 ### 1. {Scenario Name}

@@ -57,7 +57,9 @@ From the user's input, extract:
    - Edge cases
    - Things to watch for
 3. Launch the `qa-tester` agent with the spec content and instructions
-4. The agent will work through the spec systematically
+4. If spec defines viewports: Test each scenario at each viewport (default: mobile 375px, tablet 768px, desktop 1280px if spec doesn't specify)
+5. If spec defines personas: Test scenarios as each persona, handling auth flows between switches
+6. The agent will work through the spec systematically
 
 ### If ad-hoc task is provided:
 
@@ -108,6 +110,8 @@ Execute this test assignment following your QA methodology. Remember to:
   - Flag slow API calls (> 1s default) — note the endpoint and response time
   - Note any mixed content (HTTP on HTTPS) or over-fetching patterns
   - Include network findings in your confidence-grouped summary
+- Test across viewports: Run each scenario at each viewport defined in the spec (default: mobile/tablet/desktop). Check for responsive issues, touch target sizes at mobile, and horizontal scrolling
+- Test across personas: If spec defines personas, run scenarios as each persona. Handle login/logout between persona switches. Verify role-based content visibility
 
 Begin testing.
 ```
