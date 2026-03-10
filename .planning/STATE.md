@@ -5,35 +5,35 @@
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** Tests verify features actually work for users
-**Current focus:** Phase 2 in progress — confidence-grouped findings complete
+**Current focus:** Phase 2 in progress — hook system complete
 
 ## Current Position
 
 Phase: 2 of 6 (Agent Architecture) — In progress
-Plan: 2 of N in current phase
+Plan: 3 of N in current phase
 Status: In progress
-Last activity: 2026-03-10 — Completed 02-02-PLAN.md (confidence-grouped QA findings)
+Last activity: 2026-03-10 — Completed 02-03-PLAN.md (hook system: Stop and SessionStart hooks)
 
-Progress: [████------] 33%
+Progress: [█████-----] 42%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 4
+- Total plans completed: 5
 - Average duration: ~2 minutes
-- Total execution time: ~9 minutes
+- Total execution time: ~11 minutes
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 | ----- | ----- | ----- | -------- |
 | 01-cleanup-foundation | 2/2 | ~4 min | 2 min |
-| 02-agent-architecture | 2/N | ~5 min | ~2.5 min |
+| 02-agent-architecture | 3/N | ~7 min | ~2.3 min |
 
 **Recent Trend:**
 
-- Last 5 plans: 01-01 (2 min), 01-02 (2 min), 02-01 (1 min), 02-02 (3 min)
+- Last 5 plans: 01-02 (2 min), 02-01 (1 min), 02-02 (3 min), 02-03 (2 min)
 - Trend: Stable (1-3 min/plan)
 
 ## Accumulated Context
@@ -58,6 +58,10 @@ Recent decisions affecting current work:
 - [02-02]: Confidence = certainty x severity — High means definitely real AND impactful
 - [02-02]: All confidence levels shown in reports — no filtering of low-confidence findings
 - [02-02]: Three groups: Definite Issues (high), Likely Issues (medium), Possible Issues (low)
+- [02-03]: Hooks are GSD-independent — work for any Claude Code user, GSD mentioned softly (once) as option
+- [02-03]: Stop hook change classification: source/styles/config/API routes trigger QA; docs/tests/planning/lock files do not
+- [02-03]: GSD suggestion is conditional (no .planning/, 5+ changes, no marker file) and one-time
+- [02-03]: SessionStart shows full report on findings, one-liner on clean pass
 
 ### Pending Todos
 
@@ -69,6 +73,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-10T12:49:15Z
-Stopped at: Completed 02-02-PLAN.md (confidence-grouped findings in qa-run, qa-report, qa-check)
+Last session: 2026-03-10T12:53:11Z
+Stopped at: Completed 02-03-PLAN.md (hook system: Stop and SessionStart hooks)
 Resume file: None
