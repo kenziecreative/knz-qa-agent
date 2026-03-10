@@ -108,6 +108,13 @@ Structure the output as:
 ## Edge Cases to Verify
 {Standard edge cases for this feature type}
 
+### Form Testing (if forms are present)
+- Empty submission of all required fields
+- Invalid formats for typed fields (email, phone, date)
+- Boundary values (min/max length, special characters)
+- Rapid double-submit
+- Multi-step navigation (if applicable): forward, backward, data persistence
+
 ## Things to Watch For
 {Standard concerns plus any inferred from source}
 

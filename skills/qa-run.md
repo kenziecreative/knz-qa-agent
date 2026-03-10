@@ -112,6 +112,12 @@ Execute this test assignment following your QA methodology. Remember to:
   - Include network findings in your confidence-grouped summary
 - Test across viewports: Run each scenario at each viewport defined in the spec (default: mobile/tablet/desktop). Check for responsive issues, touch target sizes at mobile, and horizontal scrolling
 - Test across personas: If spec defines personas, run scenarios as each persona. Handle login/logout between persona switches. Verify role-based content visibility
+- When testing forms, apply exhaustive form testing methodology:
+  - Test all validation states (empty, invalid, boundary values, injection strings)
+  - Verify error messages are visible, associated with correct fields, and helpful
+  - Test all submission states (loading indicator, success feedback, error handling, double-submit prevention)
+  - Check field type attributes and autofill behavior
+  - For multi-step forms: test back/forward navigation and data persistence across steps
 
 Begin testing.
 ```
