@@ -118,6 +118,98 @@ For every page/flow, note:
 
 You don't need to run a full audit, but flag obvious issues.
 
+For deeper accessibility methodology including focus management, page structure, and form accessibility, see the Structured Accessibility section below.
+
+## Structured Accessibility
+
+Tier 2 accessibility testing — deeper, structured methodology that goes beyond the baseline checks above. These checks are performed on every page/flow unless the spec explicitly narrows scope. All testing uses only Playwright's built-in APIs (no external a11y libraries).
+
+### Focus Management
+
+#### Modal/Dialog Focus (A11Y-01, A11Y-02, A11Y-03)
+
+When testing any modal, dialog, or drawer:
+
+1. Open the modal (click trigger element)
+2. Verify focus moved INTO the modal — press Tab once and check that `document.activeElement` is inside an element with `role="dialog"` (or the modal container). If focus stayed on the trigger or body, flag as High confidence issue.
+3. Verify focus is TRAPPED — press Tab enough times to cycle through all focusable elements in the modal AT LEAST TWICE. After each Tab, check that `document.activeElement` is still inside the modal. If focus escapes to elements outside the modal, flag as High confidence issue. Note: for modals with only 1-2 focusable elements, verify that Tab cycles back to the first element (cycle detection).
+4. Close the modal (press Escape or click close button)
+5. Verify focus RETURNED to the trigger element — use `toBeFocused()` on the trigger. If focus went to body or another element, flag as Medium confidence issue.
+
+#### Dynamic Content Announcements (A11Y-04)
+
+When dynamic content appears (status messages, toast notifications, form errors, real-time updates):
+
+- Check that an `aria-live` region exists in the DOM (query `[aria-live]`)
+- Verify the region has the correct `aria-live` value (`polite` for status updates, `assertive` for urgent alerts)
+- After the dynamic event, verify the live region contains the expected content
+- Note: This is structural verification only — actual screen reader announcement testing requires manual testing. Frame findings as Medium confidence.
+
+#### Skip Links (A11Y-05)
+
+On every page:
+
+1. Press Tab once — the first focusable element should be a skip link (an anchor with text containing "skip" or an href starting with "#")
+2. If a skip link exists, press Enter to activate it
+3. Verify focus moved to the target element (check `document.activeElement` matches the href target ID)
+4. If the target element doesn't receive focus, check whether it has `tabindex="-1"` — if missing, flag as Medium confidence (the link destination may be correct but focus doesn't land precisely due to missing tabindex)
+5. If no skip link exists at all, flag as Medium confidence
+
+### Page Structure
+
+#### Heading Hierarchy (A11Y-06)
+
+On every page, audit the heading structure:
+
+1. Use `page.evaluate()` to collect all heading elements (h1-h6) with their level and text content
+2. Check for exactly one h1 — zero or multiple h1s is High confidence
+3. Check for no skipped levels — e.g., h1 followed by h3 with no h2 is a gap. Flag document-level heading gaps as High confidence. Flag gaps that appear within component widgets (sidebar, card, aside) as Medium confidence — component libraries often have their own internal heading hierarchy
+4. Report the heading tree structure for developer reference
+
+#### Landmark Regions (A11Y-07)
+
+On every page, verify required landmarks exist:
+
+- `main` role — exactly one (use `page.getByRole('main')`)
+- `banner` role — at least one (use `page.getByRole('banner')` — maps to `<header>`)
+- `contentinfo` role — at least one (use `page.getByRole('contentinfo')` — maps to `<footer>`)
+- `navigation` role — at least one (use `page.getByRole('navigation')` — maps to `<nav>`)
+- Missing `main` landmark = High confidence. Missing others = Medium confidence.
+
+#### Page Title on SPA Navigation (A11Y-08)
+
+After every client-side route change:
+
+- Check that `page.title()` has updated to reflect the new page content
+- The title should be descriptive and unique per route, not a static app name
+- Use this in conjunction with SPA route change verification (from Phase 3)
+- Missing or unchanging title = Medium confidence
+
+#### Language Attribute (A11Y-09)
+
+On every page:
+
+- Check `document.documentElement.lang` via `page.evaluate()`
+- The lang attribute should be non-empty and a valid BCP 47 language tag (e.g., 'en', 'en-US', 'fr')
+- Missing lang attribute = High confidence
+
+### Reporting Accessibility Findings
+
+| Finding type | Confidence |
+| --- | --- |
+| Focus not moving into modal | High |
+| Focus escaping modal (trap broken) | High |
+| No h1 or multiple h1s | High |
+| Missing main landmark | High |
+| Missing lang attribute | High |
+| Focus not returning to trigger after modal close | Medium |
+| Skip link missing or not working | Medium |
+| Heading level gap within component | Medium |
+| Missing banner/contentinfo/navigation landmark | Medium |
+| Page title not updating on SPA navigation | Medium |
+| aria-live region structural issue | Medium |
+| Skip link target missing tabindex | Medium |
+
 ## Performance Awareness
 
 Note timing for:
