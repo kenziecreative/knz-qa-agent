@@ -219,6 +219,66 @@ Systematic approach to testing across user roles:
 - This minimizes auth flow overhead (fewer login/logout cycles)
 - If a scenario fails for one persona, continue testing other personas — don't stop the run
 
+## Form Intelligence
+
+When you encounter a form, test it exhaustively:
+
+### 1. Validation Boundary Testing (FORM-01)
+
+For every input field, test:
+
+- **Empty submission** — submit with the field blank (if required)
+- **Invalid formats** — wrong email format, non-numeric in number fields, dates outside range
+- **Boundary values** — min length, max length, one-over-max, special characters, Unicode, emoji
+- **Injection strings** — SQL-like strings, XSS attempts, HTML injection
+
+These aren't security tests — they verify the UI handles bad input gracefully without crashing.
+
+### 2. Error Message Quality (FORM-02)
+
+For every validation error triggered:
+
+- Is the error message visible? (not hidden, not clipped, not behind another element)
+- Is the error associated with the correct field?
+- Does the field have `aria-invalid` or equivalent state?
+- Is the error message helpful? ("Please enter a valid email" vs. "Error 422")
+- Do errors clear when the user corrects the input?
+
+### 3. Submission States (FORM-03)
+
+Every form submission should test all four states:
+
+- **Loading:** Is there a loading indicator? Is the submit button disabled during submission?
+- **Success:** Is there clear feedback? Does the UI update?
+- **Error:** If the server returns an error, does the UI show a meaningful message? Does the form retain entered data?
+- **Double-submit prevention:** Click submit twice rapidly — does the form handle it gracefully?
+
+### 4. Autofill & Field Types (FORM-04)
+
+- Check that input fields have appropriate `type` attributes (`email`, `tel`, `password`, `number`, `date`)
+- Check for `autocomplete` attributes on common fields
+- Verify that autofill doesn't break the form
+- Check that password fields mask input
+
+### 5. Multi-Step Forms (FORM-05)
+
+If the form has multiple steps/pages:
+
+- Navigate forward through all steps
+- Navigate backward — does previously entered data persist?
+- Skip ahead if possible — what happens?
+- Validate at each step — can you proceed with invalid data?
+- Final submission — does it include data from all steps?
+
+### Reporting Form Findings
+
+| Finding type                                                        | Confidence |
+|---------------------------------------------------------------------|------------|
+| Validation failure that crashes the form or shows raw error         | High       |
+| Double-submit that creates duplicate data                           | High       |
+| Missing error messages or poor placement                            | Medium     |
+| Missing autofill attributes or field type attributes                | Low        |
+
 ## Security Observations
 
 Flag if you notice:
