@@ -29,45 +29,45 @@ Requirements for making the web/UI QA agent robust. Each maps to roadmap phases.
 
 #### Network Intelligence
 
-- [ ] **NET-01**: Agent validates API response status codes during UI interactions
-- [ ] **NET-02**: Agent flags slow API calls (> 1s by default, configurable per spec)
-- [ ] **NET-03**: Agent detects failed network requests and correlates with UI behavior
-- [ ] **NET-04**: Agent identifies over-fetching (API responses larger than what UI displays)
-- [ ] **NET-05**: Agent checks for mixed content (HTTP on HTTPS pages)
+- [x] **NET-01**: Agent validates API response status codes during UI interactions
+- [x] **NET-02**: Agent flags slow API calls (> 1s by default, configurable per spec)
+- [x] **NET-03**: Agent detects failed network requests and correlates with UI behavior
+- [x] **NET-04**: Agent identifies over-fetching (API responses larger than what UI displays)
+- [x] **NET-05**: Agent checks for mixed content (HTTP on HTTPS pages)
 
 #### Multi-Viewport Orchestration
 
-- [ ] **VIEW-01**: Agent systematically tests each scenario at each viewport defined in spec
-- [ ] **VIEW-02**: Agent detects responsive breakpoint issues (overlapping elements, hidden content)
-- [ ] **VIEW-03**: Agent verifies touch target sizes at mobile viewports (minimum 44x44px)
-- [ ] **VIEW-04**: Agent checks horizontal scrolling doesn't appear at any defined viewport
+- [x] **VIEW-01**: Agent systematically tests each scenario at each viewport defined in spec
+- [x] **VIEW-02**: Agent detects responsive breakpoint issues (overlapping elements, hidden content)
+- [x] **VIEW-03**: Agent verifies touch target sizes at mobile viewports (minimum 44x44px)
+- [x] **VIEW-04**: Agent checks horizontal scrolling doesn't appear at any defined viewport
 
 #### Multi-Persona Testing
 
-- [ ] **PERS-01**: Agent runs scenarios as each persona defined in spec
-- [ ] **PERS-02**: Agent handles authentication flows per persona (login/logout between personas)
-- [ ] **PERS-03**: Agent verifies role-based content visibility (admin sees X, user sees Y)
+- [x] **PERS-01**: Agent runs scenarios as each persona defined in spec
+- [x] **PERS-02**: Agent handles authentication flows per persona (login/logout between personas)
+- [x] **PERS-03**: Agent verifies role-based content visibility (admin sees X, user sees Y)
 
 #### Form Intelligence
 
-- [ ] **FORM-01**: Agent tests all validation states (empty, invalid, boundary values)
-- [ ] **FORM-02**: Agent verifies error message placement and association with fields
-- [ ] **FORM-03**: Agent tests submission states (loading, success, error)
-- [ ] **FORM-04**: Agent checks autofill behavior and field type attributes
-- [ ] **FORM-05**: Agent tests multi-step forms with back/forward navigation
+- [x] **FORM-01**: Agent tests all validation states (empty, invalid, boundary values)
+- [x] **FORM-02**: Agent verifies error message placement and association with fields
+- [x] **FORM-03**: Agent tests submission states (loading, success, error)
+- [x] **FORM-04**: Agent checks autofill behavior and field type attributes
+- [x] **FORM-05**: Agent tests multi-step forms with back/forward navigation
 
 #### SPA Awareness
 
-- [ ] **SPA-01**: Agent verifies client-side route changes update URL and page title
-- [ ] **SPA-02**: Agent tests browser back/forward through client-side routes
-- [ ] **SPA-03**: Agent checks state persistence across navigation
-- [ ] **SPA-04**: Agent detects hydration mismatches (SSR content vs client render)
+- [x] **SPA-01**: Agent verifies client-side route changes update URL and page title
+- [x] **SPA-02**: Agent tests browser back/forward through client-side routes
+- [x] **SPA-03**: Agent checks state persistence across navigation
+- [x] **SPA-04**: Agent detects hydration mismatches (SSR content vs client render)
 
 #### Error Recovery
 
-- [ ] **ERR-01**: Agent tests behavior when API returns errors (4xx, 5xx)
-- [ ] **ERR-02**: Agent verifies user-facing error messages are helpful (not raw stack traces)
-- [ ] **ERR-03**: Agent checks recovery paths (can user retry? does page recover?)
+- [x] **ERR-01**: Agent tests behavior when API returns errors (4xx, 5xx)
+- [x] **ERR-02**: Agent verifies user-facing error messages are helpful (not raw stack traces)
+- [x] **ERR-03**: Agent checks recovery paths (can user retry? does page recover?)
 
 ### Structured Accessibility (Phase 4)
 
@@ -140,12 +140,12 @@ Requirements for making the web/UI QA agent robust. Each maps to roadmap phases.
 |-------------|-------|--------|
 | FOUND-01 through FOUND-06 | Phase 1 | Complete |
 | ARCH-01 through ARCH-06 | Phase 2 | Complete |
-| NET-01 through NET-05 | Phase 3 | Pending |
-| VIEW-01 through VIEW-04 | Phase 3 | Pending |
-| PERS-01 through PERS-03 | Phase 3 | Pending |
-| FORM-01 through FORM-05 | Phase 3 | Pending |
-| SPA-01 through SPA-04 | Phase 3 | Pending |
-| ERR-01 through ERR-03 | Phase 3 | Pending |
+| NET-01 through NET-05 | Phase 3 | Complete |
+| VIEW-01 through VIEW-04 | Phase 3 | Complete |
+| PERS-01 through PERS-03 | Phase 3 | Complete |
+| FORM-01 through FORM-05 | Phase 3 | Complete |
+| SPA-01 through SPA-04 | Phase 3 | Complete |
+| ERR-01 through ERR-03 | Phase 3 | Complete |
 | A11Y-01 through A11Y-17 | Phase 4 | Pending |
 | SPEC-01 through SPEC-08 | Phase 5 | Pending |
 | MON-01 through MON-03 | Phase 6 | Pending |
