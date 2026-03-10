@@ -46,18 +46,22 @@ Plans:
 
 **Requirements**: ARCH-01, ARCH-02, ARCH-03, ARCH-04, ARCH-05, ARCH-06
 
+**Plans:** 3 plans
+
 **Success Criteria** (what must be TRUE):
 
 1. qa-tester agent has `memory: project` and persists patterns across sessions
 2. Agent can run tests in background while user continues working
 3. `hooks/hooks.json` exists with at least `Stop` and `SessionStart` hooks
-4. Stop hook detects GSD phase context and suggests QA verification
+4. Stop hook detects significant code changes and suggests QA verification
 5. SessionStart hook loads last QA results and known issues for current project
 6. Every finding in a report includes a confidence level (high/medium/low)
 
 Plans:
 
-- [ ] 02-01: TBD
+- [ ] 02-01-PLAN.md — Add persistent memory and background execution to agent
+- [ ] 02-02-PLAN.md — Add structured confidence levels to reports and skills
+- [ ] 02-03-PLAN.md — Create hook system (hooks.json, Stop hook, SessionStart hook)
 
 ### Phase 3: Deep Web Testing
 
@@ -150,7 +154,7 @@ Phases execute in order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | Phase | Plans Complete | Status | Completed |
 | ----- | ------------- | ------ | --------- |
 | 1. Cleanup & Foundation | 2/2 | Complete ✓ | 2026-03-10 |
-| 2. Agent Architecture | 0/TBD | Not started | - |
+| 2. Agent Architecture | 0/3 | Not started | - |
 | 3. Deep Web Testing | 0/TBD | Not started | - |
 | 4. Structured Accessibility | 0/TBD | Not started | - |
 | 5. Spec Format v2 | 0/TBD | Not started | - |
