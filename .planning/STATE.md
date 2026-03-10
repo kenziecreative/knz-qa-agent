@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-03-10)
 
 ## Current Position
 
-Phase: 3 of 6 (Deep Web Testing) — COMPLETE ✓
-Plan: 4 of 4 in current phase
-Status: Phase verified and complete
-Last activity: 2026-03-10 — Phase 3 verified (6/6 must-haves passed)
+Phase: 4 of 6 (Structured Accessibility) — In progress
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-03-10 — Completed 04-01-PLAN.md
 
-Progress: [█████-----] 50%
+Progress: [██████----] 55%
 
 ## Performance Metrics
 
@@ -31,6 +31,7 @@ Progress: [█████-----] 50%
 | 01-cleanup-foundation | 2/2 | ~4 min | 2 min |
 | 02-agent-architecture | 3/3 | ~7 min | ~2.3 min |
 | 03-deep-web-testing | 4/4 | ~9 min | ~2.3 min |
+| 04-structured-accessibility | 1/2 | ~2 min | ~2 min |
 
 **Recent Trend:**
 
@@ -73,6 +74,9 @@ Recent decisions affecting current work:
 - [03-03]: Double-submit is High confidence only when it creates duplicate data (idempotent double-submit is not impactful)
 - [03-04]: Error simulation uses Playwright route interception — only when spec requests it or for critical flows
 - [03-04]: Hydration mismatch detection relies on console warnings and visual flashing, not DOM diffing
+- [04-01]: Tier 2 label — Structured Accessibility is explicitly framed as deeper methodology vs baseline Tier 1 checks
+- [04-01]: aria-live verification is structural only — actual screen reader announcement requires manual testing
+- [04-01]: Heading gaps in component widgets are Medium confidence, not High — avoids false positives from component libraries
 
 ### Pending Todos
 
@@ -84,6 +88,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-10
-Stopped at: Phase 3 complete and verified, ready for Phase 4 planning
+Last session: 2026-03-10T21:06:52Z
+Stopped at: Completed 04-01-PLAN.md — A11Y-01 through A11Y-09 in qa-tester.md and qa-run.md
 Resume file: None
