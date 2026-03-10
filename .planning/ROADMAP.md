@@ -97,6 +97,8 @@ Plans:
 
 **Requirements**: A11Y-01 through A11Y-17
 
+**Plans:** 2 plans
+
 **Success Criteria** (what must be TRUE):
 
 1. Agent verifies focus management in modals (moves in, traps, returns on close)
@@ -109,7 +111,8 @@ Plans:
 
 Plans:
 
-- [ ] 04-01: TBD
+- [ ] 04-01-PLAN.md — Focus management (modal open/close/trap, aria-live, skip links) and page structure (heading hierarchy, landmarks, page title, lang attribute)
+- [ ] 04-02-PLAN.md — Interactive elements (touch targets, color sole indicator, reduced motion, zoom) and form accessibility (error summary, field links, aria-invalid, focus on first error)
 
 ### Phase 5: Spec Format v2
 
@@ -161,6 +164,6 @@ Phases execute in order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 1. Cleanup & Foundation | 2/2 | Complete ✓ | 2026-03-10 |
 | 2. Agent Architecture | 3/3 | Complete ✓ | 2026-03-10 |
 | 3. Deep Web Testing | 4/4 | Complete ✓ | 2026-03-10 |
-| 4. Structured Accessibility | 0/TBD | Not started | - |
+| 4. Structured Accessibility | 0/2 | Not started | - |
 | 5. Spec Format v2 | 0/TBD | Not started | - |
 | 6. Continuous & Reporting | 0/TBD | Not started | - |
