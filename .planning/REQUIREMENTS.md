@@ -73,32 +73,32 @@ Requirements for making the web/UI QA agent robust. Each maps to roadmap phases.
 
 #### Focus Management
 
-- [ ] **A11Y-01**: Agent verifies focus moves into modals/dialogs when opened
-- [ ] **A11Y-02**: Agent verifies focus returns to trigger element when modal closes
-- [ ] **A11Y-03**: Agent verifies focus is trapped within modals (Tab doesn't escape)
-- [ ] **A11Y-04**: Agent verifies dynamically added content is announced (aria-live)
-- [ ] **A11Y-05**: Agent verifies skip links exist and function correctly
+- [x] **A11Y-01**: Agent verifies focus moves into modals/dialogs when opened
+- [x] **A11Y-02**: Agent verifies focus returns to trigger element when modal closes
+- [x] **A11Y-03**: Agent verifies focus is trapped within modals (Tab doesn't escape)
+- [x] **A11Y-04**: Agent verifies dynamically added content is announced (aria-live)
+- [x] **A11Y-05**: Agent verifies skip links exist and function correctly
 
 #### Page Structure
 
-- [ ] **A11Y-06**: Agent audits heading hierarchy (h1-h6 tree, no skipped levels, single h1)
-- [ ] **A11Y-07**: Agent verifies landmark regions (main, nav, banner, contentinfo)
-- [ ] **A11Y-08**: Agent checks page title changes on SPA navigation
-- [ ] **A11Y-09**: Agent verifies `lang` attribute on html element
+- [x] **A11Y-06**: Agent audits heading hierarchy (h1-h6 tree, no skipped levels, single h1)
+- [x] **A11Y-07**: Agent verifies landmark regions (main, nav, banner, contentinfo)
+- [x] **A11Y-08**: Agent checks page title changes on SPA navigation
+- [x] **A11Y-09**: Agent verifies `lang` attribute on html element
 
 #### Interactive Elements
 
-- [ ] **A11Y-10**: Agent measures touch target sizes (minimum 44x44px)
-- [ ] **A11Y-11**: Agent verifies color is not sole indicator for state changes
-- [ ] **A11Y-12**: Agent checks `prefers-reduced-motion` is respected (animations can be stopped)
-- [ ] **A11Y-13**: Agent verifies zoom to 200% works without horizontal scroll or content loss
+- [x] **A11Y-10**: Agent measures touch target sizes (minimum 44x44px)
+- [x] **A11Y-11**: Agent verifies color is not sole indicator for state changes
+- [x] **A11Y-12**: Agent checks `prefers-reduced-motion` is respected (animations can be stopped)
+- [x] **A11Y-13**: Agent verifies zoom to 200% works without horizontal scroll or content loss
 
 #### Form Accessibility
 
-- [ ] **A11Y-14**: Agent verifies error summary exists after form submission with errors
-- [ ] **A11Y-15**: Agent verifies error summary links to individual fields
-- [ ] **A11Y-16**: Agent checks `aria-invalid` is set on errored fields
-- [ ] **A11Y-17**: Agent verifies focus moves to first error after submission
+- [x] **A11Y-14**: Agent verifies error summary exists after form submission with errors
+- [x] **A11Y-15**: Agent verifies error summary links to individual fields
+- [x] **A11Y-16**: Agent checks `aria-invalid` is set on errored fields
+- [x] **A11Y-17**: Agent verifies focus moves to first error after submission
 
 ### Spec Format v2 (Phase 5)
 
@@ -146,7 +146,7 @@ Requirements for making the web/UI QA agent robust. Each maps to roadmap phases.
 | FORM-01 through FORM-05 | Phase 3 | Complete |
 | SPA-01 through SPA-04 | Phase 3 | Complete |
 | ERR-01 through ERR-03 | Phase 3 | Complete |
-| A11Y-01 through A11Y-17 | Phase 4 | Pending |
+| A11Y-01 through A11Y-17 | Phase 4 | Complete |
 | SPEC-01 through SPEC-08 | Phase 5 | Pending |
 | MON-01 through MON-03 | Phase 6 | Pending |
 | RPT-01 through RPT-05 | Phase 6 | Pending |

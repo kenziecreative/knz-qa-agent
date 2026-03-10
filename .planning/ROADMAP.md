@@ -9,7 +9,7 @@ This milestone transforms the QA agent from a functional prototype into a robust
 - [x] **Phase 1: Cleanup & Foundation** - Fix stale references, consolidate to skills, bundle Playwright MCP, update plugin manifest
 - [x] **Phase 2: Agent Architecture** - Agent memory, background execution, hook system, confidence levels
 - [x] **Phase 3: Deep Web Testing** - Network intelligence, multi-viewport/persona orchestration, form testing, SPA awareness, error recovery
-- [ ] **Phase 4: Structured Accessibility** - Focus management, trapping, landmarks, zoom, touch targets, reduced motion, heading audits, form error patterns
+- [x] **Phase 4: Structured Accessibility** - Focus management, trapping, landmarks, zoom, touch targets, reduced motion, heading audits, form error patterns
 - [ ] **Phase 5: Spec Format v2** - Scenario dependencies, data-driven testing, tags/priorities, environment profiles, a11y depth
 - [ ] **Phase 6: Continuous & Reporting** - Loop-based monitoring, cross-session report reading, trend analysis, GitHub issue creation
 
@@ -111,8 +111,8 @@ Plans:
 
 Plans:
 
-- [ ] 04-01-PLAN.md — Focus management (modal open/close/trap, aria-live, skip links) and page structure (heading hierarchy, landmarks, page title, lang attribute)
-- [ ] 04-02-PLAN.md — Interactive elements (touch targets, color sole indicator, reduced motion, zoom) and form accessibility (error summary, field links, aria-invalid, focus on first error)
+- [x] 04-01-PLAN.md — Focus management (modal open/close/trap, aria-live, skip links) and page structure (heading hierarchy, landmarks, page title, lang attribute)
+- [x] 04-02-PLAN.md — Interactive elements (touch targets, color sole indicator, reduced motion, zoom) and form accessibility (error summary, field links, aria-invalid, focus on first error)
 
 ### Phase 5: Spec Format v2
 
@@ -164,6 +164,6 @@ Phases execute in order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 1. Cleanup & Foundation | 2/2 | Complete ✓ | 2026-03-10 |
 | 2. Agent Architecture | 3/3 | Complete ✓ | 2026-03-10 |
 | 3. Deep Web Testing | 4/4 | Complete ✓ | 2026-03-10 |
-| 4. Structured Accessibility | 0/2 | Not started | - |
+| 4. Structured Accessibility | 2/2 | Complete ✓ | 2026-03-10 |
 | 5. Spec Format v2 | 0/TBD | Not started | - |
 | 6. Continuous & Reporting | 0/TBD | Not started | - |
