@@ -90,6 +90,8 @@ If everything works:
 
 ### 4. Report Results
 
+Report findings grouped by confidence level. All findings are shown — none filtered.
+
 **If verification passes:**
 ```
 ✅ Phase {N} Verification: PASSED
@@ -97,6 +99,8 @@ If everything works:
 Verified:
 - {deliverable 1}: Works
 - {deliverable 2}: Works
+
+Confidence: High — all deliverables verified with evidence.
 
 Notes:
 - {any observations for later}
@@ -108,10 +112,17 @@ Ready to proceed to next phase.
 ```
 ❌ Phase {N} Verification: FAILED
 
-Issues Found:
+Definite Issues:
 1. {Issue description}
+   - Confidence: High — {rationale}
    - Evidence: {what was observed}
    - Severity: {Blocker / Major / Minor}
+
+Likely Issues:
+(if any)
+
+Possible Issues:
+(if any)
 
 Recommendation: Address these issues before proceeding.
 {If repeated failure: "This has failed verification multiple times. Consider whether the implementation approach needs reconsideration."}
@@ -125,8 +136,9 @@ Working:
 - {deliverable 1}: Works
 - {deliverable 2}: Works
 
-Concerns:
+Possible Issues:
 - {issue that's not a blocker but should be noted}
+  - Confidence: Low — {rationale}
 
 Recommendation: Can proceed, but schedule follow-up for noted concerns.
 ```

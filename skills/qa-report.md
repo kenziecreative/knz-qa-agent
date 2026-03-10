@@ -26,9 +26,10 @@ After running multiple specs or test sessions, this compiles findings into a str
 ## Report Sections
 
 ### Executive Summary
+
 - Total specs run
 - Overall pass/fail/concern counts
-- Critical issues found
+- Issue counts by confidence level (high / medium / low)
 
 ### Detailed Findings
 
@@ -39,12 +40,42 @@ For each spec tested:
 - Scenarios that failed (with details)
 - Observations and warnings
 
-### Issues to Address
+### Definite Issues (High Confidence)
 
-Consolidated list of problems found:
+Issues that are certainly real and impactful. These need immediate attention.
+
+For each issue:
+
+- Confidence: High (rationale)
 - Severity (Critical / Major / Minor)
 - Description
-- Where it was found (spec, scenario)
+- Where found (spec, scenario)
+- Evidence (screenshots, console errors, network failures)
+- Suggested next steps
+
+### Likely Issues (Medium Confidence)
+
+Issues that are probably real but need investigation to confirm impact.
+
+For each issue:
+
+- Confidence: Medium (rationale)
+- Severity (Critical / Major / Minor)
+- Description
+- Where found (spec, scenario)
+- Evidence (screenshots, console errors, network failures)
+- Suggested next steps
+
+### Possible Issues (Low Confidence)
+
+Observations that might indicate problems. Worth noting for future review.
+
+For each issue:
+
+- Confidence: Low (rationale)
+- Severity (Critical / Major / Minor)
+- Description
+- Where found (spec, scenario)
 - Evidence (screenshots, console errors, network failures)
 - Suggested next steps
 
@@ -86,7 +117,16 @@ Structured data suitable for:
     "concerns": 1
   },
   "specs": [...],
-  "issues": [...],
+  "issues": [
+    {
+      "confidence": "high",
+      "confidence_rationale": "Reproduced consistently; blocks core user flow",
+      "severity": "Critical",
+      "description": "Payment form submits without validation",
+      "spec": "checkout.md > Scenario 3",
+      "evidence": "Console shows no validation errors; server returns 500"
+    }
+  ],
   "recommendations": [...]
 }
 ```
@@ -115,15 +155,17 @@ Structured data suitable for:
 | Failed | 1 |
 | Pass with Concerns | 1 |
 
-**Critical Issues:** 1
-**Major Issues:** 2
-**Minor Issues:** 3
+**Definite Issues:** 1
+**Likely Issues:** 2
+**Possible Issues:** 1
 
-## Critical Issues
+## Definite Issues (High Confidence)
 
-### 🔴 Payment form submits without validation
-**Spec:** checkout.md > Scenario 3
-**Severity:** Critical
+### Payment form submits without validation
+
+- **Confidence:** High — reproduced consistently across 3 attempts; directly blocks checkout
+- **Spec:** checkout.md > Scenario 3
+- **Severity:** Critical
 
 The payment form can be submitted with empty credit card fields.
 This bypasses client-side validation entirely.
@@ -133,7 +175,7 @@ This bypasses client-side validation entirely.
 - Network shows POST to /api/checkout with empty payment object
 - Server returns 500 (expects payment data)
 
-**Recommended Action:** Add client-side validation before form submission.
+**Suggested next steps:** Add client-side validation before form submission.
 
 ---
 
@@ -143,15 +185,17 @@ This bypasses client-side validation entirely.
 ✅ **navigation.md** - All 4 scenarios passed
 ✅ **search.md** - All 3 scenarios passed
 
-## Concerns
+## Possible Issues (Low Confidence)
 
 ⚠️ **user-profile.md** - Passed with concerns
 - Scenario 2 (Profile Update) took 3.2 seconds - potential performance issue
+  - Confidence: Low — only observed once, may be environment-related
 - Console shows deprecation warning for date library
+  - Confidence: Low — warning, not an error; no user-facing impact observed
 
 ## Recommendations
 
-1. **Immediate:** Fix payment validation (Critical)
-2. **This Sprint:** Address slow profile update
+1. **Immediate:** Fix payment validation (Definite Issue — Critical)
+2. **This Sprint:** Investigate slow profile update
 3. **Backlog:** Update deprecated date library
 ```
