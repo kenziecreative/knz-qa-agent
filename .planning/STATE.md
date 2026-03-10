@@ -10,19 +10,19 @@ See: .planning/PROJECT.md (updated 2026-03-10)
 ## Current Position
 
 Phase: 3 of 6 (Deep Web Testing) — In progress
-Plan: 1 of N in current phase
+Plan: 2 of 4 in current phase
 Status: In progress
-Last activity: 2026-03-10 — Completed 03-01-PLAN.md (Network Intelligence)
+Last activity: 2026-03-10 — Completed 03-02-PLAN.md (Multi-Viewport and Multi-Persona)
 
-Progress: [█████-----] 40%
+Progress: [██████----] 50%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 5
+- Total plans completed: 6
 - Average duration: ~2 minutes
-- Total execution time: ~11 minutes
+- Total execution time: ~12 minutes
 
 **By Phase:**
 
@@ -65,6 +65,9 @@ Recent decisions affecting current work:
 - [03-01]: Passive network monitoring by default — active route interception deferred to Plan 04
 - [03-01]: Over-fetching = Low confidence (optimization, not a bug)
 - [03-01]: Network response time thresholds are defaults; specs can override
+- [03-02]: Default viewports are mobile/tablet/desktop; specs narrow or extend
+- [03-02]: Orchestration order is all viewports per persona A before switching to persona B (minimizes auth cycles)
+- [03-02]: Unauthorized access to restricted content = High confidence finding (security)
 
 ### Pending Todos
 
@@ -77,5 +80,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-10
-Stopped at: Completed 03-01-PLAN.md (Network Intelligence)
+Stopped at: Completed 03-02-PLAN.md (Multi-Viewport and Multi-Persona)
 Resume file: None
