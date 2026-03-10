@@ -118,6 +118,15 @@ Execute this test assignment following your QA methodology. Remember to:
   - Test all submission states (loading indicator, success feedback, error handling, double-submit prevention)
   - Check field type attributes and autofill behavior
   - For multi-step forms: test back/forward navigation and data persistence across steps
+- Check for SPA-specific issues during navigation:
+  - Verify URL and page title update on route changes
+  - Test browser back/forward through client-side routes
+  - Check state persistence across navigation (form data, filters, selections)
+  - Watch for hydration mismatches (console warnings, content flashing)
+- Test error recovery for critical flows:
+  - Use Playwright route interception to simulate API failures when spec requests error testing
+  - Verify error messages are user-friendly (no raw stack traces)
+  - Check that recovery paths exist (retry button, navigate away, dismiss error)
 
 Begin testing.
 ```
@@ -136,6 +145,8 @@ The agent will provide:
   - Observations (things that worked but are worth noting)
   - Recommendations (if any)
   - Network observations (slow calls, failed requests, over-fetching, mixed content)
+  - SPA issues (route sync, history, state persistence, hydration)
+  - Error recovery observations (how the app handles failures)
 
 ## Examples
 
