@@ -193,6 +193,96 @@ On every page:
 - The lang attribute should be non-empty and a valid BCP 47 language tag (e.g., 'en', 'en-US', 'fr')
 - Missing lang attribute = High confidence
 
+### Interactive Elements
+
+#### Touch Target Sizes (A11Y-10)
+
+At mobile viewport (375x812) specifically — NOT at desktop:
+
+1. Query all interactive elements: `a, button, [role="button"], input, select, textarea, [tabindex]`
+2. For each visible element, get its bounding box via `locator.boundingBox()`
+3. Flag any element where width < 44px OR height < 44px
+4. Report the element's accessible name (aria-label, text content, or tag) and its actual dimensions
+5. `boundingBox()` returns null for hidden elements — skip those (they're not visible at this viewport)
+6. This check aligns with Phase 3's multi-viewport testing — run it as part of the mobile viewport pass
+
+Confidence: Elements below 44x44px at mobile = High confidence.
+
+#### Color as Sole Indicator (A11Y-11)
+
+When testing state changes (hover, active, selected, error, disabled):
+
+- Take screenshots of the element in both states
+- Check whether the state change is communicated by MORE than just color — look for: text labels, icons, underlines, borders, opacity changes, shape changes
+- This is a visual judgment call — Playwright cannot compute color differences programmatically without axe-core
+- Frame findings as Medium confidence observations
+- Common patterns to flag: links distinguished from text only by color (no underline), error states shown only by red text (no icon or border), selected tabs with only a color change
+
+Confidence: Color-only state indicator = Medium confidence (requires visual judgment, cannot be mechanically verified).
+
+#### Reduced Motion (A11Y-12)
+
+On pages with animations, carousels, or loading spinners:
+
+1. Use `page.emulateMedia({ reducedMotion: 'reduce' })` to set the preference
+2. Take a screenshot to visually confirm animations are suppressed
+3. Optionally check computed styles on animated elements: `animation-duration` and `transition-duration` should be `0s` or very short
+4. Important: Check the VISUALLY ANIMATED element specifically, not its parent container — CSS animations can be on any element in the subtree
+5. After checking, reset with `page.emulateMedia({ reducedMotion: 'no-preference' })` or `null`
+6. If page has no visible animations, skip this check (not applicable)
+
+Confidence: Animations still running with reduced motion = High confidence. Property check on wrong element (parent vs child) may give false results — if `animation-duration` returns `0s` but animations are visually present, note as needs investigation.
+
+#### Zoom to 200% (A11Y-13)
+
+At desktop viewport (1280px) — NOT mobile (mobile already represents a zoomed-down view):
+
+1. Simulate text zoom: `page.evaluate(() => { document.documentElement.style.fontSize = '200%' })`
+2. Check for horizontal overflow: `document.documentElement.scrollWidth > document.documentElement.clientWidth` — should be false
+3. Check that no content is clipped or lost — take a screenshot
+4. Additionally, test responsive proxy: temporarily resize viewport to half width (640px) and check that content reflows without horizontal scrolling
+5. After checking, restore: `page.evaluate(() => { document.documentElement.style.fontSize = '' })` and restore viewport
+
+Important limitation: This is a PROXY for real browser zoom, not identical. The CSS font-size approach tests text zoom (WCAG 1.4.4). The viewport-halving tests responsive layout. Both are reasonable for automated testing. If both pass, note: "Zoom proxy tests passed — manual verification at 200% browser zoom recommended for final validation."
+
+Confidence: Horizontal overflow or content loss at simulated 200% = High confidence.
+
+### Form Accessibility
+
+Note: These checks complement the existing Form Intelligence section (from Phase 3). Form Intelligence covers functional form testing (validation, submission states, autofill). This section covers the accessibility dimension of form error handling.
+
+#### Error Summary (A11Y-14)
+
+After submitting a form with validation errors:
+
+- Check that an error summary appears (a container listing all errors, typically at the top of the form or as an alert)
+- The error summary should be an element with `role="alert"` or inside an `aria-live` region
+- If no error summary exists and errors are only shown inline, flag as Medium confidence
+
+#### Error Summary Links (A11Y-15)
+
+If an error summary exists:
+
+- Each error message in the summary should be a link that navigates to (focuses on) the corresponding errored field
+- Click each error link and verify focus moves to the correct input field
+- If error messages are plain text (not links), flag as Medium confidence
+
+#### aria-invalid on Errored Fields (A11Y-16)
+
+After form submission with errors:
+
+- For each field that has a validation error, check that `aria-invalid="true"` is set
+- Use `element.getAttribute('aria-invalid')` via evaluate
+- Missing `aria-invalid` on a visibly errored field = Medium confidence
+
+#### Focus on First Error (A11Y-17)
+
+After form submission with errors:
+
+- Verify that focus moved to either: (a) the error summary container, or (b) the first errored field
+- Use `document.activeElement` check — it should be inside the error summary or on the first invalid input
+- If focus stays on the submit button or elsewhere, flag as Medium confidence
+
 ### Reporting Accessibility Findings
 
 | Finding type | Confidence |
@@ -202,6 +292,9 @@ On every page:
 | No h1 or multiple h1s | High |
 | Missing main landmark | High |
 | Missing lang attribute | High |
+| Touch target below 44x44px at mobile | High |
+| Animations running with prefers-reduced-motion: reduce | High |
+| Horizontal overflow at 200% zoom proxy | High |
 | Focus not returning to trigger after modal close | Medium |
 | Skip link missing or not working | Medium |
 | Heading level gap within component | Medium |
@@ -209,6 +302,11 @@ On every page:
 | Page title not updating on SPA navigation | Medium |
 | aria-live region structural issue | Medium |
 | Skip link target missing tabindex | Medium |
+| Color as sole state indicator | Medium |
+| No form error summary | Medium |
+| Error summary without links to fields | Medium |
+| Missing aria-invalid on errored field | Medium |
+| Focus not moving to first error after submission | Medium |
 
 ## Performance Awareness
 
