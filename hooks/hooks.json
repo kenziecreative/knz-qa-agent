@@ -1,0 +1,12 @@
+{
+  "hooks": [
+    {
+      "type": "Stop",
+      "skill": "hooks/stop.md"
+    },
+    {
+      "type": "SessionStart",
+      "skill": "hooks/session-start.md"
+    }
+  ]
+}
