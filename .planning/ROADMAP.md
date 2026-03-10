@@ -71,6 +71,8 @@ Plans:
 
 **Requirements**: NET-01 through NET-05, VIEW-01 through VIEW-04, PERS-01 through PERS-03, FORM-01 through FORM-05, SPA-01 through SPA-04, ERR-01 through ERR-03
 
+**Plans:** 4 plans
+
 **Success Criteria** (what must be TRUE):
 
 1. Agent inspects network requests during interactions, flags failures and slow calls
@@ -82,7 +84,10 @@ Plans:
 
 Plans:
 
-- [ ] 03-01: TBD
+- [ ] 03-01-PLAN.md — Network intelligence (status codes, slow calls, failed request/UI correlation, over-fetching, mixed content)
+- [ ] 03-02-PLAN.md — Multi-viewport and multi-persona orchestration (responsive testing, touch targets, auth flows, role-based visibility)
+- [ ] 03-03-PLAN.md — Form intelligence (validation boundaries, error messages, submission states, autofill, multi-step)
+- [ ] 03-04-PLAN.md — SPA awareness and error recovery (route sync, history, state persistence, hydration, API failure simulation, recovery paths)
 
 ### Phase 4: Structured Accessibility
 
@@ -155,7 +160,7 @@ Phases execute in order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | ----- | ------------- | ------ | --------- |
 | 1. Cleanup & Foundation | 2/2 | Complete ✓ | 2026-03-10 |
 | 2. Agent Architecture | 3/3 | Complete ✓ | 2026-03-10 |
-| 3. Deep Web Testing | 0/TBD | Not started | - |
+| 3. Deep Web Testing | 0/4 | In Progress | - |
 | 4. Structured Accessibility | 0/TBD | Not started | - |
 | 5. Spec Format v2 | 0/TBD | Not started | - |
 | 6. Continuous & Reporting | 0/TBD | Not started | - |
