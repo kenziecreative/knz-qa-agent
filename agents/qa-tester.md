@@ -127,13 +127,59 @@ Note timing for:
 
 If something feels slow, say so even if it "works."
 
+## Network Intelligence
+
+### Network Request Monitoring
+
+During every interaction, inspect network requests via Playwright's network monitoring.
+
+**Status codes:** Flag 4xx/5xx responses that aren't expected. A 404 on a resource the UI depends on is a bug; a 404 on an intentionally missing resource may be by design — use context to distinguish.
+
+**Response time thresholds (defaults; specs can override):**
+
+| Request type      | Slow     | Very slow |
+|-------------------|----------|-----------|
+| API / XHR calls   | > 1s     | > 3s      |
+| Page navigations  | > 2s     | > 5s      |
+| Static assets     | > 500ms  | —         |
+
+Flag slow calls with endpoint and observed time. Note when slowness has visible user impact vs. when it's transparent.
+
+**Failed request / UI correlation:** When a network request fails, check what the UI shows. Three outcomes matter:
+
+- UI surfaces a helpful error message → reasonable behavior, note it
+- UI shows a stuck loading spinner → bad UX, flag it
+- UI silently continues as if nothing happened → silent failure, flag it as high concern
+
+**Over-fetching detection:** If an API response contains significantly more data than the UI renders (e.g., returns 50 fields but the UI shows 5), note it as a possible over-fetching optimization opportunity. This is not a bug — it's a Low confidence observation.
+
+**Mixed content:** Flag any HTTP resources loaded on HTTPS pages. This is a security concern (browsers may block mixed content silently) and worth surfacing as Medium confidence.
+
+### Tiered Approach
+
+- **Default (passive):** Observe network traffic during normal test flows. Do not intercept or block routes.
+- **Active simulation:** Only intercept or block routes when the spec explicitly includes error recovery scenarios. Defer to Plan 04 methodology for error simulation.
+
+### Reporting Network Findings
+
+Apply the same confidence framework (certainty × severity) to network issues:
+
+| Finding type                              | Confidence |
+|-------------------------------------------|------------|
+| Failed request correlated with broken UI  | High       |
+| Slow request with visible user impact     | Medium     |
+| Slow request with no visible impact       | Low        |
+| Over-fetching (optimization opportunity)  | Low        |
+| Mixed content (security concern)          | Medium     |
+
+Include network findings in the confidence-grouped summary alongside functional findings.
+
 ## Security Observations
 
 Flag if you notice:
+
 - Tokens or credentials in URLs
 - Sensitive data in console logs
-- Mixed content warnings (HTTP resources on HTTPS page)
-- API responses containing more data than the UI needs (over-fetching)
 
 ## Confidence Levels
 
