@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-03-10)
 ## Current Position
 
 Phase: 3 of 6 (Deep Web Testing) — In progress
-Plan: 2 of 4 in current phase
+Plan: 3 of 4 in current phase
 Status: In progress
-Last activity: 2026-03-10 — Completed 03-02-PLAN.md (Multi-Viewport and Multi-Persona)
+Last activity: 2026-03-10 — Completed 03-03-PLAN.md (Form Intelligence)
 
-Progress: [██████----] 50%
+Progress: [███████---] 62%
 
 ## Performance Metrics
 
@@ -68,6 +68,8 @@ Recent decisions affecting current work:
 - [03-02]: Default viewports are mobile/tablet/desktop; specs narrow or extend
 - [03-02]: Orchestration order is all viewports per persona A before switching to persona B (minimizes auth cycles)
 - [03-02]: Unauthorized access to restricted content = High confidence finding (security)
+- [03-03]: Injection string testing is framed as UI robustness, not security (agent verifies graceful handling, not vulnerability detection)
+- [03-03]: Double-submit is High confidence only when it creates duplicate data (idempotent double-submit is not impactful)
 
 ### Pending Todos
 
@@ -80,5 +82,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-10
-Stopped at: Completed 03-02-PLAN.md (Multi-Viewport and Multi-Persona)
+Stopped at: Completed 03-03-PLAN.md (Form Intelligence)
 Resume file: None
