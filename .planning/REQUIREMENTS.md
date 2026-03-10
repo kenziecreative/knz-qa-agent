@@ -18,12 +18,12 @@ Requirements for making the web/UI QA agent robust. Each maps to roadmap phases.
 
 ### Agent Architecture (Phase 2)
 
-- [ ] **ARCH-01**: qa-tester agent has `memory: project` for cross-session pattern learning
-- [ ] **ARCH-02**: qa-tester agent supports `background: true` for non-blocking test execution
-- [ ] **ARCH-03**: Plugin defines hooks in `hooks/hooks.json`
-- [ ] **ARCH-04**: `Stop` hook suggests QA check when GSD phase context detected
-- [ ] **ARCH-05**: `SessionStart` hook loads project QA context (last run results, known issues)
-- [ ] **ARCH-06**: Agent reports include confidence levels (high/medium/low) for every finding
+- [x] **ARCH-01**: qa-tester agent has `memory: project` for cross-session pattern learning
+- [x] **ARCH-02**: qa-tester agent supports `background: true` for non-blocking test execution
+- [x] **ARCH-03**: Plugin defines hooks in `hooks/hooks.json`
+- [x] **ARCH-04**: `Stop` hook suggests QA check when GSD phase context detected
+- [x] **ARCH-05**: `SessionStart` hook loads project QA context (last run results, known issues)
+- [x] **ARCH-06**: Agent reports include confidence levels (high/medium/low) for every finding
 
 ### Deep Web Testing (Phase 3)
 
@@ -139,7 +139,7 @@ Requirements for making the web/UI QA agent robust. Each maps to roadmap phases.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | FOUND-01 through FOUND-06 | Phase 1 | Complete |
-| ARCH-01 through ARCH-06 | Phase 2 | Pending |
+| ARCH-01 through ARCH-06 | Phase 2 | Complete |
 | NET-01 through NET-05 | Phase 3 | Pending |
 | VIEW-01 through VIEW-04 | Phase 3 | Pending |
 | PERS-01 through PERS-03 | Phase 3 | Pending |

@@ -7,7 +7,7 @@ This milestone transforms the QA agent from a functional prototype into a robust
 ## Phases
 
 - [x] **Phase 1: Cleanup & Foundation** - Fix stale references, consolidate to skills, bundle Playwright MCP, update plugin manifest
-- [ ] **Phase 2: Agent Architecture** - Agent memory, background execution, hook system, confidence levels
+- [x] **Phase 2: Agent Architecture** - Agent memory, background execution, hook system, confidence levels
 - [ ] **Phase 3: Deep Web Testing** - Network intelligence, multi-viewport/persona orchestration, form testing, SPA awareness, error recovery
 - [ ] **Phase 4: Structured Accessibility** - Focus management, trapping, landmarks, zoom, touch targets, reduced motion, heading audits, form error patterns
 - [ ] **Phase 5: Spec Format v2** - Scenario dependencies, data-driven testing, tags/priorities, environment profiles, a11y depth
@@ -59,9 +59,9 @@ Plans:
 
 Plans:
 
-- [ ] 02-01-PLAN.md — Add persistent memory and background execution to agent
-- [ ] 02-02-PLAN.md — Add structured confidence levels to reports and skills
-- [ ] 02-03-PLAN.md — Create hook system (hooks.json, Stop hook, SessionStart hook)
+- [x] 02-01-PLAN.md — Add persistent memory and background execution to agent
+- [x] 02-02-PLAN.md — Add structured confidence levels to reports and skills
+- [x] 02-03-PLAN.md — Create hook system (hooks.json, Stop hook, SessionStart hook)
 
 ### Phase 3: Deep Web Testing
 
@@ -154,7 +154,7 @@ Phases execute in order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | Phase | Plans Complete | Status | Completed |
 | ----- | ------------- | ------ | --------- |
 | 1. Cleanup & Foundation | 2/2 | Complete ✓ | 2026-03-10 |
-| 2. Agent Architecture | 0/3 | Not started | - |
+| 2. Agent Architecture | 3/3 | Complete ✓ | 2026-03-10 |
 | 3. Deep Web Testing | 0/TBD | Not started | - |
 | 4. Structured Accessibility | 0/TBD | Not started | - |
 | 5. Spec Format v2 | 0/TBD | Not started | - |
