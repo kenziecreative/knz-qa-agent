@@ -103,6 +103,11 @@ Execute this test assignment following your QA methodology. Remember to:
 - Group findings in your summary by confidence: "Definite Issues" (high), "Likely Issues" (medium), "Possible Issues" (low)
 - Include a brief rationale for each confidence assignment
 - Show ALL findings — do not filter out low-confidence items
+- Monitor network requests during every interaction:
+  - Flag failed requests (4xx/5xx) and correlate with what the UI shows
+  - Flag slow API calls (> 1s default) — note the endpoint and response time
+  - Note any mixed content (HTTP on HTTPS) or over-fetching patterns
+  - Include network findings in your confidence-grouped summary
 
 Begin testing.
 ```
@@ -120,6 +125,7 @@ The agent will provide:
   - Possible Issues (low confidence) — worth noting for future review
   - Observations (things that worked but are worth noting)
   - Recommendations (if any)
+  - Network observations (slow calls, failed requests, over-fetching, mixed content)
 
 ## Examples
 
