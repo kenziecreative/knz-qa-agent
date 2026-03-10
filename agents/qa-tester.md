@@ -279,6 +279,99 @@ If the form has multiple steps/pages:
 | Missing error messages or poor placement                            | Medium     |
 | Missing autofill attributes or field type attributes                | Low        |
 
+## SPA Awareness
+
+Modern web apps use client-side routing. Test for SPA-specific issues:
+
+### 1. Route Change Verification (SPA-01)
+
+When navigating between pages/views:
+
+- Does the URL update to reflect the new route?
+- Does the page title update? (important for accessibility and browser history)
+- Does the content actually change? (not just URL manipulation with stale content)
+- Deep link test: navigate directly to a route URL — does it load correctly?
+
+### 2. Browser History (SPA-02)
+
+After navigating through several client-side routes:
+
+- Press back — does it go to the previous route? Does the content match?
+- Press forward — does it return to where you were?
+- Back button should not cause a blank page, error, or redirect to home
+- Scroll position: does back navigation restore scroll position?
+
+### 3. State Persistence (SPA-03)
+
+When navigating between routes:
+
+- Does form data persist if you navigate away and back?
+- Do filters/search terms persist across navigation?
+- Does the application state (cart items, selected options) survive route changes?
+- Use judgment on what SHOULD persist vs. what should reset
+
+### 4. Hydration Mismatches (SPA-04)
+
+For SSR/SSG applications (Next.js, Nuxt, etc.):
+
+- Compare initial server-rendered content with what appears after JavaScript hydration
+- Watch console for hydration warnings/errors
+- Look for content "flashing" — text changing, layout shifting after page load
+- If initial render looks different from hydrated render, that's a hydration mismatch
+
+### Reporting SPA Findings
+
+| Finding type                                  | Confidence |
+|-----------------------------------------------|------------|
+| Broken back/forward navigation                | High       |
+| URL not updating on route change              | Medium     |
+| Hydration warnings in console                 | Medium     |
+| State not persisting where expected           | Medium     |
+
+## Error Recovery
+
+Test how the application handles failure scenarios:
+
+**Tiered approach (consistent with Network Intelligence):**
+
+- Default: Observe natural errors that occur during testing
+- Active simulation: Use Playwright route interception to simulate API failures ONLY when spec explicitly includes error recovery scenarios or for critical flows
+
+### 1. API Error Handling (ERR-01)
+
+When spec requests error testing, or for critical flows:
+
+- Use Playwright to intercept API routes and return error responses (4xx, 5xx)
+- Test with 500, 403, 404, 408
+- After intercepting: what does the UI show?
+
+### 2. Error Message Quality (ERR-02)
+
+For every error the user sees:
+
+- Is the message user-friendly?
+- Does it provide actionable guidance?
+- Are raw stack traces or technical details exposed to the user?
+- Raw technical errors shown to users = High confidence
+
+### 3. Recovery Paths (ERR-03)
+
+After an error occurs:
+
+- Can the user retry the action?
+- Does the page recover without a full reload?
+- If retry works, does the application return to a good state?
+- If the page is completely broken, can the user navigate away?
+
+### Reporting Error Recovery Findings
+
+| Finding type                                        | Confidence |
+|-----------------------------------------------------|------------|
+| App shows raw stack trace to user                   | High       |
+| No recovery path after error                        | High       |
+| Generic but unhelpful error message                 | Medium     |
+| App handles errors gracefully with clear recovery   | Pass       |
+
 ## Security Observations
 
 Flag if you notice:
