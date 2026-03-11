@@ -1,7 +1,7 @@
 ---
 name: run
 description: Run QA tests against a web application using spec files or ad-hoc instructions
-arguments: "[--project <path>] [--spec <name>] [--url <base-url>] [task]"
+arguments: "[--project <path>] [--spec <name>] [--url <base-url>] [--tag <tag>] [--env <profile>] [task]"
 allowed-tools: Read, Write, Bash, Grep, Glob, Agent, mcp__playwright__*
 ---
 
@@ -35,6 +35,24 @@ This runs an ad-hoc test without a spec file.
 ```
 This runs the login spec but against staging instead of the URL in the spec.
 
+### Mode 5: Run filtered by tag
+```
+/qa:run --project ~/Projects/my-app --tag smoke
+```
+Runs only scenarios tagged with `smoke` across all specs.
+
+### Mode 6: Run with environment profile
+```
+/qa:run --project ~/Projects/my-app --spec checkout --env staging
+```
+Runs the checkout spec using the `staging` environment profile.
+
+### Mode 7: Combined filtering
+```
+/qa:run --project ~/Projects/my-app --tag critical --env staging
+```
+Runs only `critical`-tagged scenarios against the staging environment.
+
 ## Parsing Arguments
 
 From the user's input, extract:
@@ -43,6 +61,8 @@ From the user's input, extract:
 2. **spec**: Name of a specific spec file to run (without .md extension) (optional)
 3. **url**: Base URL to test against (optional, can come from spec)
 4. **task**: Ad-hoc test description in quotes (optional, used when no spec)
+5. **tag**: Tag name to filter scenarios (optional). Only scenarios with this tag will run. Multiple tags can be comma-separated (e.g., `--tag smoke,critical`) — scenario must match ANY listed tag (OR logic).
+6. **env**: Environment profile name to activate (optional). Selects the matching profile from the spec's `## Environments` section.
 
 ## Execution Flow
 
@@ -56,10 +76,13 @@ From the user's input, extract:
    - Test scenarios
    - Edge cases
    - Things to watch for
-3. Launch the `qa-tester` agent with the spec content and instructions
-4. If spec defines viewports: Test each scenario at each viewport (default: mobile 375px, tablet 768px, desktop 1280px if spec doesn't specify)
-5. If spec defines personas: Test scenarios as each persona, handling auth flows between switches
-6. The agent will work through the spec systematically
+3. **Environment resolution**: If `--env` flag provided, find the matching profile in `## Environments`. Extract base_url, credentials, timeouts. If profile not found, warn user and fall back to spec defaults. If no `--env` flag and spec has `## Environments`, use the first profile. If spec has no `## Environments`, use `## Base URL` (backward compatible).
+4. **Tag filtering**: If `--tag` flag provided, filter scenario list to only include scenarios whose `tags:` field contains at least one of the requested tags. If no scenarios match, inform user and exit. If no `--tag` flag, run all scenarios.
+5. **Dependency resolution**: After filtering, check `depends_on:` fields. If a filtered scenario depends on a scenario that was filtered OUT, include that dependency scenario automatically (it must run for the dependent to work). Inform the agent which scenarios were auto-included as dependencies.
+6. Launch the `qa-tester` agent with the spec content and instructions
+7. If spec defines viewports: Test each scenario at each viewport (default: mobile 375px, tablet 768px, desktop 1280px if spec doesn't specify)
+8. If spec defines personas: Test scenarios as each persona, handling auth flows between switches
+9. The agent will work through the spec systematically
 
 ### If ad-hoc task is provided:
 
@@ -85,6 +108,29 @@ Spawn the `qa-tester` agent with a prompt structured like:
 {If spec-based:}
 ## Spec Content
 {full content of the spec file}
+
+{If environment profile active:}
+## Active Environment
+**Profile**: {profile_name}
+**Base URL**: {profile.base_url}
+**Credentials**: {profile.credentials or "use spec defaults"}
+**Timeouts**: {profile.timeouts or "use defaults"}
+
+{If tag filtering active:}
+## Tag Filter
+**Active tags**: {tag_list}
+**Scenarios to run**: {filtered scenario names}
+**Auto-included dependencies**: {dependency scenario names, if any}
+
+{If spec has dependencies:}
+## Execution Notes
+- Scenarios have dependencies. If a dependency fails, skip dependent scenarios.
+- Process scenarios in listed order — dependencies resolve top-to-bottom.
+
+{If spec has data-driven scenarios:}
+## Execution Notes
+- Some scenarios have data sets. Run each data set as a separate variant.
+- Report per-variant: "Scenario X [variant-name]: PASS/FAIL"
 
 {If ad-hoc:}
 ## Task
@@ -182,4 +228,19 @@ The agent will provide:
 **Test a specific flow on mobile viewport:**
 ```
 /qa:run --url http://localhost:3000 "Test the checkout flow on mobile viewport (375x667), ensure all buttons are tappable and forms are usable"
+```
+
+**Run only smoke tests:**
+```
+/qa:run --project ~/Projects/store --tag smoke
+```
+
+**Run critical tests on staging:**
+```
+/qa:run --project ~/Projects/store --tag critical --env staging
+```
+
+**Run multiple tags:**
+```
+/qa:run --project ~/Projects/store --tag smoke,regression
 ```
