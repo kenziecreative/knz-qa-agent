@@ -253,10 +253,10 @@ Add an `## Accessibility Focus` section to activate Tier 2 structured accessibil
 ```markdown
 ## Accessibility Focus
 - form-accessibility
-- keyboard-navigation
+- focus-management
 ```
 
-Available areas: `focus-management`, `landmarks-and-headings`, `keyboard-navigation`, `form-accessibility`, `touch-and-zoom`
+Available areas: `focus-management`, `page-structure`, `interactive-elements`, `form-accessibility`
 
 Without this section, Tier 1 baseline accessibility checks always run (keyboard nav, ARIA states, alt text, semantic HTML). With this section, the agent runs the full Tier 2 structured methodology for each listed area.
 
