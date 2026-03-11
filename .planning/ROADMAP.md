@@ -12,7 +12,7 @@ This milestone transforms the QA agent from a functional prototype into a robust
 - [x] **Phase 4: Structured Accessibility** - Focus management, trapping, landmarks, zoom, touch targets, reduced motion, heading audits, form error patterns
 - [x] **Phase 5: Spec Format v2** - Scenario dependencies, data-driven testing, tags/priorities, environment profiles, a11y depth
 - [x] **Phase 6: Continuous & Reporting** - Loop-based monitoring, cross-session report reading, trend analysis, GitHub issue creation
-- [ ] **Phase 7: Tech Debt Cleanup** - Fix README documentation drift, Stop hook bugs, plugin manifest wiring, orphaned --background flag
+- [x] **Phase 7: Tech Debt Cleanup** - Fix README documentation drift, Stop hook bugs, plugin manifest wiring, orphaned --background flag
 
 ## Phase Details
 
@@ -185,8 +185,8 @@ Plans:
 
 Plans:
 
-- [ ] 07-01-PLAN.md — Fix README documentation (add /qa:monitor, fix /qa:report examples, fix a11y area names)
-- [ ] 07-02-PLAN.md — Fix Stop hook bugs, update plugin.json manifest, resolve --background orphan
+- [x] 07-01-PLAN.md — Fix README documentation (add /qa:monitor, fix /qa:report examples, fix a11y area names)
+- [x] 07-02-PLAN.md — Fix Stop hook bugs, update plugin.json manifest, resolve --background orphan
 
 ## Progress
 
@@ -200,4 +200,4 @@ Phases execute in order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 4. Structured Accessibility | 2/2 | Complete ✓ | 2026-03-10 |
 | 5. Spec Format v2 | 3/3 | Complete ✓ | 2026-03-11 |
 | 6. Continuous & Reporting | 2/2 | Complete ✓ | 2026-03-11 |
-| 7. Tech Debt Cleanup | 0/2 | Not Started | — |
+| 7. Tech Debt Cleanup | 2/2 | Complete ✓ | 2026-03-11 |
