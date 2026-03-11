@@ -102,14 +102,14 @@ Requirements for making the web/UI QA agent robust. Each maps to roadmap phases.
 
 ### Spec Format v2 (Phase 5)
 
-- [ ] **SPEC-01**: Specs support scenario dependencies (`depends_on: scenario-1`)
-- [ ] **SPEC-02**: Specs support data-driven scenarios (test same flow with multiple data sets)
-- [ ] **SPEC-03**: Specs support tags for selective execution (`tags: [smoke, critical, regression]`)
-- [ ] **SPEC-04**: Specs support environment profiles (local, staging, production URLs and credentials)
-- [ ] **SPEC-05**: Specs support `## Accessibility Focus` section for Tier 2 a11y depth
-- [ ] **SPEC-06**: `/qa:gen` generates specs with a11y sections when `--a11y-depth deep` passed
-- [ ] **SPEC-07**: `/qa:run` supports `--tag` flag to run subset of scenarios
-- [ ] **SPEC-08**: `/qa:run` supports `--env` flag to select environment profile
+- [x] **SPEC-01**: Specs support scenario dependencies (`depends_on: scenario-1`)
+- [x] **SPEC-02**: Specs support data-driven scenarios (test same flow with multiple data sets)
+- [x] **SPEC-03**: Specs support tags for selective execution (`tags: [smoke, critical, regression]`)
+- [x] **SPEC-04**: Specs support environment profiles (local, staging, production URLs and credentials)
+- [x] **SPEC-05**: Specs support `## Accessibility Focus` section for Tier 2 a11y depth
+- [x] **SPEC-06**: `/qa:gen` generates specs with a11y sections when `--a11y-depth deep` passed
+- [x] **SPEC-07**: `/qa:run` supports `--tag` flag to run subset of scenarios
+- [x] **SPEC-08**: `/qa:run` supports `--env` flag to select environment profile
 
 ### Continuous Monitoring & Reporting (Phase 6)
 
@@ -147,7 +147,7 @@ Requirements for making the web/UI QA agent robust. Each maps to roadmap phases.
 | SPA-01 through SPA-04 | Phase 3 | Complete |
 | ERR-01 through ERR-03 | Phase 3 | Complete |
 | A11Y-01 through A11Y-17 | Phase 4 | Complete |
-| SPEC-01 through SPEC-08 | Phase 5 | Pending |
+| SPEC-01 through SPEC-08 | Phase 5 | Complete |
 | MON-01 through MON-03 | Phase 6 | Pending |
 | RPT-01 through RPT-05 | Phase 6 | Pending |
 

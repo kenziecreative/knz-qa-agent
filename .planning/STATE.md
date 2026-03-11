@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-03-10)
 
 ## Current Position
 
-Phase: 5 of 6 (Spec Format v2) — Complete
+Phase: 5 of 6 (Spec Format v2) — COMPLETE ✓
 Plan: 3 of 3 in current phase (all complete)
-Status: Phase complete
-Last activity: 2026-03-11 — Completed 05-03-PLAN.md (README and init template documentation)
+Status: Phase verified and complete
+Last activity: 2026-03-11 — Phase 5 verified (6/6 must-haves passed)
 
 Progress: [█████████░] 88%
 
