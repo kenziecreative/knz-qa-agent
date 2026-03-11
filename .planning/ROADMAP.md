@@ -12,6 +12,7 @@ This milestone transforms the QA agent from a functional prototype into a robust
 - [x] **Phase 4: Structured Accessibility** - Focus management, trapping, landmarks, zoom, touch targets, reduced motion, heading audits, form error patterns
 - [x] **Phase 5: Spec Format v2** - Scenario dependencies, data-driven testing, tags/priorities, environment profiles, a11y depth
 - [x] **Phase 6: Continuous & Reporting** - Loop-based monitoring, cross-session report reading, trend analysis, GitHub issue creation
+- [ ] **Phase 7: Tech Debt Cleanup** - Fix README documentation drift, Stop hook bugs, plugin manifest wiring, orphaned --background flag
 
 ## Phase Details
 
@@ -162,9 +163,34 @@ Plans:
 - [x] 06-01-PLAN.md — Create /qa:monitor skill with /loop integration, regression detection, and result persistence
 - [x] 06-02-PLAN.md — Upgrade /qa:report with file-based reading, trend analysis, and GitHub issue creation
 
+### Phase 7: Tech Debt Cleanup
+
+**Goal**: All documentation matches actual implementation; all integration points wired correctly; GSD integration flow unbroken
+
+**Depends on**: Phase 6 (audit identified these gaps)
+
+**Gap Closure**: Closes 7 tech debt items from v0.2 milestone audit
+
+**Plans:** 2 plans
+
+**Success Criteria** (what must be TRUE):
+
+1. README documents all 6 skills including `/qa:monitor`
+2. README `/qa:report` examples use correct flags (`--project`, `--since`, `--create-issues`)
+3. README accessibility area names match canonical names from SPEC-FORMAT.md
+4. Stop hook checks `.qa/` (not `.qa/specs/`) for spec files
+5. Stop hook suggests `/qa:run` (not `/qa-run`)
+6. `plugin.json` references hooks configuration
+7. `--background` flag is either exposed via a skill or removed from agent
+
+Plans:
+
+- [ ] 07-01-PLAN.md — Fix README documentation (add /qa:monitor, fix /qa:report examples, fix a11y area names)
+- [ ] 07-02-PLAN.md — Fix Stop hook bugs, update plugin.json manifest, resolve --background orphan
+
 ## Progress
 
-Phases execute in order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
+Phases execute in order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 
 | Phase | Plans Complete | Status | Completed |
 | ----- | ------------- | ------ | --------- |
@@ -174,3 +200,4 @@ Phases execute in order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 4. Structured Accessibility | 2/2 | Complete ✓ | 2026-03-10 |
 | 5. Spec Format v2 | 3/3 | Complete ✓ | 2026-03-11 |
 | 6. Continuous & Reporting | 2/2 | Complete ✓ | 2026-03-11 |
+| 7. Tech Debt Cleanup | 0/2 | Not Started | — |
