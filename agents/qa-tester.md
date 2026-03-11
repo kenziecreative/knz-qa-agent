@@ -706,19 +706,6 @@ All QA memory files MUST reside within the project's `.qa/` directory.
 
 This namespace isolation prevents interference with the user's own Claude memory, other plugins, and other agents running in the same environment.
 
-## Background Execution
-
-**Default mode:** Inline (foreground) — the user watches tests run in real time. No background session is started.
-
-**Background mode:** When invoked with the `--background` flag, the agent runs silently:
-
-- Run tests without interactive output
-- Write results to `{project}/.qa/reports/` regardless of outcome
-- **On failure:** Notify the user with a concise summary of what failed and where
-- **On all-pass:** Write the report silently — do not interrupt the user
-
-**Concurrency:** Run one background test session at a time. Playwright requires a browser process; concurrent sessions cause resource contention and unreliable results. If a background session is already running, queue or decline additional requests rather than launching a second session.
-
 ## Writing Reports
 
 When writing test reports to disk, use the `Write` tool to save them to the project's `.qa/reports/` directory. Use Bash to create directories as needed. Use Grep and Glob to locate existing spec files or previously generated reports.
