@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** Tests verify features actually work for users
-**Current focus:** Phase 4 verified and complete, ready for Phase 5
+**Current focus:** Phase 5 nearing completion, one plan remaining (05-03)
 
 ## Current Position
 
 Phase: 5 of 6 (Spec Format v2) — In progress
-Plan: 2 of 3 in current phase
+Plan: 2 of 3 in current phase (05-01 and 05-02 complete)
 Status: In progress
-Last activity: 2026-03-11 — Completed 05-02-PLAN.md (skill updates for v2 spec features)
+Last activity: 2026-03-11 — Completed 05-01-PLAN.md (v2 spec format definition and agent interpretation)
 
-Progress: [████████--] 75%
+Progress: [████████░-] 82%
 
 ## Performance Metrics
 
@@ -22,7 +22,7 @@ Progress: [████████--] 75%
 
 - Total plans completed: 13
 - Average duration: ~2 minutes
-- Total execution time: ~26 minutes
+- Total execution time: ~28 minutes
 
 **By Phase:**
 
@@ -36,7 +36,7 @@ Progress: [████████--] 75%
 
 **Recent Trend:**
 
-- Last 5 plans: 03-04 (2 min), 04-01 (2 min), 04-02 (2 min), 05-01 (~3 min), 05-02 (~3 min)
+- Last 5 plans: 04-01 (2 min), 04-02 (2 min), 05-01 (~3 min), 05-02 (~3 min)
 - Trend: Stable (~2-3 min/plan)
 
 ## Accumulated Context
@@ -81,6 +81,11 @@ Recent decisions affecting current work:
 - [04-02]: Zoom testing uses CSS font-size proxy + viewport halving — not actual browser zoom, limitation explicitly noted with manual verification recommendation
 - [04-02]: Color as Sole Indicator is always Medium confidence — visual judgment, cannot be mechanically verified without axe-core
 - [04-02]: Form Accessibility section complements (not replaces) Form Intelligence from Phase 3 — functional vs. accessibility dimension
+- [05-01]: Single-level dependencies resolved top-to-bottom — no transitive resolution needed
+- [05-01]: Data-driven variants all run even if one fails — partial failure reporting
+- [05-01]: Tags inform agent behavior but agent does not filter — qa-run skill handles filtering
+- [05-01]: Environment secrets use $ENV_VAR placeholders — real secrets via env vars or .qa/env.local
+- [05-01]: Accessibility Focus is a depth toggle with four named areas mapping to Structured Accessibility subsections
 - [05-02]: Tag OR logic — comma-separated tags match scenarios containing ANY listed tag
 - [05-02]: Environment backward compatibility — specs without Environments section use Base URL as before (v1 specs work unchanged)
 - [05-02]: Dependency auto-inclusion after tag filtering — filtered-out dependencies re-added silently, agent informed
@@ -96,6 +101,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-11T08:53:10Z
-Stopped at: Completed 05-02-PLAN.md — skills updated for v2 spec features
+Last session: 2026-03-11T09:02:12Z
+Stopped at: Completed 05-01-PLAN.md — v2 spec format definition and agent interpretation
 Resume file: None
