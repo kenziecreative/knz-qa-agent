@@ -37,12 +37,18 @@ cat ".qa/reports/$(ls -t .qa/reports/ 2>/dev/null | head -1)"
 
 ### Present the Report
 
-Parse the report's frontmatter or filename to determine the date and result. Then present the information in this format.
+Parse the report's frontmatter or filename to determine the date and result. If the filename starts with `monitor-`, note that this report came from automated monitoring (not a manual run) — prefix it with "Automated Monitor Run" instead of "Last QA Run".
 
 **If the last report was a clean pass with no concerns:**
 
 ```
 Last QA Run: [date] — All clear, no issues.
+```
+
+Or for a monitor report:
+
+```
+Automated Monitor Run: [date] — All clear, no issues.
 ```
 
 **If the last report had findings (Fail or Pass with Concerns):**
@@ -54,7 +60,42 @@ Result: [Pass / Fail / Pass with Concerns]
 [Full report content]
 ```
 
+Or for a monitor report:
+
+```
+Automated Monitor Run: [date from report filename or frontmatter]
+Result: [Pass / Fail / Pass with Concerns]
+
+[Full report content]
+```
+
 Show the full report content — do not summarize or truncate it. The user needs full context to make informed decisions about the current session's work.
+
+## Step 2.5: Check for Monitoring Alerts
+
+After loading the last report, check for regression alerts written by `/qa:monitor`:
+
+```bash
+cat .qa/.monitor-alert 2>/dev/null
+```
+
+If the file does not exist → skip this section silently.
+
+If the file exists, present the alert prominently before any other QA context:
+
+```
+MONITORING ALERT: Regression detected in recent monitoring run
+
+[contents of .monitor-alert file]
+
+Run `/qa:report` for full trend analysis or `/qa:run` to investigate.
+```
+
+After presenting the alert, delete the marker file so it does not repeat on the next session start:
+
+```bash
+rm .qa/.monitor-alert 2>/dev/null
+```
 
 ## Step 3: Load Known Issues from Memory
 
