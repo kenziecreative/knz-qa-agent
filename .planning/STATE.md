@@ -5,24 +5,24 @@
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** Tests verify features actually work for users
-**Current focus:** Phase 5 complete, Phase 6 (Continuous Monitoring) next
+**Current focus:** Phase 6 (Continuous Reporting) — Plan 1 complete, Plan 2 next
 
 ## Current Position
 
-Phase: 5 of 6 (Spec Format v2) — COMPLETE ✓
-Plan: 3 of 3 in current phase (all complete)
-Status: Phase verified and complete
-Last activity: 2026-03-11 — Phase 5 verified (6/6 must-haves passed)
+Phase: 6 of 6 (Continuous Reporting) — In progress
+Plan: 1 of 2 in current phase (06-01 complete)
+Status: In progress
+Last activity: 2026-03-11 — Completed 06-01-PLAN.md
 
-Progress: [█████████░] 88%
+Progress: [█████████░] 93%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 14
+- Total plans completed: 15
 - Average duration: ~2 minutes
-- Total execution time: ~30 minutes
+- Total execution time: ~32 minutes
 
 **By Phase:**
 
@@ -33,10 +33,11 @@ Progress: [█████████░] 88%
 | 03-deep-web-testing | 4/4 | ~9 min | ~2.3 min |
 | 04-structured-accessibility | 2/2 | ~4 min | ~2 min |
 | 05-spec-format-v2 | 3/3 | ~8 min | ~2.7 min |
+| 06-continuous-reporting | 1/2 | ~2 min | ~2 min |
 
 **Recent Trend:**
 
-- Last 5 plans: 04-02 (2 min), 05-01 (~3 min), 05-02 (~3 min), 05-03 (~2 min)
+- Last 5 plans: 05-01 (~3 min), 05-02 (~3 min), 05-03 (~2 min), 06-01 (~2 min)
 - Trend: Stable (~2-3 min/plan)
 
 ## Accumulated Context
@@ -90,6 +91,10 @@ Recent decisions affecting current work:
 - [05-02]: Environment backward compatibility — specs without Environments section use Base URL as before (v1 specs work unchanged)
 - [05-02]: Dependency auto-inclusion after tag filtering — filtered-out dependencies re-added silently, agent informed
 - [05-02]: a11y-depth baseline is default, deep is explicit opt-in
+- [06-01]: Monitor alert is a marker file (.monitor-alert) rather than in-memory state — survives session boundaries
+- [06-01]: Baseline only updates on clean runs — preserves last-known-good state for accurate regression detection
+- [06-01]: New scenarios (not in baseline) are not regressions — added to baseline on first clean run
+- [06-01]: Monitor reports identified as "Automated Monitor Run" vs "Last QA Run" in SessionStart presentation
 
 ### Pending Todos
 
@@ -101,6 +106,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-11T09:01:07Z
-Stopped at: Completed 05-03-PLAN.md — README and init template documentation (Phase 5 complete)
+Last session: 2026-03-11T20:53:48Z
+Stopped at: Completed 06-01-PLAN.md — /qa:monitor skill and SessionStart monitoring alerts
 Resume file: None
