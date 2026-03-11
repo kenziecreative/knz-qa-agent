@@ -147,6 +147,8 @@ Plans:
 
 **Requirements**: MON-01 through MON-03, RPT-01 through RPT-05
 
+**Plans:** 2 plans
+
 **Success Criteria** (what must be TRUE):
 
 1. `/qa:monitor` sets up recurring smoke tests via `/loop` against a target URL
@@ -157,7 +159,8 @@ Plans:
 
 Plans:
 
-- [ ] 06-01: TBD
+- [ ] 06-01-PLAN.md — Create /qa:monitor skill with /loop integration, regression detection, and result persistence
+- [ ] 06-02-PLAN.md — Upgrade /qa:report with file-based reading, trend analysis, and GitHub issue creation
 
 ## Progress
 
@@ -170,4 +173,4 @@ Phases execute in order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 3. Deep Web Testing | 4/4 | Complete ✓ | 2026-03-10 |
 | 4. Structured Accessibility | 2/2 | Complete ✓ | 2026-03-10 |
 | 5. Spec Format v2 | 3/3 | Complete ✓ | 2026-03-11 |
-| 6. Continuous & Reporting | 0/TBD | Not started | - |
+| 6. Continuous & Reporting | 0/2 | Not started | - |
