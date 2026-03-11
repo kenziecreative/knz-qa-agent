@@ -337,10 +337,10 @@ Baseline accessibility is part of every test - not a separate pass:
 
 Structured deep accessibility testing, activated by adding `## Accessibility Focus` to a spec or using `--a11y-depth deep` with `/qa:gen`:
 
-- Focus management in modals (move in, trap, return)
-- Skip links, landmarks, heading hierarchy
-- Touch target sizing, zoom behavior, reduced motion
-- Form error patterns (summary, field links, aria-invalid)
+- **focus-management** — modal focus trapping, skip links, aria-live regions
+- **page-structure** — heading hierarchy, landmarks, page title, lang attribute
+- **interactive-elements** — touch targets, color sole indicator, reduced motion, zoom
+- **form-accessibility** — error summary, error links, aria-invalid, focus on first error
 
 **Out of scope (Tier 3 - separate agent):**
 
