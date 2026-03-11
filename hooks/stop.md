@@ -53,7 +53,7 @@ ls .qa/ 2>/dev/null
 If QA specs exist, also check which spec files exist:
 
 ```bash
-ls .qa/specs/ 2>/dev/null
+ls .qa/*.md 2>/dev/null
 ```
 
 ## Step 3: Prompt the User
@@ -76,7 +76,8 @@ Where:
 If `.qa/` directory exists with specs, append which specs are most relevant based on changed file paths (e.g., if `src/auth/` files changed, look for auth-related specs).
 
 Wait for the user's response:
-- If **yes** → remind user to run: `/qa-run` (or describe the QA skill to run)
+
+- If **yes** → remind user to run: `/qa:run` (or `/qa:run --project .` if specs exist)
 - If **skip** → acknowledge and exit
 
 ## Step 4: GSD Awareness (Soft, One-Time)
