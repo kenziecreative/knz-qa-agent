@@ -66,6 +66,10 @@ Specs are Markdown files with the following structure:
 - **Personas**: User types to test as (with credentials)
 - **Viewports**: Screen sizes to test
 - **Test Scenarios**: Step-by-step tests with expected outcomes
+- **Tags**: Label scenarios with `tags: [smoke, critical, regression, a11y]` for selective execution
+- **Dependencies**: Use `depends_on: Scenario Name` when scenarios require prior scenarios to pass
+- **Environments**: Define `## Environments` with profiles for local/staging/production
+- **Accessibility Focus**: Add `## Accessibility Focus` section to trigger deep a11y testing
 - **Edge Cases**: Specific edge cases to verify
 - **Things to Watch For**: Performance, security, accessibility concerns
 
@@ -83,9 +87,15 @@ Quick health check to verify the application is running and core functionality w
 ## Base URL
 http://localhost:3000
 
+## Environments
+
+### local
+- **base_url**: http://localhost:3000
+
 ## Test Scenarios
 
 ### 1. Application Loads
+tags: [smoke]
 **Steps:**
 1. Navigate to the home page
 
@@ -95,6 +105,7 @@ http://localhost:3000
 - Main content is visible
 
 ### 2. Navigation Works
+tags: [smoke]
 **Steps:**
 1. Click each link in the main navigation
 
@@ -104,6 +115,7 @@ http://localhost:3000
 - No console errors
 
 ### 3. Core Feature Works
+tags: [smoke]
 **Steps:**
 1. [Describe your app's core feature]
 
@@ -123,3 +135,4 @@ Inform the user:
 2. They should customize `smoke-test.md` for their application
 3. They can add more spec files as needed
 4. Run tests with `/qa:run --project {path}`
+5. Specs support tags, dependencies, data-driven scenarios, environments, and accessibility depth — see the [Spec Format docs](examples/SPEC-FORMAT.md) for full reference
