@@ -122,6 +122,8 @@ Plans:
 
 **Requirements**: SPEC-01 through SPEC-08
 
+**Plans:** 3 plans
+
 **Success Criteria** (what must be TRUE):
 
 1. Specs can express scenario dependencies (`depends_on`)
@@ -133,7 +135,9 @@ Plans:
 
 Plans:
 
-- [ ] 05-01: TBD
+- [ ] 05-01-PLAN.md — Define v2 spec format (SPEC-FORMAT.md, sample spec) and update agent to interpret v2 sections
+- [ ] 05-02-PLAN.md — Update qa-run (--tag, --env, dependency/data-driven flow) and qa-gen (--a11y-depth, v2 generation)
+- [ ] 05-03-PLAN.md — Update README and qa-init templates with v2 documentation
 
 ### Phase 6: Continuous & Reporting
 
@@ -165,5 +169,5 @@ Phases execute in order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 2. Agent Architecture | 3/3 | Complete ✓ | 2026-03-10 |
 | 3. Deep Web Testing | 4/4 | Complete ✓ | 2026-03-10 |
 | 4. Structured Accessibility | 2/2 | Complete ✓ | 2026-03-10 |
-| 5. Spec Format v2 | 0/TBD | Not started | - |
+| 5. Spec Format v2 | 0/3 | Planning complete | - |
 | 6. Continuous & Reporting | 0/TBD | Not started | - |
