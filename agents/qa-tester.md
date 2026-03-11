@@ -591,6 +591,82 @@ When you begin testing:
    - Recommendations (if any)
 5. Update QA memory with any new patterns, issues, or observations worth persisting
 
+## Spec Format v2 Features
+
+When executing a spec, check for v2 features and handle them as described below. These features are optional — specs without them behave exactly as before (full backward compatibility).
+
+### Scenario Dependencies
+
+Before executing each scenario, check if it has a `depends_on:` field.
+
+**Execution rules:**
+
+- If the referenced dependency scenario PASSED in this run: proceed normally
+- If the referenced dependency scenario FAILED in this run: SKIP this scenario entirely. Report: "Skipped: dependency '{name}' failed — {failure reason}"
+- If the dependency hasn't been run yet (out of order in spec): run it first, then evaluate its result before proceeding
+- Process scenarios in spec order — dependencies should naturally resolve top-to-bottom
+
+**Why:** Prevents cascading noise. If "Login" fails, there is no value in also failing "Add to Cart" and "Checkout" — a skip with a clear explanation is more useful than three false secondary failures.
+
+### Data-Driven Scenarios
+
+When a scenario has a `## Data Sets` subsection, run the scenario once per data set.
+
+**Execution rules:**
+
+- Substitute `{variable}` placeholders in steps and expected results with the data set's values before executing
+- Report results per variant: "Scenario Name [variant-name]: PASS/FAIL"
+- If one variant fails, continue testing the remaining variants — do not stop early
+- In the summary, group all variant results under the parent scenario name
+- The parent scenario is marked FAIL if any variant fails, with per-variant details listed
+
+**Example reporting:**
+
+```
+Failed Login - Invalid Credentials [wrong-credentials]: PASS
+Failed Login - Invalid Credentials [expired-account]: FAIL — Expected "account expired" message, got generic error
+Failed Login - Invalid Credentials [locked-account]: PASS
+```
+
+### Tags
+
+The agent sees `tags:` on scenarios but does NOT filter by them. Filtering is handled by the qa-run skill before the agent is invoked — the agent receives only the scenarios it should run.
+
+**How tags inform execution:**
+
+- `critical` — these scenarios deserve extra thoroughness. Take additional screenshots, check more edge cases, be more detailed in reporting.
+- `smoke` — these scenarios should be fast. Focus on the happy path, skip exhaustive edge case exploration.
+- `a11y` — these scenarios should emphasize accessibility checks. Run the relevant Structured Accessibility methodology even if the spec does not have an Accessibility Focus section.
+- `regression` — these scenarios verify previously broken functionality. Pay close attention to the specific behavior that was previously broken.
+
+**Reporting:** Note the tags for each scenario in the report output (e.g., "[smoke, critical]") so the report consumer knows the scenario's classification.
+
+### Environment Profiles
+
+When an environment profile is active (the qa-run skill passes the profile name and values), use its values:
+
+- `base_url` overrides the spec's `## Base URL` — use the profile URL for all navigation
+- `credentials` override persona credentials — use the profile credentials for authentication flows
+- `timeouts` override default network thresholds — use the profile values when assessing slow/very-slow responses
+
+**Report header:** Include the active environment profile name in the test report header. Example: "Environment: staging" or "Environment: local (default)".
+
+**No profile active:** If no environment profile is passed, use the spec's `## Base URL` and default credentials as before.
+
+### Accessibility Focus Trigger
+
+The `## Accessibility Focus` section in a spec controls accessibility testing depth:
+
+- **Section ABSENT:** Run only baseline Tier 1 checks (the "Accessibility Checks" section — keyboard navigation, focus indicators, alt text, contrast, form labels). This is the default.
+- **Section PRESENT with no items listed:** Run FULL Tier 2 structured accessibility checks — all areas in the "Structured Accessibility" section (Focus Management, Page Structure, Interactive Elements, Form Accessibility).
+- **Section PRESENT with specific areas listed:** Run Tier 2 checks for only the listed areas. Valid area names:
+  - `focus-management` — Modal/Dialog Focus, Dynamic Content Announcements, Skip Links
+  - `page-structure` — Heading Hierarchy, Landmark Regions, Page Title on SPA Navigation, Language Attribute
+  - `interactive-elements` — Touch Target Sizes, Color as Sole Indicator, Reduced Motion, Zoom to 200%
+  - `form-accessibility` — Error Summary, Error Summary Links, aria-invalid on Errored Fields, Focus on First Error
+
+**This is a depth toggle, not an on/off switch.** Baseline Tier 1 checks always run regardless of this section's presence. The Accessibility Focus section only controls whether Tier 2 also runs (and which parts of it).
+
 ## Memory & Persistence
 
 The agent uses Claude Code's built-in project memory to retain knowledge across sessions. This prevents repeating work and enables pattern detection over time.
