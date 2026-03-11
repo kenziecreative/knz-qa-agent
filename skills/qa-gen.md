@@ -1,7 +1,7 @@
 ---
 name: gen
 description: Generate a QA spec from a description, existing documentation, or by exploring the application
-arguments: "<spec-name> [--from <source>] [description]"
+arguments: "<spec-name> [--from <source>] [--a11y-depth <level>] [description]"
 ---
 
 # /qa:gen
@@ -33,7 +33,8 @@ From the user's input, extract:
 2. **--from**: Source to generate from (optional)
    - If a file path: Read and use as reference
    - If a URL: Explore the page and infer testable behaviors
-3. **description**: Natural language description of what to cover (optional)
+3. **--a11y-depth**: Accessibility depth level (optional). Values: `baseline` (default, Tier 1 only), `deep` (includes `## Accessibility Focus` section in generated spec, triggering Tier 2 structured checks)
+4. **description**: Natural language description of what to cover (optional)
 
 ## Generation Process
 
@@ -47,6 +48,9 @@ From the user's input, extract:
    - Common edge cases for that type of feature
    - Standard things to watch for
 3. Mark areas that need human review with `[TODO: ...]`
+4. Assign `tags:` to every scenario based on type (see scenario template below)
+5. Add `depends_on:` to scenarios that logically require a prior scenario to have run
+6. If `--a11y-depth deep`: Add `## Accessibility Focus` section listing all focus areas: `focus-management`, `page-structure`, `interactive-elements`, `form-accessibility`. Add `a11y` tag to any scenarios with accessibility implications.
 
 ### From Documentation
 
@@ -58,6 +62,9 @@ From the user's input, extract:
    - Acceptance criteria
 3. Transform into spec format
 4. Mark assumptions with `[VERIFY: ...]`
+5. Assign `tags:` to every scenario based on type (see scenario template below)
+6. Add `depends_on:` to scenarios that logically require a prior scenario to have run
+7. If `--a11y-depth deep`: Add `## Accessibility Focus` section listing all focus areas: `focus-management`, `page-structure`, `interactive-elements`, `form-accessibility`. Add `a11y` tag to any scenarios with accessibility implications.
 
 ### From Live URL
 
@@ -68,6 +75,9 @@ From the user's input, extract:
    - Visible states and flows
 3. Generate a spec that covers observed functionality
 4. Mark as exploratory with `[OBSERVED: ...]` for behaviors that should be verified
+5. Assign `tags:` to every scenario based on type (see scenario template below)
+6. Add `depends_on:` to scenarios that logically require a prior scenario to have run
+7. If `--a11y-depth deep`: Add `## Accessibility Focus` section listing all focus areas: `focus-management`, `page-structure`, `interactive-elements`, `form-accessibility`. Add `a11y` tag to any scenarios with accessibility implications.
 
 ## Output
 
@@ -89,6 +99,15 @@ Structure the output as:
 - Tablet: 768x1024
 - Desktop: 1280x800
 
+## Environments (optional)
+### local
+- **base_url**: http://localhost:3000
+- **credentials**: Use test accounts
+
+### staging
+- **base_url**: [TODO: Set staging URL]
+- **credentials**: [TODO: Set staging credentials]
+
 ## Personas
 ### Default User
 - **Role:** Regular user
@@ -101,7 +120,13 @@ Structure the output as:
 ## Test Scenarios
 
 ### 1. {Scenario Name}
-{Generated scenario}
+**tags:** [smoke, critical]
+{Generated happy-path scenario}
+
+### 2. {Scenario Name}
+**tags:** [regression]
+**depends_on:** {Prior scenario name, if applicable}
+{Generated error/validation/edge-case scenario}
 
 ...
 
@@ -118,10 +143,27 @@ Structure the output as:
 ## Things to Watch For
 {Standard concerns plus any inferred from source}
 
+## Accessibility Focus (when --a11y-depth deep)
+- focus-management
+- page-structure
+- interactive-elements
+- form-accessibility
+
 ---
 *This spec was generated and should be reviewed for accuracy.*
 *Items marked [TODO], [VERIFY], or [OBSERVED] need human attention.*
 ```
+
+## Tag Assignment Guide
+
+When generating scenarios, assign tags based on scenario type:
+
+- **First/happy path scenario**: `tags: [smoke, critical]`
+- **Error/validation scenarios**: `tags: [regression]`
+- **Edge case scenarios**: `tags: [regression]`
+- **Accessibility-focused scenarios**: `tags: [a11y]`
+
+Custom tags are allowed — these are standard defaults. Users can add or change tags after generation.
 
 ## Examples
 
@@ -140,10 +182,23 @@ Structure the output as:
 /qa:gen settings --from http://localhost:3000/settings "Document all the settings options and generate tests for each"
 ```
 
+**Generate spec with deep accessibility:**
+```
+/qa:gen dashboard --a11y-depth deep "Admin dashboard with data tables, filters, and export"
+```
+
+**Generate from app with accessibility focus:**
+```
+/qa:gen settings --from http://localhost:3000/settings --a11y-depth deep
+```
+
 ## After Generation
 
 Inform the user:
 1. The spec has been created at `.qa/{spec-name}.md`
 2. They should review items marked with [TODO], [VERIFY], or [OBSERVED]
 3. Customize edge cases and thresholds for their specific needs
-4. Run with `/qa:run --spec {spec-name}` when ready
+4. Tags can be customized — add, remove, or change tags on any scenario. Additional custom tags (e.g., `payment`, `auth`) are fully supported alongside the standard ones.
+5. If the spec includes `## Environments`, fill in real base URLs and credentials for each profile before running against those environments.
+6. If generated with `--a11y-depth deep`, the spec includes an `## Accessibility Focus` section — this activates Tier 2 structured accessibility checks when run with `/qa:run`.
+7. Run with `/qa:run --spec {spec-name}` when ready
