@@ -11,7 +11,7 @@ This milestone transforms the QA agent from a functional prototype into a robust
 - [x] **Phase 3: Deep Web Testing** - Network intelligence, multi-viewport/persona orchestration, form testing, SPA awareness, error recovery
 - [x] **Phase 4: Structured Accessibility** - Focus management, trapping, landmarks, zoom, touch targets, reduced motion, heading audits, form error patterns
 - [x] **Phase 5: Spec Format v2** - Scenario dependencies, data-driven testing, tags/priorities, environment profiles, a11y depth
-- [ ] **Phase 6: Continuous & Reporting** - Loop-based monitoring, cross-session report reading, trend analysis, GitHub issue creation
+- [x] **Phase 6: Continuous & Reporting** - Loop-based monitoring, cross-session report reading, trend analysis, GitHub issue creation
 
 ## Phase Details
 
@@ -159,8 +159,8 @@ Plans:
 
 Plans:
 
-- [ ] 06-01-PLAN.md — Create /qa:monitor skill with /loop integration, regression detection, and result persistence
-- [ ] 06-02-PLAN.md — Upgrade /qa:report with file-based reading, trend analysis, and GitHub issue creation
+- [x] 06-01-PLAN.md — Create /qa:monitor skill with /loop integration, regression detection, and result persistence
+- [x] 06-02-PLAN.md — Upgrade /qa:report with file-based reading, trend analysis, and GitHub issue creation
 
 ## Progress
 
@@ -173,4 +173,4 @@ Phases execute in order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 3. Deep Web Testing | 4/4 | Complete ✓ | 2026-03-10 |
 | 4. Structured Accessibility | 2/2 | Complete ✓ | 2026-03-10 |
 | 5. Spec Format v2 | 3/3 | Complete ✓ | 2026-03-11 |
-| 6. Continuous & Reporting | 0/2 | Not started | - |
+| 6. Continuous & Reporting | 2/2 | Complete ✓ | 2026-03-11 |

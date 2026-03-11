@@ -113,14 +113,14 @@ Requirements for making the web/UI QA agent robust. Each maps to roadmap phases.
 
 ### Continuous Monitoring & Reporting (Phase 6)
 
-- [ ] **MON-01**: `/qa:monitor` skill sets up recurring test execution via `/loop`
-- [ ] **MON-02**: Monitor runs smoke tests at configurable interval against target URL
-- [ ] **MON-03**: Monitor alerts on regression (test that previously passed now fails)
-- [ ] **RPT-01**: `/qa:report` reads from `.qa/reports/` directory (not just conversation context)
-- [ ] **RPT-02**: Reports include trend analysis from HISTORY.md data
-- [ ] **RPT-03**: Reports identify recurring failures across multiple runs
-- [ ] **RPT-04**: Reports can generate GitHub issues from critical findings (via `gh` CLI)
-- [ ] **RPT-05**: Cross-session report reading works without prior conversation context
+- [x] **MON-01**: `/qa:monitor` skill sets up recurring test execution via `/loop`
+- [x] **MON-02**: Monitor runs smoke tests at configurable interval against target URL
+- [x] **MON-03**: Monitor alerts on regression (test that previously passed now fails)
+- [x] **RPT-01**: `/qa:report` reads from `.qa/reports/` directory (not just conversation context)
+- [x] **RPT-02**: Reports include trend analysis from HISTORY.md data
+- [x] **RPT-03**: Reports identify recurring failures across multiple runs
+- [x] **RPT-04**: Reports can generate GitHub issues from critical findings (via `gh` CLI)
+- [x] **RPT-05**: Cross-session report reading works without prior conversation context
 
 ## Out of Scope
 
@@ -148,8 +148,8 @@ Requirements for making the web/UI QA agent robust. Each maps to roadmap phases.
 | ERR-01 through ERR-03 | Phase 3 | Complete |
 | A11Y-01 through A11Y-17 | Phase 4 | Complete |
 | SPEC-01 through SPEC-08 | Phase 5 | Complete |
-| MON-01 through MON-03 | Phase 6 | Pending |
-| RPT-01 through RPT-05 | Phase 6 | Pending |
+| MON-01 through MON-03 | Phase 6 | Complete |
+| RPT-01 through RPT-05 | Phase 6 | Complete |
 
 Coverage: 64 total requirements, 64 mapped to phases, 0 unmapped.
 
