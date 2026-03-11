@@ -41,6 +41,15 @@ Run comprehensive QA tests from spec files or ad-hoc descriptions.
 
 # Override URL (test against staging)
 /qa:run --project ~/Projects/my-app --spec login --url https://staging.example.com
+
+# Run only smoke-tagged scenarios
+/qa:run --project ~/Projects/my-app --tag smoke
+
+# Run against staging environment
+/qa:run --project ~/Projects/my-app --spec checkout --env staging
+
+# Combine: critical tests on staging
+/qa:run --project ~/Projects/my-app --tag critical --env staging
 ```
 
 ### `/qa:check` - Phase Verification Gate
@@ -76,6 +85,9 @@ Generate QA specs from descriptions, documentation, or live exploration.
 
 # By exploring the app
 /qa:gen profile --from http://localhost:3000/profile
+
+# Generate with deep accessibility testing
+/qa:gen dashboard --a11y-depth deep "Admin dashboard with tables and filters"
 ```
 
 ### `/qa:report` - Compile Results
@@ -90,7 +102,11 @@ Generate a summary report from QA test runs.
 
 ## Spec Format
 
-Specs live in `.qa/` directory as Markdown files:
+Specs live in `.qa/` directory as Markdown files.
+
+### Basic Spec
+
+The minimal v1 spec format — fully supported and backward compatible:
 
 ```markdown
 # Login Flow
@@ -144,7 +160,109 @@ http://localhost:3000
 - Form should be keyboard navigable
 ```
 
-See [examples/SPEC-FORMAT.md](examples/SPEC-FORMAT.md) for full format documentation.
+### v2 Features
+
+V2 adds five optional features that layer on top of the basic format. All are backward compatible — existing specs work unchanged.
+
+#### Tags
+
+Label scenarios for selective execution:
+
+```markdown
+### 1. Successful Login
+tags: [smoke, critical]
+**Steps:**
+...
+```
+
+Standard tags and their meanings:
+
+- `smoke` — Quick health check; agent moves fast and tests core paths
+- `critical` — High-stakes scenario; agent applies extra thoroughness
+- `regression` — Previously broken behavior; agent watches for the specific bug
+- `a11y` — Accessibility emphasis; agent goes deeper on keyboard and ARIA
+
+Run only tagged scenarios: `/qa:run --project . --tag smoke` or `/qa:run --project . --tag smoke,critical`
+
+#### Dependencies
+
+Mark scenarios that require a prior scenario to have passed:
+
+```markdown
+### 3. Session Persistence
+depends_on: Successful Login
+**Steps:**
+...
+```
+
+If `Successful Login` fails, `Session Persistence` is skipped with a note. Dependencies reference scenarios by their exact heading name. Single-level chaining — the spec author controls execution order.
+
+#### Data-Driven Scenarios
+
+Run one scenario with multiple data variants:
+
+```markdown
+### 2. Failed Login
+tags: [smoke, regression]
+**Steps:**
+1. Navigate to /login
+2. Enter {email} and {password}
+3. Click Sign In
+
+**Expected:**
+- Error message: {expected_error}
+
+## Data Sets
+| email | password | expected_error |
+|-------|----------|----------------|
+| wrong@example.com | password123 | Invalid email or password |
+| test@example.com | wrongpass | Invalid email or password |
+| locked@example.com | password123 | Account is locked |
+```
+
+Each row runs as a separate variant. All variants run even if one fails — results show per-variant.
+
+#### Environment Profiles
+
+Define named environments to switch between with `--env`:
+
+```markdown
+## Environments
+
+### local
+- **base_url**: http://localhost:3000
+- **email**: test@example.com
+- **password**: password123
+
+### staging
+- **base_url**: https://staging.example.com
+- **email**: staging-test@example.com
+- **password**: $STAGING_PASSWORD
+```
+
+Select at run time: `/qa:run --project . --env staging`
+
+When no `--env` flag is passed and no `## Environments` section exists, the `## Base URL` value is used (v1 behavior unchanged).
+
+Secrets use `$ENV_VAR` placeholders — real values come from environment variables or `.qa/env.local` (gitignored).
+
+#### Accessibility Focus
+
+Add an `## Accessibility Focus` section to activate Tier 2 structured accessibility testing for specific areas:
+
+```markdown
+## Accessibility Focus
+- form-accessibility
+- keyboard-navigation
+```
+
+Available areas: `focus-management`, `landmarks-and-headings`, `keyboard-navigation`, `form-accessibility`, `touch-and-zoom`
+
+Without this section, Tier 1 baseline accessibility checks always run (keyboard nav, ARIA states, alt text, semantic HTML). With this section, the agent runs the full Tier 2 structured methodology for each listed area.
+
+Can also be activated at generation time: `/qa:gen dashboard --a11y-depth deep`
+
+See [examples/SPEC-FORMAT.md](examples/SPEC-FORMAT.md) for complete format documentation and a full example spec.
 
 ## Reports
 
@@ -193,7 +311,9 @@ Baseline accessibility is part of every test - not a separate pass:
 - Semantic HTML (real buttons, real links)
 - Basic ARIA (expanded states, live regions)
 
-**Planned (Tier 2 - structured a11y testing):**
+**Tier 2 (activated via spec):**
+
+Structured deep accessibility testing, activated by adding `## Accessibility Focus` to a spec or using `--a11y-depth deep` with `/qa:gen`:
 
 - Focus management in modals (move in, trap, return)
 - Skip links, landmarks, heading hierarchy
@@ -261,7 +381,7 @@ MIT
   - Agent architecture (memory, hooks, background execution)
   - Deep web testing (network, viewports, personas, forms, SPA, error recovery)
   - Structured accessibility (Tier 2 — focus management, landmarks, zoom, touch targets)
-  - Spec format v2 (dependencies, data-driven, tags, environments)
+  - Spec format v2 (dependencies, data-driven, tags/filtering, environment profiles, accessibility depth)
   - Continuous monitoring and cross-session reporting
 - **0.1.0** - Initial release
   - Five skills: `/qa:run`, `/qa:check`, `/qa:init`, `/qa:gen`, `/qa:report`
