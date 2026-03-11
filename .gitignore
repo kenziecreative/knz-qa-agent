@@ -14,3 +14,4 @@ node_modules/
 
 # Specs for future projects (not part of this repo)
 SPEC-*.md
+!examples/SPEC-FORMAT.md

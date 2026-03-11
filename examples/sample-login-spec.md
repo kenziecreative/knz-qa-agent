@@ -1,26 +1,54 @@
 # Login Flow
 
 ## Overview
+
 The login flow allows users to authenticate and access their personalized dashboard. This is a critical path - if login is broken, users cannot access the application.
 
 ## Base URL
-http://localhost:3000
+
+<http://localhost:3000>
 
 ## Personas
+
 - unauthenticated user (starting state)
 - user with valid credentials: test@example.com / password123
 - user with invalid credentials: wrong@example.com / wrongpass
 
 ## Viewports
+
 - desktop (1280x720)
 - mobile (375x667)
+
+## Environments
+
+### local
+
+base_url: <http://localhost:3000>
+credentials: test@example.com / password123
+timeouts: {}
+flags: {}
+
+### staging
+
+base_url: <https://staging.example.com>
+credentials: test@staging.example.com / $STAGING_PASSWORD
+timeouts:
+  api: 3000
+flags: {}
+
+## Accessibility Focus
+
+- form-accessibility
 
 ## Test Scenarios
 
 ### 1. Successful Login
+
+tags: [smoke, critical]
 Starting as an unauthenticated user with valid credentials.
 
 **Steps:**
+
 1. Navigate to /login
 2. Verify the login form is visible and properly rendered
 3. Enter email: test@example.com
@@ -28,6 +56,7 @@ Starting as an unauthenticated user with valid credentials.
 5. Click the "Sign In" button
 
 **Expected:**
+
 - Loading state appears on button while request is in flight
 - On success, redirect to /dashboard
 - Dashboard shows "Welcome back, Test User" (or similar personalized greeting)
@@ -37,58 +66,109 @@ Starting as an unauthenticated user with valid credentials.
 - Auth token is stored (check localStorage or cookie, not URL)
 
 ### 2. Failed Login - Invalid Credentials
+
+tags: [smoke, regression]
+Tests multiple invalid credential combinations to verify consistent error handling.
+
 **Steps:**
+
 1. Navigate to /login
-2. Enter email: wrong@example.com
-3. Enter password: wrongpass
+2. Enter email: {email}
+3. Enter password: {password}
 4. Click "Sign In"
 
 **Expected:**
-- Error message appears: "Invalid email or password" (or similar)
+
+- {expected_result}
 - User remains on /login page
 - Password field is cleared (security best practice)
 - Email field retains value (convenience)
-- No console errors (401 from API is expected, not a console error)
-- Network: POST /api/auth/login returns 401
+- No console errors
+- Network: POST /api/auth/login returns {expected_status}
+
+## Data Sets
+
+### wrong-credentials
+
+email: wrong@example.com
+password: wrongpass
+expected_result: Error message appears — "Invalid email or password" (or similar)
+expected_status: 401
+
+### expired-account
+
+email: expired@example.com
+password: password123
+expected_result: Error message indicates the account is expired or inactive
+expected_status: 401 or 403
+
+### locked-account
+
+email: locked@example.com
+password: password123
+expected_result: Error message indicates account is locked, with support contact guidance
+expected_status: 401 or 403
 
 ### 3. Failed Login - Empty Form
+
+tags: [regression]
+
 **Steps:**
+
 1. Navigate to /login
 2. Click "Sign In" without entering anything
 
 **Expected:**
+
 - Validation errors appear for required fields
 - Form is NOT submitted to server (client-side validation)
 - Focus moves to first invalid field
 
 ### 4. Failed Login - Invalid Email Format
+
+tags: [regression]
+
 **Steps:**
+
 1. Navigate to /login
 2. Enter email: notanemail
 3. Enter password: somepassword
 4. Click "Sign In"
 
 **Expected:**
+
 - Validation error indicates email format is invalid
 - Form is NOT submitted to server
 
 ### 5. Session Persistence
+
+tags: [regression]
+depends_on: 1. Successful Login
+
 **Steps:**
+
 1. Complete successful login (Scenario 1)
 2. Refresh the page
 3. Close tab and open new tab to /dashboard
 
 **Expected:**
+
 - User remains logged in after refresh
 - User remains logged in in new tab
 - No re-authentication required
 
 ### 6. Logout Flow
+
+tags: [smoke]
+depends_on: 1. Successful Login
+
 **Steps:**
+
 1. Complete successful login
 2. Click "Logout" (or equivalent)
 
 **Expected:**
+
 - User is redirected to /login (or home page)
 - Auth token is cleared
 - Attempting to access /dashboard redirects to /login
@@ -124,4 +204,5 @@ Starting as an unauthenticated user with valid credentials.
   - Submit should be possible via Enter key, not just button click
 
 ## Known Issues
+
 None currently tracked.
