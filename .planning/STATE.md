@@ -9,20 +9,20 @@ See: .planning/PROJECT.md (updated 2026-03-10)
 
 ## Current Position
 
-Phase: 4 of 6 (Structured Accessibility) — COMPLETE ✓
-Plan: 2 of 2 in current phase
-Status: Phase verified and complete
-Last activity: 2026-03-10 — Phase 4 verified (7/7 must-haves passed)
+Phase: 5 of 6 (Spec Format v2) — In progress
+Plan: 2 of 3 in current phase
+Status: In progress
+Last activity: 2026-03-11 — Completed 05-02-PLAN.md (skill updates for v2 spec features)
 
-Progress: [███████---] 65%
+Progress: [████████--] 75%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 11
+- Total plans completed: 13
 - Average duration: ~2 minutes
-- Total execution time: ~22 minutes
+- Total execution time: ~26 minutes
 
 **By Phase:**
 
@@ -32,11 +32,12 @@ Progress: [███████---] 65%
 | 02-agent-architecture | 3/3 | ~7 min | ~2.3 min |
 | 03-deep-web-testing | 4/4 | ~9 min | ~2.3 min |
 | 04-structured-accessibility | 2/2 | ~4 min | ~2 min |
+| 05-spec-format-v2 | 2/3 | ~6 min | ~3 min |
 
 **Recent Trend:**
 
-- Last 5 plans: 03-02 (2 min), 03-03 (2 min), 03-04 (2 min), 04-01 (2 min), 04-02 (2 min)
-- Trend: Stable (~2 min/plan)
+- Last 5 plans: 03-04 (2 min), 04-01 (2 min), 04-02 (2 min), 05-01 (~3 min), 05-02 (~3 min)
+- Trend: Stable (~2-3 min/plan)
 
 ## Accumulated Context
 
@@ -80,6 +81,10 @@ Recent decisions affecting current work:
 - [04-02]: Zoom testing uses CSS font-size proxy + viewport halving — not actual browser zoom, limitation explicitly noted with manual verification recommendation
 - [04-02]: Color as Sole Indicator is always Medium confidence — visual judgment, cannot be mechanically verified without axe-core
 - [04-02]: Form Accessibility section complements (not replaces) Form Intelligence from Phase 3 — functional vs. accessibility dimension
+- [05-02]: Tag OR logic — comma-separated tags match scenarios containing ANY listed tag
+- [05-02]: Environment backward compatibility — specs without Environments section use Base URL as before (v1 specs work unchanged)
+- [05-02]: Dependency auto-inclusion after tag filtering — filtered-out dependencies re-added silently, agent informed
+- [05-02]: a11y-depth baseline is default, deep is explicit opt-in
 
 ### Pending Todos
 
@@ -91,6 +96,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-10T21:10:05Z
-Stopped at: Phase 4 complete and verified, ready for Phase 5 planning
+Last session: 2026-03-11T08:53:10Z
+Stopped at: Completed 05-02-PLAN.md — skills updated for v2 spec features
 Resume file: None
