@@ -90,14 +90,36 @@ Generate QA specs from descriptions, documentation, or live exploration.
 /qa:gen dashboard --a11y-depth deep "Admin dashboard with tables and filters"
 ```
 
-### `/qa:report` - Compile Results
+### `/qa:monitor` - Continuous Monitoring
 
-Generate a summary report from QA test runs.
+Run recurring smoke tests against a live URL, detect regressions, and persist results across sessions.
 
 ```bash
-/qa:report
-/qa:report --format json
-/qa:report --save ./qa-report.md
+# Monitor with default settings (smoke tag, 5-min interval)
+/qa:monitor --project ~/Projects/my-app --url https://my-app.example.com
+
+# Monitor critical paths every 10 minutes, run 12 times (2 hours)
+/qa:monitor --project ~/Projects/my-app --url https://staging.my-app.com --tag critical --interval 10 --runs 12
+```
+
+**Regressions:** Compares each run against a baseline of last-known-good results. When a previously passing scenario fails, it's flagged as a regression and an alert marker is written for the next session.
+
+### `/qa:report` - Compile Results
+
+Generate a cross-session QA report from persisted test results, including trend analysis and optional GitHub issue creation.
+
+```bash
+# Report on a project
+/qa:report --project ~/Projects/my-app
+
+# Report with trend analysis from last 14 days
+/qa:report --project ~/Projects/my-app --since 14d
+
+# Create GitHub issues from critical findings
+/qa:report --project ~/Projects/my-app --create-issues
+
+# JSON output
+/qa:report --project ~/Projects/my-app --format json
 ```
 
 ## Spec Format
@@ -350,7 +372,12 @@ knz-qa-agent/
 │   ├── qa-check.md          # Phase verification gate
 │   ├── qa-init.md           # Initialize QA structure
 │   ├── qa-gen.md            # Generate specs
+│   ├── qa-monitor.md        # Continuous monitoring
 │   └── qa-report.md         # Compile results
+├── hooks/
+│   ├── hooks.json           # Hook registration config
+│   ├── stop.md              # Stop hook — triggers QA on significant changes
+│   └── session-start.md     # SessionStart hook — surfaces alerts and last report
 ├── examples/
 │   ├── SPEC-FORMAT.md       # Spec format documentation
 │   └── sample-login-spec.md # Example spec
@@ -368,7 +395,7 @@ knz-qa-agent/
 
 - See [LEARNINGS.md](LEARNINGS.md) for architectural decisions and patterns
 - Planning tracked in `.planning/` directory (GSD workflow)
-- Current milestone: v0.2 - Robust Web/UI Testing (6 phases)
+- Current milestone: v0.2 - Robust Web/UI Testing (7 phases)
 
 ## License
 
@@ -384,7 +411,7 @@ MIT
   - Spec format v2 (dependencies, data-driven, tags/filtering, environment profiles, accessibility depth)
   - Continuous monitoring and cross-session reporting
 - **0.1.0** - Initial release
-  - Five skills: `/qa:run`, `/qa:check`, `/qa:init`, `/qa:gen`, `/qa:report`
+  - Five skills: `/qa:run`, `/qa:check`, `/qa:init`, `/qa:gen`, `/qa:report` (six in v0.2 with `/qa:monitor`)
   - GSD integration via `/qa:check`
   - Baseline accessibility built into methodology
   - Report output to `.qa/reports/` with HISTORY.md log
