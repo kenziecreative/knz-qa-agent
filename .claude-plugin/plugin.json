@@ -6,7 +6,6 @@
     "name": "Kelsey Ruger",
     "email": "kelsey@kenziecreative.com"
   },
-  "hooks": "hooks/hooks.json",
   "settings": {
     "defaults": {
       "headless": true,

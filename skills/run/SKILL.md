@@ -1,7 +1,7 @@
 ---
-name: run
+name: qa:run
 description: Run QA tests against a web application using spec files or ad-hoc instructions
-arguments: "[--project <path>] [--spec <name>] [--url <base-url>] [--tag <tag>] [--env <profile>] [task]"
+argument-hint: "--project <path> --spec <name> --url <base-url> --tag <tag> --env <profile> task"
 allowed-tools: Read, Write, Bash, Grep, Glob, Agent, mcp__playwright__*
 ---
 

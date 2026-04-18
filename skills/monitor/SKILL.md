@@ -1,7 +1,7 @@
 ---
-name: monitor
+name: qa:monitor
 description: Run recurring smoke tests against a live URL via /loop, detect regressions, and persist results across sessions
-arguments: "--project <path> --url <base-url> [--tag <tag>] [--interval <minutes>] [--runs <count>]"
+argument-hint: "--project <path> --url <base-url> --tag <tag> --interval <minutes> --runs <count>"
 allowed-tools: Read, Write, Bash, Grep, Glob, Agent
 ---
 

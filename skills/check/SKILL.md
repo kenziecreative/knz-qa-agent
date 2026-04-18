@@ -1,7 +1,7 @@
 ---
-name: check
+name: qa:check
 description: Verify that the current phase's deliverables actually work. Designed for integration with GSD phase completion - tests what was just built before moving on.
-arguments: "[--url <base-url>] [--phase <phase-number>]"
+argument-hint: "--url <base-url> --phase <phase-number>"
 ---
 
 # /qa:check

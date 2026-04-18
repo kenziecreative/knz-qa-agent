@@ -1,7 +1,7 @@
 ---
-name: gen
+name: qa:gen
 description: Generate a QA spec from a description, existing documentation, or by exploring the application
-arguments: "<spec-name> [--from <source>] [--a11y-depth <level>] [description]"
+argument-hint: "<spec-name> --from <source> --a11y-depth <level> description"
 ---
 
 # /qa:gen

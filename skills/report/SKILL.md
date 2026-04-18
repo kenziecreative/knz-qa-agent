@@ -1,7 +1,7 @@
 ---
-name: report
+name: qa:report
 description: Generate a cross-session QA report from persisted reports and history, including trend analysis and optional GitHub issue creation
-arguments: "--project <path> [--format <format>] [--since <date-or-duration>] [--create-issues]"
+argument-hint: "--project <path> --format <format> --since <date-or-duration> --create-issues"
 allowed-tools: Read, Write, Bash, Grep, Glob
 ---
 

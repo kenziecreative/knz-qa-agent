@@ -1,7 +1,7 @@
 ---
-name: init
+name: qa:init
 description: Initialize QA structure in a project by creating .qa directory and template spec
-arguments: "[path]"
+argument-hint: "path"
 ---
 
 # /qa:init
