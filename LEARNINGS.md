@@ -59,7 +59,7 @@ plugin-root/
 
 **Key tools for web QA:**
 
-- `mcp__playwright__*` - Playwright browser automation
+- `playwright-cli` - Playwright browser automation via CLI (replaces MCP)
 - `Read`, `Write` - File operations (specs, reports)
 - `Bash` - Creating directories, running commands
 - `Glob`, `Grep` - Finding files

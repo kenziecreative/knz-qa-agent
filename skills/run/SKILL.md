@@ -2,7 +2,7 @@
 name: qa:run
 description: Run QA tests against a web application using spec files or ad-hoc instructions
 argument-hint: "--project <path> --spec <name> --url <base-url> --tag <tag> --env <profile> task"
-allowed-tools: Read, Write, Bash, Grep, Glob, Agent, mcp__playwright__*
+allowed-tools: Read, Write, Bash, Grep, Glob, Agent, Edit
 ---
 
 # /qa:run
@@ -170,7 +170,7 @@ Execute this test assignment following your QA methodology. Remember to:
   - Check state persistence across navigation (form data, filters, selections)
   - Watch for hydration mismatches (console warnings, content flashing)
 - Test error recovery for critical flows:
-  - Use Playwright route interception to simulate API failures when spec requests error testing
+  - Use `playwright-cli route` to simulate API failures when spec requests error testing
   - Verify error messages are user-friendly (no raw stack traces)
   - Check that recovery paths exist (retry button, navigate away, dismiss error)
 - Perform structured accessibility checks on every page/flow:
@@ -183,7 +183,7 @@ Execute this test assignment following your QA methodology. Remember to:
   - aria-live: When dynamic content appears, verify aria-live region exists and receives content
   - Touch targets: At mobile viewport, measure all interactive elements — flag any below 44x44px
   - Color sole indicator: When testing state changes, verify non-color indicators exist (text, icon, border)
-  - Reduced motion: Use emulateMedia to set prefers-reduced-motion: reduce, verify animations stop
+  - Reduced motion: Use `playwright-cli eval` or `playwright-cli run-code` to set prefers-reduced-motion: reduce, verify animations stop
   - Zoom: At desktop viewport, simulate 200% text zoom and check for overflow or content loss
   - Form errors: After submission with errors, check for error summary, links to fields, aria-invalid on errored fields, and focus on first error
 

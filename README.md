@@ -21,7 +21,7 @@ Clone or install this plugin into your Claude Code plugins directory:
 git clone <repo-url> ~/.claude/plugins/qa-agent
 ```
 
-Playwright MCP is bundled — no separate setup required. The `.claude-plugin/.mcp.json` configuration launches the Playwright MCP server automatically when the plugin loads.
+Requires `playwright-cli` installed globally (e.g., via Volta or npm). The agent uses it via the Bash tool — no MCP server dependency.
 
 ## Skills
 
@@ -364,16 +364,16 @@ This is a web application. After completing each phase, run `/qa:check --url htt
 knz-qa-agent/
 ├── .claude-plugin/
 │   ├── plugin.json          # Plugin manifest
-│   └── .mcp.json            # Playwright MCP server config (bundled)
+│   └── .mcp.json            # MCP server config (currently empty)
 ├── agents/
 │   └── qa-tester.md         # QA tester agent definition
 ├── skills/
-│   ├── qa-run.md            # Full test execution
-│   ├── qa-check.md          # Phase verification gate
-│   ├── qa-init.md           # Initialize QA structure
-│   ├── qa-gen.md            # Generate specs
-│   ├── qa-monitor.md        # Continuous monitoring
-│   └── qa-report.md         # Compile results
+│   ├── run/SKILL.md         # Full test execution
+│   ├── check/SKILL.md       # Phase verification gate
+│   ├── init/SKILL.md        # Initialize QA structure
+│   ├── gen/SKILL.md         # Generate specs
+│   ├── monitor/SKILL.md     # Continuous monitoring
+│   └── report/SKILL.md      # Compile results
 ├── hooks/
 │   ├── hooks.json           # Hook registration config
 │   ├── stop.md              # Stop hook — triggers QA on significant changes
@@ -388,7 +388,7 @@ knz-qa-agent/
 ## Requirements
 
 - Claude Code
-- Playwright MCP (bundled via `.claude-plugin/.mcp.json` — no separate install)
+- `playwright-cli` installed globally (CLI tool for browser automation)
 - Web application running locally or accessible URL
 
 ## Development Notes
@@ -404,7 +404,7 @@ MIT
 ## Version History
 
 - **0.2.0** (in progress) - Robust web/UI testing
-  - Plugin foundation cleanup (skills-only, Playwright MCP bundled via `.mcp.json`)
+  - Plugin foundation cleanup (skills-only, browser automation via `playwright-cli`)
   - Agent architecture (memory, hooks, background execution)
   - Deep web testing (network, viewports, personas, forms, SPA, error recovery)
   - Structured accessibility (Tier 2 — focus management, landmarks, zoom, touch targets)
