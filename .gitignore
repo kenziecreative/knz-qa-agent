@@ -1,6 +1,12 @@
 # Planning
 .planning/
 
+# Claude Code local config
+.claude/
+
+# Playwright CLI output
+.playwright-cli/
+
 # macOS
 .DS_Store
 
