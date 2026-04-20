@@ -1395,6 +1395,29 @@ Check CSS transition and animation quality on interactive elements. This complem
 
 Confidence: Layout-triggering transition property (eval-detected) = Medium. Missing transition on interactive element = Medium. Transition duration inconsistency = Medium. Loading animation absent during async operation (screenshot) = High. Animation smoothness = not assessable (honest ceiling — no FPS API).
 
+#### Reporting UX State Verification Findings
+
+Present UX state verification findings grouped by confidence level, consistent with the existing design verification and accessibility findings format.
+
+| Finding type | Confidence |
+| --- | --- |
+| Empty state missing (list renders zero items, no empty state messaging) | High |
+| Loading state missing (API delayed but no loading indicator visible) | High |
+| Error state missing (API returned 5xx but no error messaging visible) | High |
+| No visible focus indicator on interactive element (eval-confirmed) | High |
+| Cursor incorrect on interactive element (eval-confirmed) | High |
+| Sticky header not sticking after scroll (eval-confirmed position drift) | High |
+| Loading animation absent during async operation (screenshot) | High |
+| No visible hover state change on interactive element | Medium |
+| Active state no visible change (screenshot judgment — mousedown too brief for eval) | Medium |
+| Disabled element lacks visual disabled styling | Medium |
+| Toast/notification appears stuck (visible after 5s, no spec timing declared) | Medium |
+| Content obscured by sticky header (visual judgment) | Medium |
+| Layout-triggering transition property (width/height instead of transform/opacity) | Medium |
+| Missing transition on interactive element (abrupt state changes) | Medium |
+| Transition duration inconsistency across same element type | Medium |
+| First-run/onboarding state not detected on fresh session | Observation |
+
 ### Design Reference
 
 When a `## Design Reference` section is present in the spec, use the provided image paths during visual verification:
