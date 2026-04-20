@@ -744,7 +744,7 @@ The `## Visual Focus` section in a spec controls visual verification depth:
 
 **This is a depth toggle, not an on/off switch.** Baseline Tier 1 visual observations always run regardless of this section's presence. The Visual Focus section only controls whether Tier 2 also runs (and which parts of it).
 
-**Note:** Tier 2 visual methodology for `ux-states`, `layout-integrity`, and `performance-responsive` will be added in Phases 10-12. If a Visual Focus section requests those areas before their phases ship, note in the report: "Visual Focus requested for [areas] — full methodology pending Phase [N]."
+**Note:** Tier 2 visual methodology for `layout-integrity` and `performance-responsive` will be added in Phases 11-12. If a Visual Focus section requests those areas before their phases ship, note in the report: "Visual Focus requested for [areas] — full methodology pending Phase [N]."
 
 ### Design Verification
 
@@ -1095,6 +1095,161 @@ Present design verification findings grouped by confidence level, consistent wit
 | Dark mode visual issue (icon invisible, text unreadable) | Medium |
 | Missing lazy-load placeholder | Medium |
 | Cross-page computed style deviation (inferred) | Medium |
+
+### UX State Verification
+
+Tier 2 UX state verification — runs when `ux-states` is listed in the spec's `## Visual Focus` section. All four areas use the same dual pattern: `playwright-cli eval` for deterministic DOM/CSS probes (high confidence) + `playwright-cli screenshot` + visual judgment for perceptual quality (medium confidence).
+
+**Security note:** When reading CSS custom properties via `playwright-cli eval`, do not include property names beginning with `--auth`, `--token`, `--key`, or `--secret` in reports.
+
+**Environment note:** Active state triggering (storage clearing, cookie deletion, route mocking) manipulates application state. Use only in test environments — never against production data.
+
+#### State Existence (STATE-01)
+
+Verify that each of the four core application states (empty, loading, error, first-run) exists and renders correctly. Active triggering is the default methodology — the agent forces each state into existence, then verifies it renders. This goes beyond checking if state markup exists; it confirms states actually fire under the right conditions.
+
+1. **Active triggering is the default methodology** (per D-01). For each state type, attempt to force the state into existence, then verify it renders correctly. Active triggering catches "state defined but never fires" bugs that passive checks miss.
+
+2. **Empty state** (per D-02): Clear storage and mock empty API response:
+   - `playwright-cli run-code "async (page) => { await page.context().clearCookies(); }"` + `playwright-cli localstorage-clear`
+   - `playwright-cli route "*/api/*" "{\"body\": \"[]\", \"contentType\": \"application/json\"}"` to return empty arrays
+   - Navigate to the page, take screenshot
+   - Eval probe for empty state indicators:
+   ```
+   playwright-cli eval "() => {
+     const selectors = [
+       '[data-empty]', '[data-state=\"empty\"]', '[data-testid*=\"empty\"]',
+       '.empty-state', '.empty', '.no-results', '.no-items', '.no-data',
+       '[aria-label*=\"empty\"]', '[aria-label*=\"no items\"]'
+     ];
+     const listContainers = Array.from(
+       document.querySelectorAll('ul, ol, [role=\"list\"], [role=\"grid\"], [role=\"table\"], table tbody')
+     ).filter(el => el.children.length === 0 && el.offsetParent !== null);
+     return {
+       bySelector: selectors.filter(s => document.querySelector(s)),
+       emptyListContainers: listContainers.map(el => ({
+         tag: el.tagName, id: el.id, className: String(el.className).slice(0, 50)
+       }))
+     };
+   }"
+   ```
+   - If no empty state indicator found AND list container has 0 children: flag as **High confidence** — "empty state missing: list renders with zero items but no empty state messaging."
+   - Cleanup: `playwright-cli route-clear "*/api/*"` (per D-04)
+
+3. **Loading state** (per D-02): Intercept and delay API responses:
+   - `playwright-cli route "*/api/*" "{\"delay\": 3000}"` to hold loading state visible
+   - Navigate to the page
+   - Immediately screenshot and eval for loading indicators:
+   ```
+   playwright-cli eval "() => {
+     const indicators = document.querySelectorAll(
+       '[role=\"progressbar\"], [aria-label*=\"loading\"], [aria-busy=\"true\"], [class*=\"spinner\"], [class*=\"skeleton\"], [class*=\"loader\"], [class*=\"loading\"]'
+     );
+     return { count: indicators.length, found: indicators.length > 0 };
+   }"
+   ```
+   - If no loading indicator found during delayed response: flag as **High confidence** — "loading state missing: API response delayed but no loading indicator visible."
+   - Cleanup: `playwright-cli route-clear "*/api/*"` (per D-04)
+
+4. **Error state** (per D-02): Route returning 5xx status:
+   - `playwright-cli route "*/api/*" "{\"status\": 500, \"body\": \"{\\\"error\\\": \\\"Internal Server Error\\\"}\"}"` (uses existing error simulation pattern from Phase 3 ERR-01)
+   - Navigate to the page
+   - Screenshot and eval for error state indicators:
+   ```
+   playwright-cli eval "() => {
+     const errorIndicators = document.querySelectorAll(
+       '[role=\"alert\"], [data-error], [data-state=\"error\"], [class*=\"error\"], [class*=\"fail\"], [aria-label*=\"error\"]'
+     );
+     const hasErrorText = document.body.innerText.match(/something went wrong|error|failed to load|try again|oops/i);
+     return { indicators: errorIndicators.length, hasErrorText: !!hasErrorText, found: errorIndicators.length > 0 || !!hasErrorText };
+   }"
+   ```
+   - If no error state found after 5xx response: flag as **High confidence** — "error state missing: API returned 500 but no error messaging visible to user."
+   - Cleanup: `playwright-cli route-clear "*/api/*"` (per D-04)
+
+5. **First-run/onboarding state** (per D-02): Clear all storage + cookies to simulate fresh user:
+   - `playwright-cli run-code "async (page) => { await page.context().clearCookies(); }"` + `playwright-cli localstorage-clear`
+   - Navigate to the page
+   - Screenshot and eval for onboarding markers:
+   ```
+   playwright-cli eval "() => {
+     const selectors = [
+       '[data-tour]', '[data-onboarding]', '[data-welcome]', '[data-first-run]',
+       '.onboarding', '.welcome', '.getting-started', '.first-run',
+       '[aria-label*=\"welcome\"]', '[aria-label*=\"get started\"]', '[aria-label*=\"tour\"]'
+     ];
+     return selectors.map(s => ({
+       selector: s,
+       found: !!document.querySelector(s),
+       visible: (() => {
+         const el = document.querySelector(s);
+         if (!el) return false;
+         const r = el.getBoundingClientRect();
+         return r.width > 0 && r.height > 0;
+       })()
+     })).filter(r => r.found);
+   }"
+   ```
+   - If no onboarding markers found on first visit: note as **observation** — "no first-run/onboarding state detected on fresh session. This may be intentional if the app does not have an onboarding flow."
+   - Note: Unlike empty/loading/error, first-run absence is an observation, not a finding — not all apps have onboarding.
+
+6. **Passive DOM probing as fallback** (per D-03): When the spec provides no trigger guidance or when a note in the spec indicates active manipulation would be destructive (e.g., "do not clear storage — app has real user data"), skip active triggering for that state type and use eval-only DOM probing (the eval patterns from steps 2-5 above, without the route/storage manipulation). Note in the report: "passive fallback used — active triggering skipped for [state type] per spec guidance."
+
+7. **State cleanup mandate** (per D-04): After EACH active state trigger (steps 2-5), the route mock or storage change MUST be cleaned up before proceeding to the next state check. This prevents state bleed where e.g. an empty-state route mock is still active when testing loading state.
+
+Confidence: Missing empty/loading/error state with eval-confirmed absence = High. First-run/onboarding not detected = observation only. Visual quality of state rendering = Medium (screenshot judgment).
+
+#### Interaction State Matrix (STATE-02)
+
+Systematically sweep each interactive component through its full state matrix. This extends the DESIGN-04 hover/focus verification pattern to eight states per component.
+
+1. **Identify interactive elements** (per D-06): Use `playwright-cli snapshot` to capture the accessibility tree. Identify all elements matching: `button`, `[role="button"]`, `a`, `input`, `select`, `textarea`, `[tabindex]`. If the page has many interactive elements (50+), prioritize: primary action buttons and CTAs first, navigation links second, form inputs third, decorative/tertiary elements only if time allows. The spec can override this prioritization with an explicit component list.
+
+2. **Per-component state sweep** (per D-05, D-07): For each target element, follow this sequence:
+
+   a. **Default** (baseline): Read computed styles at rest:
+   ```
+   playwright-cli eval "() => {
+     const el = document.querySelector('[target-selector]');
+     const s = getComputedStyle(el);
+     return {
+       bg: s.backgroundColor, color: s.color, opacity: s.opacity,
+       border: s.borderColor, outline: s.outlineColor,
+       cursor: s.cursor, transform: s.transform,
+       boxShadow: s.boxShadow, textDecoration: s.textDecoration
+     };
+   }"
+   ```
+
+   b. **Hover**: Trigger hover via `playwright-cli hover <element-ref>`, then **immediately** eval the same properties (per D-05, extending DESIGN-04 hover-then-eval). Compare to default — if all properties are identical, the element has no visible hover state. Flag as **Medium confidence** — "interactive element has no visible hover state change."
+
+   c. **Focus**: Tab to the element (or `playwright-cli click <element-ref>` if Tab order is unreliable), then eval. Check for focus ring or visual change. If no visual change from default: flag as **High confidence** — "interactive element has no visible focus indicator" (accessibility impact).
+
+   d. **Active** (per D-08): Take a screenshot during the click sequence. This is **visual-judgment-only at Medium confidence** — the mousedown state resolves in milliseconds, making eval capture unreliable. Note: "active state assessed via screenshot — eval capture unreliable for momentary mousedown state."
+
+   e. **Disabled**: Query the DOM for disabled variants:
+   ```
+   playwright-cli eval "() => {
+     const disabled = Array.from(
+       document.querySelectorAll('[disabled], [aria-disabled=\"true\"]')
+     ).filter(el => el.offsetParent !== null);
+     return disabled.map(el => {
+       const s = getComputedStyle(el);
+       return {
+         tag: el.tagName, text: el.textContent.trim().slice(0, 40),
+         opacity: s.opacity, cursor: s.cursor,
+         hasVisualDisabledStyle: parseFloat(s.opacity) < 1 || s.cursor === 'not-allowed' || s.pointerEvents === 'none'
+       };
+     });
+   }"
+   ```
+   - If a disabled element has full opacity AND cursor is not `not-allowed` AND pointerEvents is not `none`: flag as **Medium confidence** — "disabled element lacks visual disabled styling."
+
+   f. **Loading/Error/Success** (per D-07): If the component has loading, error, or success states exposed via the application flow, navigate to them. For error states, use `playwright-cli route` to intercept the component's API endpoint with a 5xx response (same pattern as STATE-01 error state). For each exposed state, eval computed styles and compare to default. If the component shows no visual differentiation in error/success states: flag as **Medium confidence**.
+
+3. **Report format**: For each component swept, report the states that were verifiable and any missing visual differentiation. Group findings by confidence level.
+
+Confidence: No visible focus indicator = High (accessibility). Eval-confirmed identical styles across states = High. No visible hover change = Medium. Active state visual judgment = Medium. Disabled element without visual styling = Medium.
 
 ### Design Reference
 
