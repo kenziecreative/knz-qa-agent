@@ -370,6 +370,12 @@ After form submission with errors:
 | Error summary without links to fields | Medium |
 | Missing aria-invalid on errored field | Medium |
 | Focus not moving to first error after submission | Medium |
+| Lab LCP > 2.5s (PerformanceObserver entry) | High |
+| Lab CLS > 0.1 (PerformanceObserver accumulated) | High |
+| Lab INP > 200ms (event observer entry) | High |
+| Cross-browser CSS property divergence (getComputedStyle diff) | High |
+| Cross-browser visual difference (screenshot comparison) | Medium |
+| Visual judgment of likely performance cause | Medium |
 
 ## Performance Awareness
 
@@ -743,8 +749,6 @@ The `## Visual Focus` section in a spec controls visual verification depth:
   - `performance-responsive` — Core Web Vitals, cross-browser rendering, viewport sweep (Phase 12)
 
 **This is a depth toggle, not an on/off switch.** Baseline Tier 1 visual observations always run regardless of this section's presence. The Visual Focus section only controls whether Tier 2 also runs (and which parts of it).
-
-**Note:** Tier 2 visual methodology for `performance-responsive` will be added in Phase 12. If a Visual Focus section requests that area before Phase 12 ships, note in the report: "Visual Focus requested for performance-responsive — full methodology pending Phase 12."
 
 ### Design Verification
 
@@ -1799,6 +1803,115 @@ Present layout and content integrity findings grouped by confidence level, consi
 | Casing inconsistency across same-type elements (screenshot judgment) | Medium |
 | Placeholder image visual detection (screenshot judgment) | Medium |
 | Visual alignment/spacing judgment from screenshot | Medium |
+
+### Performance & Responsive
+
+Tier 2 performance and responsive verification — runs when `performance-responsive` is listed in the spec's `## Visual Focus` section. All four areas use the same dual pattern: `playwright-cli eval` for deterministic DOM/CSS probes (high confidence) + `playwright-cli screenshot` + visual judgment for perceptual quality (medium confidence).
+
+**Security note:** When reading CSS custom properties via `playwright-cli eval`, do not include property names beginning with `--auth`, `--token`, `--key`, or `--secret` in reports.
+
+**Lab-environment note:** All Web Vitals measurements in this section are **synthetic lab values** from the test environment — not field data or CrUX metrics. Always label findings with "Lab" prefix (e.g., "Lab LCP: 3.2s") and include this disclaimer in the performance section of every report: "Web Vitals measured in lab environment — values reflect test conditions, not real user experience."
+
+#### Core Web Vitals (PERF-01)
+
+Measure CLS, LCP, and INP using raw PerformanceObserver. No external libraries, no CDN fetches — browser-native APIs only (per D-01). Identify which elements or interactions cause poor scores via entry attributes.
+
+**Thresholds (Google official):**
+
+| Metric | Good | Needs Improvement | Poor |
+| --- | --- | --- | --- |
+| LCP | <= 2.5s | 2.5s - 4.0s | > 4.0s |
+| INP | <= 200ms | 200ms - 500ms | > 500ms |
+| CLS | <= 0.1 | 0.1 - 0.25 | > 0.25 |
+
+**Browser support note:** `largest-contentful-paint` and `layout-shift` PerformanceObserver types are not supported in Firefox. PERF-01 CLS and LCP run in Chromium and WebKit only. INP is measurable in Firefox 144+ via `event` type. If an observer type throws on creation, note "[engine] [metric] not supported — skipped" and continue.
+
+**Procedure:**
+
+1. **Inject PerformanceObserver globals** (immediately after page load completes). Use `run-code` to set up three observers that write to `window.__qa*` globals:
+   ```
+   playwright-cli run-code "async (page) => {
+     await page.evaluate(() => {
+       window.__qaLCP = { value: 0, element: null, url: null };
+       try {
+         new PerformanceObserver((list) => {
+           const entries = list.getEntries();
+           const last = entries[entries.length - 1];
+           window.__qaLCP = {
+             value: last.startTime,
+             element: last.element ? last.element.tagName + (last.element.id ? '#' + last.element.id : '') + (last.element.className ? '.' + String(last.element.className).split(' ')[0] : '') : null,
+             url: last.url || null
+           };
+         }).observe({ type: 'largest-contentful-paint', buffered: true });
+       } catch(e) { window.__qaLCP = { value: -1, element: null, url: null, error: 'not supported' }; }
+
+       window.__qaCLS = { value: 0, largestSource: null };
+       try {
+         new PerformanceObserver((list) => {
+           for (const entry of list.getEntries()) {
+             if (!entry.hadRecentInput) {
+               window.__qaCLS.value += entry.value;
+               if (entry.sources && entry.sources.length > 0) {
+                 const src = entry.sources[0];
+                 if (src.node) {
+                   window.__qaCLS.largestSource = src.node.tagName + (src.node.id ? '#' + src.node.id : '');
+                 }
+               }
+             }
+           }
+         }).observe({ type: 'layout-shift', buffered: true });
+       } catch(e) { window.__qaCLS = { value: -1, largestSource: null, error: 'not supported' }; }
+
+       window.__qaINP = { value: 0, type: null, target: null };
+       new PerformanceObserver((list) => {
+         for (const entry of list.getEntries()) {
+           if (entry.duration > window.__qaINP.value) {
+             window.__qaINP = {
+               value: entry.duration,
+               type: entry.name,
+               target: entry.target ? entry.target.tagName + (entry.target.id ? '#' + entry.target.id : '') : null
+             };
+           }
+         }
+       }).observe({ type: 'event', durationThreshold: 0, buffered: true });
+     });
+     return 'observers attached';
+   }"
+   ```
+
+2. **Trigger LCP finalization** (per D-02). The browser does not emit the final `largest-contentful-paint` entry until user input occurs:
+   ```
+   playwright-cli click body
+   ```
+   If the page has interactive elements that were part of your functional testing, those clicks already satisfy this requirement. Only add an explicit body click if no other interaction occurred after navigation.
+
+3. **Finalize CLS** (per D-03). Dispatch `visibilitychange` to flush the accumulated layout shift score:
+   ```
+   playwright-cli run-code "async (page) => {
+     await page.evaluate(() => {
+       document.dispatchEvent(new Event('visibilitychange'));
+     });
+     return 'visibilitychange dispatched';
+   }"
+   ```
+   Do NOT use `page.close()` — that ends the session.
+
+4. **Read all three metrics:**
+   ```
+   playwright-cli eval "() => ({ lcp: window.__qaLCP, cls: window.__qaCLS, inp: window.__qaINP })"
+   ```
+
+5. **Evaluate results and attribute findings:**
+   - If `lcp.value === -1` or `cls.value === -1`: note "[engine] [metric] not supported — skipped"
+   - If `lcp.value > 2500`: flag as finding — "Lab LCP: [value/1000]s ([lcp.element]) — [Good/Needs Improvement/Poor]"
+   - If `cls.value > 0.1`: flag as finding — "Lab CLS: [cls.value] (largest shift source: [cls.largestSource]) — [Good/Needs Improvement/Poor]"
+   - If `inp.value === 0` AND no agent interactions occurred on this page: report "Lab INP: not measured (no interactions recorded)" — do NOT report as "Good" or score 0 (per D-04)
+   - If `inp.value > 200`: flag as finding — "Lab INP: [inp.value]ms (slowest interaction: [inp.type] on [inp.target]) — [Good/Needs Improvement/Poor]"
+   - For each finding, include the threshold category (Good/Needs Improvement/Poor) and the attributed element
+
+6. **Screenshot supplement:** Take a screenshot of the page. Use visual judgment to identify potential causes of poor LCP (large unoptimized hero images, late-loading above-fold content) or CLS (ads, lazy-loaded images without explicit dimensions, dynamically injected banners). Note visual observations at Medium confidence.
+
+Confidence: Eval-confirmed poor LCP (value > 2500ms from PerformanceObserver) = High. Eval-confirmed poor CLS (value > 0.1 from PerformanceObserver) = High. Eval-confirmed poor INP (value > 200ms from event observer) = High. INP not measured (no interactions) = Observation (not a finding). Visual judgment of likely performance cause from screenshot = Medium.
 
 ### Design Reference
 
