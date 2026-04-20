@@ -376,6 +376,16 @@ After form submission with errors:
 | Cross-browser CSS property divergence (getComputedStyle diff) | High |
 | Cross-browser visual difference (screenshot comparison) | Medium |
 | Visual judgment of likely performance cause | Medium |
+| Document overflow at breakpoint (scrollWidth > innerWidth) | High |
+| Container overflow at breakpoint (scrollWidth > clientWidth) | High |
+| Content overlap at breakpoint (getBoundingClientRect >50% area) | High |
+| Modal without close mechanism (eval-confirmed) | High |
+| Pre-checked opt-in in consent context (eval-confirmed) | High |
+| Cookie banner blocking content (getBoundingClientRect overlap) | High |
+| Infinite scroll position lost (scrollY delta eval-confirmed) | High |
+| Text truncation at breakpoint (scrollWidth > clientWidth) | Medium |
+| Unexpectedly hidden content at breakpoint | Medium |
+| Cookie banner visual blocking (screenshot judgment) | Medium |
 
 ## Performance Awareness
 
@@ -2241,6 +2251,34 @@ Detect four specific UX anti-patterns using eval probes for structural checks an
 11. **Evaluate results:** Compare post-back `scrollY` to `preNavScroll`. If `scrollY` is approximately 0 (or < 100px) AND `preNavScroll` was > 200px: flag as **High confidence** — "Infinite scroll position lost: scrollY before navigation was [preNavScroll]px, after back navigation is [scrollY]px — scroll position not restored." If position is approximately restored (within 100px), this is a PASS — note "Infinite scroll position recovery: PASS."
 
 Confidence: Modal without close mechanism (eval-confirmed no dismiss button/icon) = High. Pre-checked opt-in in consent context (eval-confirmed checked state + context match) = High. Cookie banner overlapping main content (getBoundingClientRect intersection confirmed) = High. Cookie banner visual blocking (screenshot judgment, eval missed) = Medium. Infinite scroll position lost (eval-confirmed scrollY delta) = High. No infinite scroll detected = Observation (not a finding).
+
+#### Reporting Performance & Responsive Findings
+
+Present performance and responsive findings grouped by confidence level, consistent with the existing design verification, UX state verification, layout & content integrity, and accessibility findings format.
+
+| Finding type | Confidence |
+| --- | --- |
+| Lab LCP > 2.5s (PerformanceObserver entry with element attribution) | High |
+| Lab CLS > 0.1 (PerformanceObserver accumulated with shift source) | High |
+| Lab INP > 200ms (event observer entry with interaction target) | High |
+| Cross-browser CSS property divergence (getComputedStyle diff, non-exempt) | High |
+| Document horizontal overflow at breakpoint (scrollWidth > innerWidth) | High |
+| Container overflow at breakpoint (scrollWidth > clientWidth) | High |
+| Content overlap at breakpoint (>50% area from getBoundingClientRect) | High |
+| Modal without close mechanism (no dismiss button/icon/attribute) | High |
+| Pre-checked opt-in in consent/marketing context (checked + context match) | High |
+| Cookie banner overlapping main content (getBoundingClientRect intersection) | High |
+| Infinite scroll position lost on back navigation (scrollY delta confirmed) | High |
+| Cross-browser visual rendering difference (screenshot comparison) | Medium |
+| Text truncation at breakpoint (text element scrollWidth > clientWidth) | Medium |
+| Unexpectedly hidden content at breakpoint (visible at adjacent width) | Medium |
+| Cookie banner visual blocking (screenshot judgment, eval missed) | Medium |
+| Visual judgment of likely performance cause (screenshot observation) | Medium |
+| Visual breakpoint layout judgment from screenshot | Medium |
+| Lab INP not measured (no interactions recorded) | Observation |
+| No infinite scroll detected | Observation |
+| No cookie banner detected | Observation |
+| No visible modals detected | Observation |
 
 ### Design Reference
 
