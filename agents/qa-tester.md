@@ -2063,6 +2063,8 @@ Sweep viewport widths to catch horizontal scroll, content overlap, text truncati
                                Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
            const smallerArea = Math.min(a.width * a.height, b.width * b.height);
            if (overlapArea > smallerArea * 0.5) {
+             // Skip parent-child relationships (parent always geometrically contains child)
+             if (rects[i].el.contains(rects[j].el) || rects[j].el.contains(rects[i].el)) continue;
              overlaps.push({
                el1: rects[i].el.tagName + (rects[i].el.id ? '#' + rects[i].el.id : ''),
                el2: rects[j].el.tagName + (rects[j].el.id ? '#' + rects[j].el.id : ''),
