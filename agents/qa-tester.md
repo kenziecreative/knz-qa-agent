@@ -907,6 +907,172 @@ Detect broken images, aspect ratio distortion, upscaled images, and lazy-load is
 
 Confidence: broken/upscaled via eval = High. Distortion with object-fit: cover = note only. Missing lazy-load placeholder = Medium. Visual quality judgment = Medium.
 
+#### Color & Theme Consistency (DESIGN-04)
+
+Verify color token usage, hover/focus color states, and dark mode/theme switching consistency using eval probes and visual judgment.
+
+**CSS Custom Property / Token Reading (per D-10, D-14):**
+
+1. Read all color-related CSS custom properties from the document:
+   ```
+   playwright-cli eval "() => {
+     const style = getComputedStyle(document.documentElement);
+     const tokens = [];
+     try {
+       Array.from(document.styleSheets).forEach(sheet => {
+         try {
+           Array.from(sheet.cssRules).forEach(rule => {
+             if (rule.selectorText === ':root' || rule.selectorText === ':root, :host') {
+               Array.from(rule.style).forEach(prop => {
+                 if (prop.startsWith('--') && !prop.match(/^--(auth|token|key|secret)/)) {
+                   tokens.push({ prop, value: style.getPropertyValue(prop).trim() });
+                 }
+               });
+             }
+           });
+         } catch(e) { /* cross-origin stylesheet — skip */ }
+       });
+     } catch(e) { /* no stylesheets — skip */ }
+     return tokens;
+   }"
+   ```
+2. If a spec or design tokens file declares expected token values, compare each token against the expected value. Deviations = **High confidence**.
+3. If no expected values exist, record the token list for cross-page comparison (see DESIGN-05 below).
+4. **Security:** Skip any property whose name begins with `--auth`, `--token`, `--key`, or `--secret` — do not include these in reports.
+
+**Hover/Focus Color State Verification (per D-11):**
+
+5. For key interactive elements (buttons, links, inputs), verify hover and focus color states:
+
+   a. Identify the target element via `playwright-cli snapshot` (get element ref)
+   b. Read default state colors:
+      ```
+      playwright-cli eval "() => {
+        const el = document.querySelector('button');
+        const s = getComputedStyle(el);
+        return { bg: s.backgroundColor, color: s.color, border: s.borderColor, outline: s.outlineColor };
+      }"
+      ```
+   c. Trigger hover state: `playwright-cli hover <element-ref>`
+   d. **Immediately** read hover state colors (do NOT navigate or click between hover and eval):
+      ```
+      playwright-cli eval "() => {
+        const el = document.querySelector('button');
+        const s = getComputedStyle(el);
+        return { bg: s.backgroundColor, color: s.color, border: s.borderColor, outline: s.outlineColor };
+      }"
+      ```
+   e. Compare default vs hover — if colors are identical, the element has no visible hover state. Flag as **Medium confidence** (interactive elements should have visual hover feedback).
+   f. Repeat for focus state: `playwright-cli click <element-ref>` or Tab to focus, then eval.
+
+6. Take a screenshot after hover/focus to visually confirm the state change is perceptible.
+
+**Dark Mode / Theme Switching (per D-12):**
+
+7. Test dark mode consistency:
+
+   a. Record light mode CSS variables and take a screenshot:
+      ```
+      playwright-cli screenshot --filename .qa/reports/design-light-mode.png
+      ```
+   b. Toggle to dark mode using `playwright-cli run-code`:
+      ```
+      playwright-cli run-code "async (page) => {
+        await page.emulateMedia({ colorScheme: 'dark' });
+        const tokens = await page.evaluate(() => {
+          const style = getComputedStyle(document.documentElement);
+          const result = [];
+          try {
+            Array.from(document.styleSheets).forEach(sheet => {
+              try {
+                Array.from(sheet.cssRules).forEach(rule => {
+                  if (rule.selectorText === ':root' || rule.selectorText === ':root, :host') {
+                    Array.from(rule.style).forEach(prop => {
+                      if (prop.startsWith('--') && !prop.match(/^--(auth|token|key|secret)/)) {
+                        result.push({ prop, value: style.getPropertyValue(prop).trim() });
+                      }
+                    });
+                  }
+                });
+              } catch(e) {}
+            });
+          } catch(e) {}
+          return result;
+        });
+        return tokens;
+      }"
+      ```
+   c. Take a dark mode screenshot:
+      ```
+      playwright-cli screenshot --filename .qa/reports/design-dark-mode.png
+      ```
+   d. Compare light mode tokens vs dark mode tokens — if color tokens did NOT change, the site may not support dark mode. Note as observation (not a finding — dark mode is not required).
+   e. If tokens DID change, visually compare light and dark screenshots for:
+      - Text readability against dark backgrounds
+      - Images/icons that don't adapt (dark icon on dark background)
+      - Borders or shadows that disappear
+   f. Reset: `playwright-cli run-code "async (page) => { await page.emulateMedia({ colorScheme: 'light' }); }"`
+   g. If the page has a visible theme toggle button (instead of or in addition to prefers-color-scheme), also test by clicking it and repeating the comparison.
+
+8. If a theme toggle exists but `emulateMedia` has no effect, note: "Site uses a manual theme toggle rather than prefers-color-scheme — tested via toggle click."
+
+Confidence: Token value differs from expected = High. Hover/focus colors identical to default = Medium. Dark mode visual issue (icon invisible) = Medium. Dark mode not supported = observation only (not a finding).
+
+#### Cross-Page Consistency (DESIGN-05)
+
+Verify design consistency across multiple pages — either using declared design tokens (D-14) or by inferring consistency from computed styles (D-13).
+
+**When design tokens (CSS custom properties) exist (per D-14):**
+
+1. On each page in the spec, read CSS custom properties using the token reading probe from DESIGN-04 step 1.
+2. Compare token values across pages — all pages should have identical `:root` custom property values (tokens are global by definition).
+3. If token values differ between pages, flag as **High confidence** — design system tokens should be consistent.
+
+**When no formal design system exists (per D-13):**
+
+4. On each page, sample computed styles from key UI elements:
+   ```
+   playwright-cli eval "() => {
+     const sample = (sel) => {
+       const el = document.querySelector(sel);
+       if (!el) return null;
+       const s = getComputedStyle(el);
+       return {
+         fontFamily: s.fontFamily,
+         fontSize: s.fontSize,
+         fontWeight: s.fontWeight,
+         color: s.color,
+         backgroundColor: s.backgroundColor,
+         lineHeight: s.lineHeight
+       };
+     };
+     return {
+       h1: sample('h1'),
+       body: sample('body'),
+       button: sample('button, [role=\"button\"]'),
+       link: sample('a'),
+       nav: sample('nav'),
+       input: sample('input')
+     };
+   }"
+   ```
+5. Compare sampled values across pages:
+   - `h1` font-family/size/weight should be consistent across pages
+   - `body` font-family/color should be consistent across pages
+   - `button` background-color/color/font should be consistent across pages
+   - `a` (link) color should be consistent across pages
+6. Flag deviations as **Medium confidence** — without declared tokens, visual inconsistency is a judgment call. Include the specific values that differ: "h1 on /about uses font-size 32px vs 36px on /home."
+
+**Single-page specs:**
+
+7. If the spec covers only one URL, cross-page comparison is not possible. Note: "Cross-page consistency requires multiple pages — styles sampled on this page for reference." Record the sampled values in the report without flagging any findings.
+
+**Visual supplement:**
+
+8. Take screenshots of the same element type (e.g., all page headers, all primary buttons) across pages and visually compare for consistency in a summary view.
+
+Confidence: Design token values differ across pages = High. Inferred computed style deviation = Medium. Single-page spec = no findings (observation only).
+
 ### Design Reference
 
 When a `## Design Reference` section is present in the spec, use the provided image paths during visual verification:
