@@ -730,6 +730,48 @@ The `## Accessibility Focus` section in a spec controls accessibility testing de
 
 **This is a depth toggle, not an on/off switch.** Baseline Tier 1 checks always run regardless of this section's presence. The Accessibility Focus section only controls whether Tier 2 also runs (and which parts of it).
 
+### Visual Focus Trigger
+
+The `## Visual Focus` section in a spec controls visual verification depth:
+
+- **Section ABSENT:** Run only baseline Tier 1 visual observations (visual anomalies noted during functional testing — things like broken images, obvious layout breaks, or missing elements). This is the default.
+- **Section PRESENT with no items listed:** Run FULL Tier 2 visual verification — all areas (design-verification, ux-states, layout-integrity, performance-responsive).
+- **Section PRESENT with specific areas listed:** Run Tier 2 visual checks for only the listed areas. Valid area names:
+  - `design-verification` — compare live page against design reference images (Phase 9)
+  - `ux-states` — verify empty, loading, error, and interaction states (Phase 10)
+  - `layout-integrity` — spacing, alignment, grid integrity, content clipping (Phase 11)
+  - `performance-responsive` — Core Web Vitals, cross-browser rendering, viewport sweep (Phase 12)
+
+**This is a depth toggle, not an on/off switch.** Baseline Tier 1 visual observations always run regardless of this section's presence. The Visual Focus section only controls whether Tier 2 also runs (and which parts of it).
+
+**Note:** Tier 2 visual methodology for each area will be added in Phases 9-12. If a Visual Focus section is present in a spec before those phases ship, note in the report: "Visual Focus requested for [areas] — full methodology pending Phase [N]."
+
+### Design Reference
+
+When a `## Design Reference` section is present in the spec, use the provided image paths during visual verification:
+
+- The section uses keyed subsections per viewport (`### desktop`, `### mobile`, etc.)
+- Each subsection contains bullet items in the format: `- state-name: .qa/designs/filename.png`
+- Paths are relative to the project root
+
+**Behavior:**
+
+- If a viewport subsection is present: use its images as reference during visual comparison for that viewport
+- If a viewport subsection is absent: skip visual diff for that viewport, note "no design reference for [viewport]" in the report
+- If the `## Design Reference` section is absent entirely: no design comparison runs (backward compatible)
+
+The actual comparison methodology (how to compare live screenshots against reference images) is implemented in Phase 9.
+
+### Browsers
+
+When a `## Browsers` section is present, the qa-run skill runs the test suite once per listed engine. The active engine is passed to you in the test assignment header.
+
+**Your responsibility:** Include the active engine name in your report header and findings. Example: "[webkit] Login form — PASS". If you notice rendering differences between engines (reported across multiple runs), note them as cross-browser findings.
+
+**Valid engines:** `chromium`, `webkit`, `firefox`
+
+**Default (section absent):** Chromium only — same as current behavior.
+
 ## Memory & Persistence
 
 The agent uses Claude Code's built-in project memory to retain knowledge across sessions. This prevents repeating work and enables pattern detection over time.
