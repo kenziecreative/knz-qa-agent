@@ -53,6 +53,12 @@ Runs the checkout spec using the `staging` environment profile.
 ```
 Runs only `critical`-tagged scenarios against the staging environment.
 
+### Mode 8: Run with specific browser engines
+```
+/qa:run --project ~/Projects/my-app --spec checkout --browsers
+```
+Runs the checkout spec using the browser engines defined in the spec's `## Browsers` section.
+
 ## Parsing Arguments
 
 From the user's input, extract:
@@ -83,6 +89,7 @@ From the user's input, extract:
 7. If spec defines viewports: Test each scenario at each viewport (default: mobile 375px, tablet 768px, desktop 1280px if spec doesn't specify)
 8. If spec defines personas: Test scenarios as each persona, handling auth flows between switches
 9. The agent will work through the spec systematically
+10. **Browser engine resolution**: If spec has `## Browsers`, extract the bullet list of engine names. Run the full test once per listed engine (spawn one agent invocation per engine with `--browser=<engine>`). If section absent, default to `chromium` (single run). Each agent invocation receives the active engine name in the test assignment header.
 
 ### If ad-hoc task is provided:
 
@@ -131,6 +138,25 @@ Spawn the `qa-tester` agent with a prompt structured like:
 ## Execution Notes
 - Some scenarios have data sets. Run each data set as a separate variant.
 - Report per-variant: "Scenario X [variant-name]: PASS/FAIL"
+
+{If spec has Visual Focus section:}
+## Visual Focus
+**Areas**: {area list, or "all (full Tier 2)" if present but empty}
+Run Tier 2 visual checks per your Visual Focus Trigger.
+
+{If spec has Design Reference section:}
+## Design Reference
+{full content of the ## Design Reference section from the spec, including viewport subsections and image paths}
+
+{If spec has Browsers section:}
+## Browser Engines
+**Engines to test**: {comma-separated engine list from spec}
+**Active engine for this run**: {current engine}
+Run the full test once per engine. Report results labeled by engine: "[chromium] Scenario X: PASS"
+
+{If spec has no Browsers section:}
+## Browser Engines
+**Engine**: chromium (default)
 
 {If ad-hoc:}
 ## Task
@@ -244,3 +270,9 @@ The agent will provide:
 ```
 /qa:run --project ~/Projects/store --tag smoke,regression
 ```
+
+**Run across browser engines defined in spec:**
+```
+/qa:run --project ~/Projects/my-app --spec homepage
+```
+If the homepage spec has a `## Browsers` section listing chromium and webkit, the skill runs the full test suite once per engine.
