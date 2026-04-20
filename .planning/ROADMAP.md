@@ -11,7 +11,7 @@ This milestone bridges the gap between "does it work?" and "does it look and fee
 - [ ] **Phase 8: Spec Format Extensions** - Add Visual Focus tiering, Design Reference, and Browsers sections to spec format
 - [ ] **Phase 9: Design Verification** - Design reference comparison, typography, images/media, color/theme, cross-page consistency
 - [x] **Phase 10: UX State Verification** - Empty/loading/error states, interaction state matrix, interactive feedback, animation quality (completed 2026-04-20)
-- [ ] **Phase 11: Layout & Content Integrity** - Spacing/alignment, cross-page consistency, realistic-data overflow, placeholder detection
+- [x] **Phase 11: Layout & Content Integrity** - Spacing/alignment, cross-page consistency, realistic-data overflow, placeholder detection (completed 2026-04-20)
 - [ ] **Phase 12: Performance & Responsive** - Core Web Vitals, cross-browser rendering, breakpoint sweep, UX anti-pattern detection
 - [ ] **Phase 13: Usage Guidance** - ORCHESTRATION.md reference doc and /qa:guide skill
 
@@ -98,11 +98,11 @@ Plans:
   3. Agent tests with realistic-length content (long names, large numbers, localization strings) and reports where layout breaks
   4. Agent detects Lorem ipsum, TODO/FIXME strings, filler data, inconsistent casing, and vague CTAs in visible content
 
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 - [x] 11-01-PLAN.md — Add Layout & Content Integrity section header, Spacing & Alignment Checks (LAYOUT-01), and Cross-Page Structural Consistency (LAYOUT-02) to qa-tester.md
-- [ ] 11-02-PLAN.md — Add Realistic-Data Overflow Testing (LAYOUT-03), Placeholder & Draft Content Detection (LAYOUT-04), Reporting table, and update Visual Focus stub note
+- [x] 11-02-PLAN.md — Add Realistic-Data Overflow Testing (LAYOUT-03), Placeholder & Draft Content Detection (LAYOUT-04), Reporting table, and update Visual Focus stub note
 
 ### Phase 12: Performance & Responsive
 
@@ -150,6 +150,6 @@ Phase 13 has zero dependencies — it can run during Phase 8 or any time.
 | 8. Spec Format Extensions | 0/1 | Not started | - |
 | 9. Design Verification | 0/2 | Not started | - |
 | 10. UX State Verification | 2/2 | Complete    | 2026-04-20 |
-| 11. Layout & Content Integrity | 1/2 | In Progress|  |
+| 11. Layout & Content Integrity | 2/2 | Complete   | 2026-04-20 |
 | 12. Performance & Responsive | 0/? | Not started | - |
 | 13. Usage Guidance | 0/? | Not started | - |
