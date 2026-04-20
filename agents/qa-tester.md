@@ -1873,17 +1873,19 @@ Measure CLS, LCP, and INP using raw PerformanceObserver. No external libraries, 
        } catch(e) { window.__qaCLS = { value: -1, largestSource: null, error: 'not supported' }; }
 
        window.__qaINP = { value: 0, type: null, target: null };
-       new PerformanceObserver((list) => {
-         for (const entry of list.getEntries()) {
-           if (entry.duration > window.__qaINP.value) {
-             window.__qaINP = {
-               value: entry.duration,
-               type: entry.name,
-               target: entry.target ? entry.target.tagName + (entry.target.id ? '#' + entry.target.id : '') : null
-             };
+       try {
+         new PerformanceObserver((list) => {
+           for (const entry of list.getEntries()) {
+             if (entry.duration > window.__qaINP.value) {
+               window.__qaINP = {
+                 value: entry.duration,
+                 type: entry.name,
+                 target: entry.target ? entry.target.tagName + (entry.target.id ? '#' + entry.target.id : '') : null
+               };
+             }
            }
-         }
-       }).observe({ type: 'event', durationThreshold: 0, buffered: true });
+         }).observe({ type: 'event', durationThreshold: 0, buffered: true });
+       } catch(e) { window.__qaINP = { value: -1, type: null, target: null, error: 'not supported' }; }
      });
      return 'observers attached';
    }"
@@ -1912,7 +1914,7 @@ Measure CLS, LCP, and INP using raw PerformanceObserver. No external libraries, 
    ```
 
 5. **Evaluate results and attribute findings:**
-   - If `lcp.value === -1` or `cls.value === -1`: note "[engine] [metric] not supported — skipped"
+   - If `lcp.value === -1` or `cls.value === -1` or `inp.value === -1`: note "[engine] [metric] not supported — skipped"
    - If `lcp.value > 2500`: flag as finding — "Lab LCP: [value/1000]s ([lcp.element]) — [Good/Needs Improvement/Poor]"
    - If `cls.value > 0.1`: flag as finding — "Lab CLS: [cls.value] (largest shift source: [cls.largestSource]) — [Good/Needs Improvement/Poor]"
    - If `inp.value === 0` AND no agent interactions occurred on this page: report "Lab INP: not measured (no interactions recorded)" — do NOT report as "Good" or score 0 (per D-04)
