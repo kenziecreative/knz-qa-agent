@@ -150,6 +150,6 @@ Phase 13 has zero dependencies — it can run during Phase 8 or any time.
 | 8. Spec Format Extensions | 0/1 | Not started | - |
 | 9. Design Verification | 0/2 | Not started | - |
 | 10. UX State Verification | 2/2 | Complete    | 2026-04-20 |
-| 11. Layout & Content Integrity | 2/2 | Complete   | 2026-04-20 |
+| 11. Layout & Content Integrity | 2/2 | Complete    | 2026-04-20 |
 | 12. Performance & Responsive | 0/? | Not started | - |
 | 13. Usage Guidance | 0/? | Not started | - |
