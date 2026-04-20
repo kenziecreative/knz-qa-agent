@@ -120,7 +120,11 @@ Plans:
   3. Agent sweeps viewport widths and catches horizontal scroll, content overlap, and off-by-one breakpoint transitions
   4. Agent flags UX anti-patterns: modal without close button, cookie banner blocking content, pre-checked opt-ins, infinite scroll without position recovery
 
-**Plans**: TBD
+**Plans:** 2 plans
+
+Plans:
+- [ ] 12-01-PLAN.md — Add Performance & Responsive section header, Core Web Vitals (PERF-01), Cross-Browser Rendering (PERF-02), remove stub note, extend confidence table
+- [ ] 12-02-PLAN.md — Add Breakpoint Sweep (PERF-03), UX Anti-Pattern Detection (PERF-04), Reporting table
 
 ### Phase 13: Usage Guidance
 
@@ -151,5 +155,5 @@ Phase 13 has zero dependencies — it can run during Phase 8 or any time.
 | 9. Design Verification | 0/2 | Not started | - |
 | 10. UX State Verification | 2/2 | Complete    | 2026-04-20 |
 | 11. Layout & Content Integrity | 2/2 | Complete    | 2026-04-20 |
-| 12. Performance & Responsive | 0/? | Not started | - |
+| 12. Performance & Responsive | 0/2 | Not started | - |
 | 13. Usage Guidance | 0/? | Not started | - |
