@@ -790,6 +790,123 @@ Common patterns to flag:
 - Background color slightly off (e.g., #f5f5f5 vs #fafafa) — color category, use eval to read actual computed background-color
 - Image cropped differently than reference — imagery category, check object-fit value
 
+#### Typography Verification (DESIGN-02)
+
+Verify font loading, font consistency, text overflow, and readability using eval probes and visual judgment.
+
+**Font Load Detection (per D-06):**
+
+1. Run font load check:
+   ```
+   playwright-cli eval "async () => {
+     await document.fonts.ready;
+     const families = new Set();
+     document.querySelectorAll('h1, h2, h3, p, span, a, button, li').forEach(el => {
+       families.add(getComputedStyle(el).fontFamily);
+     });
+     return { fontsReady: true, families: Array.from(families) };
+   }"
+   ```
+2. If the spec or a design tokens file declares expected font families, compare the computed families against the expected list. Use `document.fonts.check('16px ExpectedFont')` for each expected font:
+   ```
+   playwright-cli eval "() => ({
+     inter: document.fonts.check('16px Inter'),
+     mono: document.fonts.check('16px JetBrains Mono')
+   })"
+   ```
+3. If `document.fonts.check()` returns false for an expected font, flag as **High confidence** — the font did not load and a fallback is rendering instead.
+4. If no expected fonts are declared, compare computed `fontFamily` values across pages (see Cross-Page Consistency below) and flag inconsistencies.
+
+**Text Overflow Detection (per D-04):**
+
+5. Scan all text elements for horizontal overflow:
+   ```
+   playwright-cli eval "() => {
+     const overflowing = [];
+     document.querySelectorAll('p, h1, h2, h3, h4, h5, h6, span, li, a, button, label, td, th').forEach(el => {
+       if (el.scrollWidth > el.clientWidth || el.scrollHeight > el.clientHeight) {
+         overflowing.push({
+           tag: el.tagName,
+           text: el.textContent.slice(0, 60),
+           scrollW: el.scrollWidth,
+           clientW: el.clientWidth,
+           scrollH: el.scrollHeight,
+           clientH: el.clientHeight
+         });
+       }
+     });
+     return overflowing;
+   }"
+   ```
+6. Any element where `scrollWidth > clientWidth` or `scrollHeight > clientHeight` = **High confidence** text overflow.
+
+**Visual Readability (per D-04, D-05):**
+
+7. Take a screenshot and visually assess:
+   - Line length readability — text blocks should not span excessively wide (visual judgment, not character count)
+   - Font rendering quality — no visible FOUT/FOIT artifacts in the screenshot
+   - Cross-page font consistency — if testing multiple pages, compare heading and body font appearance
+
+Confidence: eval-detected overflow = High. Visual readability judgment = Medium.
+
+#### Image & Media Quality (DESIGN-03)
+
+Detect broken images, aspect ratio distortion, upscaled images, and lazy-load issues using DOM property probes.
+
+**Image Quality Probe (per D-07, D-08, D-09):**
+
+1. Run the image quality probe on all `<img>` elements:
+   ```
+   playwright-cli eval "() => {
+     return Array.from(document.querySelectorAll('img')).map(img => ({
+       src: (img.currentSrc || img.src).slice(-80),
+       alt: img.alt,
+       complete: img.complete,
+       naturalW: img.naturalWidth,
+       naturalH: img.naturalHeight,
+       renderedW: Math.round(img.getBoundingClientRect().width),
+       renderedH: Math.round(img.getBoundingClientRect().height),
+       loading: img.loading,
+       broken: img.complete && img.naturalWidth === 0,
+       distorted: img.naturalWidth > 0 && Math.abs(
+         (img.naturalWidth / img.naturalHeight) -
+         (img.getBoundingClientRect().width / img.getBoundingClientRect().height)
+       ) > 0.05,
+       upscaled: img.naturalWidth > 0 && (
+         img.getBoundingClientRect().width > img.naturalWidth ||
+         img.getBoundingClientRect().height > img.naturalHeight
+       )
+     }));
+   }"
+   ```
+
+2. Flag findings from the probe results:
+   - `broken: true` (complete but naturalWidth === 0) = **High confidence** — image failed to load
+   - `upscaled: true` (rendered dimensions exceed natural dimensions) = **High confidence** — image displayed larger than source resolution, will appear pixelated
+   - `distorted: true` (aspect ratio deviation > 5%) = **Medium confidence** — aspect ratio differs from natural proportions. Note: images using `object-fit: cover` or `object-fit: contain` may intentionally crop — check the element's computed `object-fit` value before flagging:
+     ```
+     playwright-cli eval "() => {
+       return Array.from(document.querySelectorAll('img')).map(img => ({
+         src: (img.currentSrc || img.src).slice(-60),
+         objectFit: getComputedStyle(img).objectFit
+       }));
+     }"
+     ```
+     If `object-fit` is `cover` or `contain`, downgrade distortion finding to a note rather than a flag.
+
+3. Check lazy-loaded images:
+   - For images with `loading="lazy"`, verify they have either a `src` attribute (native lazy loading) or both `data-src` and a placeholder `src` (JS-based lazy loading)
+   - If a lazy-loaded image has no placeholder content (no `src`, no background, no skeleton element in its container), flag as **Medium confidence** — missing lazy-load placeholder
+
+**Visual Supplement:**
+
+4. Take a screenshot and visually assess image rendering quality:
+   - Do images appear pixelated or blurry? (supplements the upscale probe)
+   - Are decorative images missing alt="" (empty alt for decorative)?
+   - Do images have appropriate sizing relative to their containers?
+
+Confidence: broken/upscaled via eval = High. Distortion with object-fit: cover = note only. Missing lazy-load placeholder = Medium. Visual quality judgment = Medium.
+
 ### Design Reference
 
 When a `## Design Reference` section is present in the spec, use the provided image paths during visual verification:
@@ -804,7 +921,7 @@ When a `## Design Reference` section is present in the spec, use the provided im
 - If a viewport subsection is absent: skip visual diff for that viewport, note "no design reference for [viewport]" in the report
 - If the `## Design Reference` section is absent entirely: no design comparison runs (backward compatible)
 
-The actual comparison methodology (how to compare live screenshots against reference images) is implemented in Phase 9.
+For the comparison methodology, see the Mockup Comparison (DESIGN-01) procedure in the Design Verification section above.
 
 ### Browsers
 
