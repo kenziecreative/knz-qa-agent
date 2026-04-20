@@ -1913,6 +1913,97 @@ Measure CLS, LCP, and INP using raw PerformanceObserver. No external libraries, 
 
 Confidence: Eval-confirmed poor LCP (value > 2500ms from PerformanceObserver) = High. Eval-confirmed poor CLS (value > 0.1 from PerformanceObserver) = High. Eval-confirmed poor INP (value > 200ms from event observer) = High. INP not measured (no interactions) = Observation (not a finding). Visual judgment of likely performance cause from screenshot = Medium.
 
+#### Cross-Browser Rendering Comparison (PERF-02)
+
+Compare rendered CSS across browser engines. Use `getComputedStyle` and `getBoundingClientRect` eval probes as the primary detection mechanism (per D-07). Chromium is the baseline — any other engine that diverges gets flagged as a cross-browser finding (per D-08).
+
+**When this runs:** Only when the agent is executing a multi-engine run (multiple engines listed in spec's `## Browsers` section). During a single-engine run, skip PERF-02 entirely and note "Cross-browser comparison requires multi-engine run — skipped (single engine active)."
+
+**Target properties (~18 for comparison):**
+
+| Property | Category | Notes |
+| --- | --- | --- |
+| `fontFamily` | Typography | Exempt if only generic family name differs |
+| `fontWeight` | Typography | 700 vs "bold" keyword normalization |
+| `lineHeight` | Typography | Sub-pixel rounding differences |
+| `letterSpacing` | Typography | WebKit spacing variance |
+| `gap` | Layout | Flex/grid gap |
+| `borderRadius` | Rendering | Sub-pixel rendering |
+| `position` | Layout | Check sticky threshold |
+| `display` | Layout | Flex/grid support |
+| `overflowX` | Layout | Value resolution differences |
+| `overflowY` | Layout | Value resolution differences |
+| `transform` | Rendering | 3D transform differences |
+| `opacity` | Rendering | Sub-pixel compositing |
+| `boxShadow` | Rendering | Color format (rgb vs hex) |
+| `backdropFilter` | Rendering | WebKit requires -webkit- prefix |
+| `textRendering` | Typography | geometricPrecision vs auto |
+| `alignItems` | Layout | "normal" vs "stretch" resolution |
+| `justifyContent` | Layout | "normal" vs "flex-start" resolution |
+| `fontSmoothing` | Typography | -webkit-font-smoothing (WebKit only) |
+
+**Intentional divergences (EXEMPT — do not flag):** per D-10:
+- Native form controls: `<select>`, `<input type="date">`, `<input type="range">`
+- Scrollbar appearance and `scrollbar-width`
+- System font fallback names (e.g., `-apple-system` vs `BlinkMacSystemFont`)
+- `-webkit-` prefixed vendor properties present only in WebKit
+
+**Procedure:**
+
+1. **Select target elements for comparison.** Query for key structural elements — use the same element set you'd evaluate for DESIGN-05 cross-page consistency:
+   ```
+   playwright-cli eval "() => {
+     const selectors = ['body', 'header', 'nav', 'main', '[role=\"main\"]', 'h1', 'h2', 'p', 'button', '[role=\"button\"]', 'a', 'footer', '.container', '.wrapper'];
+     const results = {};
+     for (const sel of selectors) {
+       const el = document.querySelector(sel);
+       if (!el) continue;
+       const s = getComputedStyle(el);
+       results[sel] = {
+         fontFamily: s.fontFamily,
+         fontWeight: s.fontWeight,
+         lineHeight: s.lineHeight,
+         letterSpacing: s.letterSpacing,
+         gap: s.gap,
+         borderRadius: s.borderRadius,
+         position: s.position,
+         display: s.display,
+         overflowX: s.overflowX,
+         overflowY: s.overflowY,
+         transform: s.transform,
+         opacity: s.opacity,
+         boxShadow: s.boxShadow,
+         backdropFilter: s.backdropFilter,
+         textRendering: s.textRendering,
+         alignItems: s.alignItems,
+         justifyContent: s.justifyContent
+       };
+     }
+     return results;
+   }"
+   ```
+
+2. **Compare against Chromium baseline.** The Chromium run's eval results serve as the reference. For each element + property pair, compare the current engine's value against the Chromium value:
+   - **Exact match:** PASS (no finding)
+   - **Format-only difference** (e.g., `rgb(0, 0, 0)` vs `#000000`, `700` vs `bold`): normalize before comparing — these are not real divergences
+   - **Value difference** (e.g., different computed lineHeight, different gap value): check if the element is an exempt form control or the property is in the exemption list. If exempt, skip. Otherwise, flag as finding.
+
+3. **Format cross-browser findings using engine-tagged pattern:**
+   ```
+   [webkit] [selector] — [property]: "[webkit value]" vs chromium "[chromium value]"
+   ```
+   Example: `[webkit] h1 — lineHeight: "1.15" vs chromium "1.2"`
+
+4. **Screenshot supplement** (per D-11). After eval comparison, take screenshots at the same viewport size in the current engine. Use visual judgment to identify perceptual differences that individual property probes miss — things like sub-pixel text rendering, shadow intensity, gradient banding. Note visual-only observations at Medium confidence:
+   ```
+   playwright-cli screenshot
+   ```
+   Compare visually against the Chromium screenshot (from the prior engine run). Flag noticeable rendering differences not caught by the property diff.
+
+5. **No-divergence shortcut:** If all ~18 properties match across all target elements AND the screenshot shows no visual difference, report: "[engine] rendering comparison — no divergences detected."
+
+Confidence: Eval-confirmed CSS property divergence (getComputedStyle diff, non-exempt property, non-format difference) = High. Visual rendering difference from screenshot comparison (not caught by eval) = Medium.
+
 ### Design Reference
 
 When a `## Design Reference` section is present in the spec, use the provided image paths during visual verification:
