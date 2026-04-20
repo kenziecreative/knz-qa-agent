@@ -1251,6 +1251,150 @@ Systematically sweep each interactive component through its full state matrix. T
 
 Confidence: No visible focus indicator = High (accessibility). Eval-confirmed identical styles across states = High. No visible hover change = Medium. Active state visual judgment = Medium. Disabled element without visual styling = Medium.
 
+#### Interactive Feedback Quality (STATE-03)
+
+Check interactive feedback quality: cursor styling, toast/notification behavior, and scroll-related UI (sticky headers, content anchoring).
+
+1. **Cursor correctness** (per D-09): Screenshots do not render cursors in headless Playwright — use eval probe only:
+   ```
+   playwright-cli eval "() => {
+     const interactive = Array.from(
+       document.querySelectorAll('button, [role=\"button\"], a[href], input, select, textarea, [tabindex]:not([tabindex=\"-1\"])')
+     ).filter(el => {
+       const r = el.getBoundingClientRect();
+       return r.width > 0 && r.height > 0;
+     });
+     return interactive.map(el => ({
+       tag: el.tagName,
+       role: el.getAttribute('role'),
+       text: el.textContent.trim().slice(0, 30),
+       cursor: getComputedStyle(el).cursor,
+       correct: getComputedStyle(el).cursor === 'pointer'
+     })).filter(el => !el.correct);
+   }"
+   ```
+   - If any interactive element returns a cursor other than `pointer`: flag as **High confidence** — "interactive element [tag/text] has cursor: [value] instead of pointer."
+   - Exception: `input`, `select`, `textarea` expect `text` or `auto` cursor for their body — only check for `pointer` on buttons, links, and custom interactive roles.
+
+2. **Toast/notification verification** (per D-10): After a trigger action that should produce a toast (form submit, action button click):
+   - Assert the toast/notification element is visible:
+   ```
+   playwright-cli eval "() => {
+     const toasts = document.querySelectorAll(
+       '[role=\"alert\"], [role=\"status\"], [class*=\"toast\"], [class*=\"notification\"], [class*=\"snackbar\"], [data-toast]'
+     );
+     return Array.from(toasts).filter(el => {
+       const r = el.getBoundingClientRect();
+       return r.width > 0 && r.height > 0;
+     }).map(el => ({
+       tag: el.tagName, role: el.getAttribute('role'),
+       text: el.textContent.trim().slice(0, 80),
+       visible: true
+     }));
+   }"
+   ```
+   - Wait a reasonable period for auto-dismiss (use `playwright-cli run-code "async (page) => { await page.waitForTimeout(5000); }"` — 5 seconds covers most toast timers)
+   - Re-check: assert the toast is now hidden or detached from the DOM
+   - If the toast is still visible after 5 seconds without spec-declared timing: flag as **Medium confidence** — "toast/notification appears stuck (still visible after 5s). If the toast intentionally persists until dismissed, ignore this finding."
+   - Duration measurement is opt-in (per D-10): only assert specific timing when the spec declares a threshold (e.g., "toast should dismiss after 3 seconds").
+
+3. **Sticky header verification** (per D-11, D-12): Two-step eval — confirm positioning, then scroll and re-read:
+   - Step 1: Confirm sticky/fixed positioning:
+   ```
+   playwright-cli eval "() => {
+     const header = document.querySelector('header, [role=\"banner\"], nav:first-of-type');
+     if (!header) return { found: false };
+     const s = getComputedStyle(header);
+     return {
+       found: true, position: s.position, top: s.top,
+       isSticky: s.position === 'sticky' || s.position === 'fixed'
+     };
+   }"
+   ```
+   - If `isSticky` is false: note as observation — "header does not use sticky/fixed positioning." No finding.
+   - If `isSticky` is true, proceed to step 2:
+   - First verify the page is scrollable:
+   ```
+   playwright-cli eval "() => ({
+     scrollable: document.body.scrollHeight > window.innerHeight,
+     scrollHeight: document.body.scrollHeight,
+     viewportHeight: window.innerHeight
+   })"
+   ```
+   - If not scrollable: note "page content too short to verify sticky behavior — observation only."
+   - If scrollable: scroll and verify position holds:
+   ```
+   playwright-cli run-code "async (page) => {
+     await page.mouse.wheel(0, 500);
+     await page.waitForTimeout(300);
+     const header = await page.evaluate(() => {
+       const h = document.querySelector('header, [role=\"banner\"], nav:first-of-type');
+       if (!h) return null;
+       const rect = h.getBoundingClientRect();
+       const stickyTop = parseInt(getComputedStyle(h).top) || 0;
+       return { top: rect.top, expectedTop: stickyTop, sticking: Math.abs(rect.top - stickyTop) <= 2 };
+     });
+     return header;
+   }"
+   ```
+   - If `sticking` is false (top position drifted more than 2px from expected): flag as **High confidence** — "sticky header not sticking: expected top ~[expectedTop]px but found [top]px after scroll."
+   - Take screenshot after scroll as visual supplement (per D-12). If content appears obscured by the sticky header in the screenshot: flag as **Medium confidence** — "content may be obscured by sticky header (visual judgment)."
+
+Confidence: Cursor incorrect (eval-confirmed) = High. Sticky header not sticking (eval + scroll) = High. Toast appears stuck (timing-based) = Medium. Content obscured by sticky header (visual judgment) = Medium.
+
+#### Animation & Transition Quality (STATE-04)
+
+Check CSS transition and animation quality on interactive elements. This complements the existing reduced-motion checks in Structured Accessibility (which verify animation suppression when `prefers-reduced-motion: reduce` is set) — STATE-04 verifies animation quality when animations ARE enabled.
+
+1. **CSS transition/animation property inference** (per D-13): Read transition, animation, and will-change properties from interactive elements:
+   ```
+   playwright-cli eval "() => {
+     const interactive = Array.from(
+       document.querySelectorAll('button, a, input, select, [role=\"button\"], [tabindex]:not([tabindex=\"-1\"])')
+     ).filter(el => el.offsetParent !== null);
+     return interactive.map(el => {
+       const s = getComputedStyle(el);
+       const transition = s.transition;
+       const animation = s.animation;
+       const willChange = s.willChange;
+       const hasLayoutTrigger = /\\bwidth\\b|\\bheight\\b|\\btop\\b|\\bleft\\b/.test(transition);
+       const hasPerformantProp = /transform|opacity/.test(transition);
+       return {
+         tag: el.tagName, text: el.textContent.trim().slice(0, 30),
+         transition, hasTransition: transition !== 'none' && transition !== 'all 0s ease 0s',
+         animation: animation !== 'none' ? animation : null,
+         hasLayoutTrigger, hasPerformantProp, willChange
+       };
+     });
+   }"
+   ```
+
+2. **Layout-triggering transition detection** (per D-13): If any interactive element transitions `width`, `height`, `top`, or `left` properties (instead of `transform`/`opacity`): flag as **Medium confidence** — "element [tag/text] transitions layout-triggering property [property] — consider using transform/opacity for smoother animation."
+
+3. **Missing transition on interactive elements** (per D-13): If an interactive element (button, link, custom interactive role) has `transition: none` or equivalent: flag as **Medium confidence** — "interactive element [tag/text] has no CSS transition — hover/focus state changes may appear abrupt."
+
+4. **Transition duration consistency** (per D-13): Compare transition-duration values across elements of the same type:
+   ```
+   playwright-cli eval "() => {
+     const buttons = Array.from(document.querySelectorAll('button'))
+       .filter(el => el.offsetParent !== null);
+     const durations = buttons.map(el => ({
+       text: el.textContent.trim().slice(0, 25),
+       duration: getComputedStyle(el).transitionDuration
+     }));
+     const unique = [...new Set(durations.map(d => d.duration))];
+     return { durations, uniqueDurations: unique, inconsistent: unique.length > 1 };
+   }"
+   ```
+   - If buttons have inconsistent transition durations (more than one unique value): flag as **Medium confidence** — "button transition durations are inconsistent: [list values]. Consider standardizing for visual consistency."
+
+5. **Loading animation presence** (per D-15): During async operations (when a loading state is triggered via STATE-01 route delay), take a screenshot. The binary check: is a spinner, skeleton, or progress indicator visible, or is the screen showing static text during the wait?
+   - This is a **screenshot-only binary check** — animation present vs absent. Do not attempt to measure animation FPS or smoothness.
+
+6. **Honest ceiling** (per D-14): Playwright exposes no FPS API. Do not attempt to instrument `requestAnimationFrame` timing or other frame-rate proxies. The CSS property checks above are the honest ceiling for mechanical animation quality assessment. Note in the report: "animation smoothness cannot be verified mechanically — structural CSS property checks only."
+
+Confidence: Layout-triggering transition property (eval-detected) = Medium. Missing transition on interactive element = Medium. Transition duration inconsistency = Medium. Loading animation absent during async operation (screenshot) = High. Animation smoothness = not assessable (honest ceiling — no FPS API).
+
 ### Design Reference
 
 When a `## Design Reference` section is present in the spec, use the provided image paths during visual verification:
