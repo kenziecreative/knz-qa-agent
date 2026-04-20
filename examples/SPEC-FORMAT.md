@@ -45,6 +45,18 @@ flags:
 - form-accessibility
 - focus-management
 
+## Visual Focus (optional)
+- design-verification
+- layout-integrity
+
+## Design Reference (optional)
+### desktop
+- home-default: .qa/designs/desktop-home.png
+
+## Browsers (optional)
+- chromium
+- webkit
+
 ## Test Scenarios
 
 ### Scenario 1: [Name]
@@ -209,6 +221,90 @@ Controls the depth of accessibility testing. When present, the agent runs Tier 2
 ## Accessibility Focus
 - focus-management
 - form-accessibility
+```
+
+### Visual Focus (v2)
+
+Controls the depth of visual verification testing. When present, the agent runs Tier 2 visual checks (the full visual methodology). When absent, only baseline Tier 1 visual observations run (anomalies noted during functional testing).
+
+**Behavior:**
+
+- Absent: Tier 1 only (visual anomalies noted during functional testing). This is the default.
+- Present with no items listed: Full Tier 2 (all visual areas)
+- Present with specific areas listed: Tier 2 for those areas only
+
+**Available focus areas:**
+
+- `design-verification` — compare live page against design reference images (Phase 9)
+- `ux-states` — verify empty, loading, error, and interaction states (Phase 10)
+- `layout-integrity` — spacing, alignment, grid integrity, content clipping (Phase 11)
+- `performance-responsive` — Core Web Vitals, cross-browser rendering, viewport sweep (Phase 12)
+
+**Example (full Tier 2):**
+
+```markdown
+## Visual Focus
+```
+
+**Example (specific areas):**
+
+```markdown
+## Visual Focus
+- design-verification
+- layout-integrity
+```
+
+### Design Reference (v2)
+
+Provides mockup image paths for visual comparison during design verification testing. Uses keyed subsections per viewport with state-specific image paths as nested bullet items.
+
+**Subsection format:**
+
+- Each viewport gets a `### viewport-name` subsection (e.g., `### desktop`, `### mobile`)
+- Each subsection contains bullet items in the format: `- state-name: .qa/designs/filename.png`
+- Paths are relative to the project root
+
+**Behavior:**
+
+- Section absent: No design comparison runs (backward compatible)
+- Section present, viewport subsection present: Agent uses listed images as reference for that viewport
+- Section present, viewport subsection absent: Agent skips visual diff for that viewport and notes "no design reference for [viewport]" in the report
+
+**Example:**
+
+```markdown
+## Design Reference
+
+### desktop
+- home-logged-out: .qa/designs/desktop-home-logged-out.png
+- home-logged-in: .qa/designs/desktop-home-logged-in.png
+- checkout-step-1: .qa/designs/desktop-checkout-1.png
+
+### mobile
+- home-logged-out: .qa/designs/mobile-home-logged-out.png
+```
+
+### Browsers (v2)
+
+Specifies which browser engines to test. When present, the qa-run skill runs the full test suite once per listed engine. When absent, Chromium is used (current default behavior).
+
+**Valid values:**
+
+- `chromium` — Chromium-based rendering (Chrome, Edge)
+- `webkit` — WebKit-based rendering (Safari)
+- `firefox` — Firefox/Gecko rendering
+
+**Behavior:**
+
+- Section absent: Chromium only (backward compatible)
+- Section present: Run each listed engine via `playwright-cli --browser=<engine>`
+
+**Example:**
+
+```markdown
+## Browsers
+- chromium
+- webkit
 ```
 
 ### Test Scenarios
@@ -382,7 +478,7 @@ Issues that are already tracked. This prevents the agent from re-reporting known
 
 ## Backward Compatibility
 
-All v1 specs continue to work without modification. The v2 fields (`tags:`, `depends_on:`, `## Data Sets`, `## Environments`, `## Accessibility Focus`) are all optional. A spec with none of these fields behaves exactly as before.
+All v1 specs continue to work without modification. The v2 fields (`tags:`, `depends_on:`, `## Data Sets`, `## Environments`, `## Accessibility Focus`, `## Visual Focus`, `## Design Reference`, `## Browsers`) are all optional. A spec with none of these fields behaves exactly as before.
 
 ## File Naming Convention
 
