@@ -1073,6 +1073,29 @@ Verify design consistency across multiple pages — either using declared design
 
 Confidence: Design token values differ across pages = High. Inferred computed style deviation = Medium. Single-page spec = no findings (observation only).
 
+#### Reporting Design Verification Findings
+
+Present design verification findings grouped by confidence level, consistent with the existing accessibility findings format. Use the "live page shows X vs reference shows Y" format for mockup comparison findings (DESIGN-01).
+
+| Finding type | Confidence |
+| --- | --- |
+| Broken image (complete but naturalWidth is 0) | High |
+| Font not loaded (document.fonts.check returns false) | High |
+| Text overflowing container (scrollWidth > clientWidth) | High |
+| Image upscaled beyond natural resolution | High |
+| CSS token value differs from declared expected value | High |
+| Design token values differ across pages | High |
+| Aspect ratio distortion > 5% (without object-fit cover/contain) | Medium |
+| Visual spacing imbalance vs reference | Medium |
+| Typography mismatch vs reference (visual judgment) | Medium |
+| Color mismatch vs reference (visual judgment) | Medium |
+| Imagery mismatch vs reference (visual judgment) | Medium |
+| Layout deviation vs reference (visual judgment) | Medium |
+| Hover/focus colors identical to default state | Medium |
+| Dark mode visual issue (icon invisible, text unreadable) | Medium |
+| Missing lazy-load placeholder | Medium |
+| Cross-page computed style deviation (inferred) | Medium |
+
 ### Design Reference
 
 When a `## Design Reference` section is present in the spec, use the provided image paths during visual verification:
