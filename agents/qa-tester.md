@@ -2004,6 +2004,244 @@ Compare rendered CSS across browser engines. Use `getComputedStyle` and `getBoun
 
 Confidence: Eval-confirmed CSS property divergence (getComputedStyle diff, non-exempt property, non-format difference) = High. Visual rendering difference from screenshot comparison (not caught by eval) = Medium.
 
+#### Breakpoint Sweep (PERF-03)
+
+Sweep viewport widths to catch horizontal scroll, content overlap, text truncation, and off-by-one breakpoint transition bugs. This extends (does not replace) the multi-viewport testing at the Tier 1 level — the breakpoint sweep is a dedicated Tier 2 methodology with systematic overflow detection at each width.
+
+**Two-phase approach (per D-12):**
+- **Phase 1 (default):** Test at 6 discrete breakpoints: 320, 375, 768, 1024, 1280, 1440px. Fast, named widths with actionable findings tied to specific breakpoints.
+- **Phase 2 (escalation):** Continuous sweep in ~50px increments across a failing range. Activates when (a) a Phase 1 width fails (to find the exact failure boundary), or (b) the spec opts in via `breakpoint-sweep: continuous` in the Visual Focus section.
+
+**Procedure — Phase 1 (discrete breakpoints):**
+
+1. **Resize to each of the 6 widths.** Use a fixed height of 900px (or the spec-defined viewport height) for consistency:
+   ```
+   playwright-cli resize 320 900
+   ```
+   Repeat for: 375, 768, 1024, 1280, 1440.
+
+2. **At each width, run the overflow/overlap/truncation eval probe:**
+   ```
+   playwright-cli eval "() => {
+     const width = window.innerWidth;
+     const docOverflow = document.documentElement.scrollWidth > window.innerWidth;
+     const containers = Array.from(
+       document.querySelectorAll('main, [role=\"main\"], section, article, nav, .container, .wrapper, .content')
+     ).filter(el => el.offsetParent !== null);
+     const overflowingContainers = containers.filter(el => el.scrollWidth > el.clientWidth).map(el => ({
+       tag: el.tagName, id: el.id || null, class: String(el.className).slice(0, 40),
+       scrollWidth: el.scrollWidth, clientWidth: el.clientWidth
+     }));
+     const textElements = Array.from(
+       document.querySelectorAll('p, h1, h2, h3, h4, h5, h6, span, a, button, li, td, th, label')
+     ).filter(el => el.offsetParent !== null && el.scrollWidth > el.clientWidth);
+     const truncated = textElements.map(el => ({
+       tag: el.tagName, text: el.textContent.trim().slice(0, 50),
+       scrollWidth: el.scrollWidth, clientWidth: el.clientWidth
+     }));
+     const allVisible = Array.from(document.querySelectorAll('*')).filter(el =>
+       el.offsetParent !== null && el.getBoundingClientRect().width > 0
+     );
+     const rects = allVisible.map(el => ({ el, rect: el.getBoundingClientRect() }));
+     const overlaps = [];
+     for (let i = 0; i < Math.min(rects.length, 200); i++) {
+       for (let j = i + 1; j < Math.min(rects.length, 200); j++) {
+         const a = rects[i].rect, b = rects[j].rect;
+         if (!(a.right <= b.left || a.left >= b.right || a.bottom <= b.top || a.top >= b.bottom)) {
+           const overlapArea = Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left)) *
+                               Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
+           const smallerArea = Math.min(a.width * a.height, b.width * b.height);
+           if (overlapArea > smallerArea * 0.5) {
+             overlaps.push({
+               el1: rects[i].el.tagName + (rects[i].el.id ? '#' + rects[i].el.id : ''),
+               el2: rects[j].el.tagName + (rects[j].el.id ? '#' + rects[j].el.id : ''),
+               overlapPercent: Math.round(overlapArea / smallerArea * 100)
+             });
+           }
+         }
+       }
+     }
+     return { width, docOverflow, overflowingContainers, truncated: truncated.slice(0, 10), overlaps: overlaps.slice(0, 5) };
+   }"
+   ```
+
+3. **Check for hidden content that shouldn't be hidden.** At each breakpoint, compare element visibility against adjacent breakpoints — if an element is visible at 768px but has `display: none` at 1024px without being a mobile-only pattern (hamburger menu, mobile nav), flag it:
+   ```
+   playwright-cli eval "() => {
+     const candidates = Array.from(document.querySelectorAll('main *, [role=\"main\"] *')).filter(el => {
+       const style = getComputedStyle(el);
+       return style.display === 'none' || style.visibility === 'hidden';
+     });
+     return candidates.slice(0, 20).map(el => ({
+       tag: el.tagName, id: el.id || null, class: String(el.className).slice(0, 40),
+       display: getComputedStyle(el).display, visibility: getComputedStyle(el).visibility
+     }));
+   }"
+   ```
+   Compare results across breakpoints. Elements hidden at wider breakpoints but visible at narrower (unusual — typically the reverse) are suspicious.
+
+4. **Flag findings per width:**
+   - Document overflow (`scrollWidth > innerWidth`): flag as **High confidence** — "Horizontal overflow at [width]px: document scrollWidth [value]px exceeds viewport [width]px"
+   - Container overflow: flag as **High confidence** — "Container overflow at [width]px: [tag]#[id] scrollWidth [value]px > clientWidth [value]px"
+   - Text truncation: flag as **Medium confidence** — "Text truncation at [width]px: [tag] '[text...]' scrollWidth [value]px > clientWidth [value]px"
+   - Content overlap (>50% area): flag as **High confidence** — "Content overlap at [width]px: [el1] overlaps [el2] by [percent]%"
+   - Suspicious hidden content: flag as **Medium confidence** — "Unexpectedly hidden at [width]px: [tag]#[id] (visible at [other width]px)"
+
+5. **Screenshot at failing widths only.** If a width produces any High confidence finding, take a screenshot at that width for visual confirmation. Do not screenshot passing widths (avoid screenshot flood per research pitfall).
+
+**Procedure — Phase 2 (continuous sweep escalation):**
+
+6. **Determine sweep range.** If Phase 1 found a failure at width W, sweep from (W - 100) to (W + 100) in 50px increments (clamped to 320-1440 range). If spec opts in to continuous, sweep the full 320-1440 range.
+
+7. **At each sweep width, run the same overflow/overlap probe from step 2.** Record the first width where overflow appears and the last width where it does not — this is the failure boundary.
+
+8. **Report the boundary:** "Horizontal overflow begins at [first-fail]px (passes at [last-pass]px) — breakpoint transition issue between [last-pass]px and [first-fail]px."
+
+Confidence: Eval-confirmed document overflow (scrollWidth > innerWidth) = High. Eval-confirmed container overflow (scrollWidth > clientWidth) = High. Eval-confirmed content overlap (>50% area overlap from getBoundingClientRect) = High. Text truncation (scrollWidth > clientWidth on text element) = Medium. Unexpectedly hidden content (comparison across widths) = Medium. Visual breakpoint judgment from screenshot = Medium.
+
+#### UX Anti-Pattern Detection (PERF-04)
+
+Detect four specific UX anti-patterns using eval probes for structural checks and behavioral testing for interaction-dependent checks (per D-16). This is a fixed list of four anti-patterns (per D-18) — not spec-extensible.
+
+**Anti-Pattern 1: Modal without close button**
+
+1. **Detect visible modals/dialogs:**
+   ```
+   playwright-cli eval "() => {
+     const dialogs = Array.from(document.querySelectorAll('[role=\"dialog\"], dialog, [class*=\"modal\"][class*=\"open\"], [class*=\"modal\"][class*=\"active\"], [class*=\"overlay\"][class*=\"visible\"]'))
+       .filter(el => el.offsetParent !== null || getComputedStyle(el).display !== 'none');
+     return dialogs.map(dialog => {
+       const closeButtons = dialog.querySelectorAll(
+         'button[aria-label*=\"close\" i], button[aria-label*=\"dismiss\" i], button[title*=\"close\" i], ' +
+         '[class*=\"close\"], [class*=\"dismiss\"], [data-dismiss], [data-close], ' +
+         'button:has(svg)'
+       );
+       const hasXButton = Array.from(closeButtons).some(btn =>
+         btn.textContent.trim() === 'X' || btn.textContent.trim() === 'x' ||
+         btn.getAttribute('aria-label')?.toLowerCase().includes('close') ||
+         btn.querySelector('svg')
+       );
+       return {
+         tag: dialog.tagName,
+         id: dialog.id || null,
+         role: dialog.getAttribute('role'),
+         class: String(dialog.className).slice(0, 50),
+         hasCloseButton: closeButtons.length > 0 || hasXButton,
+         closeButtonCount: closeButtons.length,
+         isModal: dialog.getAttribute('aria-modal') === 'true' || dialog.hasAttribute('open')
+       };
+     });
+   }"
+   ```
+
+2. **Evaluate results:** If a visible dialog/modal has `hasCloseButton: false`, flag as **High confidence** — "Modal without close button: [tag]#[id] ([class]) has no dismiss mechanism (no close button, no X icon, no data-dismiss attribute)."
+
+3. **Note:** This check runs only when modals are currently visible. If no modals are visible on the page, note "No visible modals detected — modal close check not applicable" and move on.
+
+**Anti-Pattern 2: Pre-checked opt-ins in consent/marketing context**
+
+4. **Detect pre-checked checkboxes in consent context (per D-17 heuristic):**
+   ```
+   playwright-cli eval "() => {
+     const checked = Array.from(document.querySelectorAll('input[type=\"checkbox\"]')).filter(cb => cb.checked);
+     const consentContainerSelectors = '[class*=\"consent\"], [class*=\"gdpr\"], [class*=\"cookie\"], [class*=\"subscribe\"], [class*=\"marketing\"], [class*=\"newsletter\"], [class*=\"opt-in\"], [id*=\"consent\"], [id*=\"newsletter\"]';
+     const consentLabelPattern = /newsletter|marketing.email|promotional|updates|offers|deals|third.party|partner|opt.in|subscribe/i;
+     return checked.map(cb => {
+       const container = cb.closest(consentContainerSelectors);
+       const label = cb.labels?.[0]?.textContent || cb.getAttribute('aria-label') || cb.parentElement?.textContent?.slice(0, 100) || '';
+       const inConsentContext = container !== null || consentLabelPattern.test(label);
+       return {
+         id: cb.id || null,
+         name: cb.name || null,
+         label: label.trim().slice(0, 80),
+         inConsentContext,
+         containerMatch: container ? container.className.slice(0, 40) : null
+       };
+     }).filter(item => item.inConsentContext);
+   }"
+   ```
+
+5. **Evaluate results:** If any pre-checked checkbox is in a consent/marketing context, flag as **High confidence** — "Pre-checked opt-in: checkbox '[label]' is pre-checked in consent/marketing context ([container/label match])." Pre-checked checkboxes NOT in consent context (e.g., "remember me", "agree to ToS") are out of scope — do not flag.
+
+**Anti-Pattern 3: Cookie banner blocking content**
+
+6. **Wait briefly for deferred banner injection** (many consent banners inject 1-3 seconds after page load):
+   ```
+   playwright-cli run-code "async (page) => { await page.waitForTimeout(2000); return 'waited for deferred banner'; }"
+   ```
+
+7. **Detect cookie/consent banner overlap with main content:**
+   ```
+   playwright-cli eval "() => {
+     const bannerSelectors = [
+       '[id*=\"cookie\" i]', '[class*=\"cookie\" i]', '[id*=\"consent\" i]', '[class*=\"consent\" i]',
+       '[class*=\"gdpr\" i]', '[class*=\"ccpa\" i]', '[id*=\"banner\" i]',
+       '[aria-label*=\"cookie\" i]', '[role=\"dialog\"][aria-label*=\"cookie\" i]',
+       '[class*=\"privacy-banner\" i]', '[id*=\"onetrust\" i]', '[id*=\"cookiebot\" i]'
+     ];
+     const mainSelectors = ['[role=\"main\"]', 'main', '#main', '#content', '.main-content', 'article'];
+     const banner = bannerSelectors.map(s => { try { return document.querySelector(s); } catch(e) { return null; } }).find(Boolean);
+     const mainEl = mainSelectors.map(s => document.querySelector(s)).find(Boolean);
+     if (!banner || !mainEl) return { found: false, reason: !banner ? 'no cookie banner detected' : 'no main content element found' };
+     const bRect = banner.getBoundingClientRect();
+     const mRect = mainEl.getBoundingClientRect();
+     const overlaps = !(bRect.right <= mRect.left || bRect.left >= mRect.right ||
+                        bRect.bottom <= mRect.top || bRect.top >= mRect.bottom);
+     const blocksViewport = bRect.height > window.innerHeight * 0.3;
+     return {
+       found: true,
+       overlaps,
+       blocksViewport,
+       bannerHeight: Math.round(bRect.height),
+       bannerPosition: { top: Math.round(bRect.top), bottom: Math.round(bRect.bottom) },
+       mainPosition: { top: Math.round(mRect.top), bottom: Math.round(mRect.bottom) },
+       viewportHeight: window.innerHeight
+     };
+   }"
+   ```
+
+8. **Evaluate results:** If `overlaps: true` OR `blocksViewport: true`, flag as **High confidence** — "Cookie banner blocking content: banner (height [height]px, position [top]-[bottom]) overlaps main content area (top [mainTop])." If no banner found, note "No cookie/consent banner detected" and move on. Supplement with screenshot visual judgment if the eval finds no banner but the page screenshot shows a blocking overlay (flag at Medium confidence).
+
+**Anti-Pattern 4: Infinite scroll without position recovery**
+
+9. **Detect infinite scroll presence.** Scroll to ~80% of page height and check if content grows:
+   ```
+   playwright-cli run-code "async (page) => {
+     const initialHeight = await page.evaluate(() => document.body.scrollHeight);
+     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight * 0.8));
+     await page.waitForTimeout(2000);
+     const newHeight = await page.evaluate(() => document.body.scrollHeight);
+     return { initialHeight, newHeight, grew: newHeight > initialHeight + 100 };
+   }"
+   ```
+   If `grew: false`: note "No infinite scroll detected — position recovery test skipped" and stop here.
+
+10. **Test position recovery.** If infinite scroll is active:
+    ```
+    playwright-cli run-code "async (page) => {
+      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight * 0.5));
+      await page.waitForTimeout(500);
+      const preNavScroll = await page.evaluate(() => window.scrollY);
+      return { preNavScroll };
+    }"
+    ```
+    Then click a list item link (if available) to navigate forward:
+    ```
+    playwright-cli click <first-link-in-scrolled-content>
+    ```
+    Navigate back:
+    ```
+    playwright-cli go-back
+    ```
+    Read restored position:
+    ```
+    playwright-cli eval "() => ({ scrollY: window.scrollY, bodyHeight: document.body.scrollHeight })"
+    ```
+
+11. **Evaluate results:** Compare post-back `scrollY` to `preNavScroll`. If `scrollY` is approximately 0 (or < 100px) AND `preNavScroll` was > 200px: flag as **High confidence** — "Infinite scroll position lost: scrollY before navigation was [preNavScroll]px, after back navigation is [scrollY]px — scroll position not restored." If position is approximately restored (within 100px), this is a PASS — note "Infinite scroll position recovery: PASS."
+
+Confidence: Modal without close mechanism (eval-confirmed no dismiss button/icon) = High. Pre-checked opt-in in consent context (eval-confirmed checked state + context match) = High. Cookie banner overlapping main content (getBoundingClientRect intersection confirmed) = High. Cookie banner visual blocking (screenshot judgment, eval missed) = Medium. Infinite scroll position lost (eval-confirmed scrollY delta) = High. No infinite scroll detected = Observation (not a finding).
+
 ### Design Reference
 
 When a `## Design Reference` section is present in the spec, use the provided image paths during visual verification:
