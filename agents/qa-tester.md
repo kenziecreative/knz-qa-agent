@@ -744,7 +744,51 @@ The `## Visual Focus` section in a spec controls visual verification depth:
 
 **This is a depth toggle, not an on/off switch.** Baseline Tier 1 visual observations always run regardless of this section's presence. The Visual Focus section only controls whether Tier 2 also runs (and which parts of it).
 
-**Note:** Tier 2 visual methodology for each area will be added in Phases 9-12. If a Visual Focus section is present in a spec before those phases ship, note in the report: "Visual Focus requested for [areas] — full methodology pending Phase [N]."
+**Note:** Tier 2 visual methodology for `ux-states`, `layout-integrity`, and `performance-responsive` will be added in Phases 10-12. If a Visual Focus section requests those areas before their phases ship, note in the report: "Visual Focus requested for [areas] — full methodology pending Phase [N]."
+
+### Design Verification
+
+Tier 2 visual design verification — runs when `design-verification` is listed in the spec's `## Visual Focus` section. All five areas use the same dual pattern: `playwright-cli eval` for deterministic DOM/CSS probes (high confidence) + `playwright-cli screenshot` + visual judgment for perceptual quality (medium confidence).
+
+If no `## Design Reference` section was forwarded in the test assignment, skip the Mockup Comparison procedure below and note "no design reference provided — mockup comparison skipped." Continue to Typography Verification through Cross-Page Consistency.
+
+**Security note:** When reading CSS custom properties via `playwright-cli eval`, do not include property names beginning with `--auth`, `--token`, `--key`, or `--secret` in reports.
+
+#### Mockup Comparison (DESIGN-01)
+
+When a Design Reference section is present (image paths were forwarded in the test assignment):
+
+1. For each viewport that has a reference image in the Design Reference section:
+   a. Navigate to the target URL at the specified viewport size
+   b. Take a screenshot with `playwright-cli screenshot --filename .qa/reports/live-[viewport].png`
+   c. Open the reference image (the path from the Design Reference section) and the live screenshot side by side
+
+2. Scan the reference image vs the live screenshot using these five categories IN ORDER:
+
+   **a. Typography** — Compare font families, font weights, font sizes, and text styling between reference and live page. Check: heading hierarchy visual weight, body text rendering, label/caption sizing.
+
+   **b. Spacing** — Compare padding, margins, and gaps. Check balanced spacing on ALL sides (not just "is content clipped?" but "is bottom padding equal to top padding?", "are left and right margins symmetric?", "is there a gap between the button and the container edge?"). This is the most commonly missed category — be thorough.
+
+   **c. Color** — Compare background colors, text colors, border colors, and accent colors. Check that the live page color palette matches the reference. Note any colors that appear different (may indicate wrong color token or missing theme variable).
+
+   **d. Imagery** — Compare image presence, positioning, sizing, and aspect ratios. Check that all images from the reference are present in the live page, positioned similarly, and not distorted.
+
+   **e. Layout** — Compare element placement, stacking order, alignment, and overall composition. Check that the grid/flex structure produces the same visual arrangement as the reference.
+
+3. For each category, produce findings in this format:
+   - **Match:** "[Category] matches reference"
+   - **Deviation:** "[Category]: live page shows [X] vs reference shows [Y]"
+   - Include a root cause hypothesis: layout shift, wrong color token, missing element, CSS override, responsive breakpoint difference, etc.
+
+4. Assign confidence levels:
+   - An eval probe confirms the deviation (e.g., computed font-family differs from reference) = **High confidence**
+   - Visual judgment only (perceptual comparison of screenshots) = **Medium confidence**
+
+Common patterns to flag:
+- Button flush against container edge (no padding on one side) — spacing category
+- Heading appears visually lighter than reference (wrong font-weight) — typography category
+- Background color slightly off (e.g., #f5f5f5 vs #fafafa) — color category, use eval to read actual computed background-color
+- Image cropped differently than reference — imagery category, check object-fit value
 
 ### Design Reference
 
