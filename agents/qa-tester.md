@@ -744,7 +744,7 @@ The `## Visual Focus` section in a spec controls visual verification depth:
 
 **This is a depth toggle, not an on/off switch.** Baseline Tier 1 visual observations always run regardless of this section's presence. The Visual Focus section only controls whether Tier 2 also runs (and which parts of it).
 
-**Note:** Tier 2 visual methodology for `layout-integrity` and `performance-responsive` will be added in Phases 11-12. If a Visual Focus section requests those areas before their phases ship, note in the report: "Visual Focus requested for [areas] — full methodology pending Phase [N]."
+**Note:** Tier 2 visual methodology for `performance-responsive` will be added in Phase 12. If a Visual Focus section requests that area before Phase 12 ships, note in the report: "Visual Focus requested for performance-responsive — full methodology pending Phase 12."
 
 ### Design Verification
 
@@ -1608,6 +1608,197 @@ Verify that shared page regions (header, navigation, footer) have consistent DOM
 4. **Single-page fallback**: If the spec covers only one URL, cross-page comparison is not possible. Note: "Cross-page consistency requires multiple pages — structural fingerprint sampled on this page for reference." Record sampled values in the report without flagging any findings.
 
 Confidence: Missing landmark region across pages (eval-confirmed) = High. Missing shared region entirely (link text returns null) = High. Link count deviation > 1 across pages = Medium. Link text present on one page but absent another = Medium. Visual position inconsistency = Medium. Single-page spec = no findings (observation only).
+
+#### Realistic-Data Overflow Testing (LAYOUT-03)
+
+Test layout resilience by injecting realistic-length content into DOM elements and checking for overflow. This catches edge-case content that fits in development but breaks in production (long names, large numbers, localized strings).
+
+1. **Identify injection targets** (per D-15): Identify one logical section at a time — do not inject page-wide. Scan for section types in this order: card titles (`[class*="card"] h2, [class*="card"] h3, [class*="title"]`), table cells (`td, th`), navigation labels (`nav a, [role="navigation"] a`), form field labels (`label`), and price/stat displays (`[class*="price"], [class*="stat"], [class*="amount"]`). For each section type, identify visible elements:
+
+   ```
+   playwright-cli eval "() => {
+     return Array.from(
+       document.querySelectorAll('[class*=\"card\"] h2, [class*=\"card\"] h3, [class*=\"title\"]')
+     ).filter(el => el.offsetParent !== null)
+      .map(el => ({
+        tag: el.tagName,
+        class: String(el.className).slice(0, 50),
+        original: el.textContent.trim().slice(0, 40)
+      }));
+   }"
+   ```
+
+2. **Inject tiered test content** (per D-13, D-14): For each section type, inject ONE representative element with a test string from the tiered vocabulary using `playwright-cli run-code`. Inject into the first visible instance only — keeps overflow attribution clear.
+
+   Tiered test content vocabulary:
+
+   | String | Purpose | Best target |
+   |--------|---------|-------------|
+   | `Hildegard von Bingen Stiftung Internationaler Preis fuer Frauengesundheitsforschung` (82 chars) | Basic length overflow | Card titles, table cells, headings |
+   | `Donaudampfschifffahrtsgesellschaft` (35 chars, no break point) | Word-break failure | Any container with `overflow: hidden` or `text-overflow: ellipsis` |
+   | `$1,234,567,890.99` | Fixed-width number container overflow | Price fields, stats, dashboard counters |
+   | `firstname.lastname+tag@very-long-subdomain.example.com` | Email/form field overflow | Form inputs, profile displays, email columns |
+
+   Example injection:
+
+   ```
+   playwright-cli run-code "async (page) => {
+     await page.evaluate(() => {
+       const el = document.querySelector('[class*=\"card\"] h2');
+       if (el) el.textContent = 'Donaudampfschifffahrtsgesellschaft Produktionsprogrammzusammenfassung';
+     });
+     return 'injected';
+   }"
+   ```
+
+   Select the test string that best matches the section type: German compounds for titles and headings, large currency for price/stat fields, long emails for form inputs.
+
+3. **Check overflow after injection** (per D-16): After each injection, run the `scrollWidth > clientWidth` or `scrollHeight > clientHeight` check on the injected element and its container. Reuses the DESIGN-02 overflow detection mechanism.
+
+   ```
+   playwright-cli eval "() => {
+     const overflowing = [];
+     document.querySelectorAll('[class*=\"card\"] h2').forEach(el => {
+       if (el.scrollWidth > el.clientWidth || el.scrollHeight > el.clientHeight) {
+         overflowing.push({
+           tag: el.tagName,
+           text: el.textContent.slice(0, 60),
+           scrollW: el.scrollWidth, clientW: el.clientWidth,
+           scrollH: el.scrollHeight, clientH: el.clientHeight
+         });
+       }
+     });
+     return overflowing;
+   }"
+   ```
+
+   Eval-confirmed overflow after injection = **High confidence**.
+
+4. **Screenshot supplement** (per D-17): After injection, take a screenshot with `playwright-cli screenshot` to visually assess perceptual layout breakage (text escaping containers, overlapping siblings, broken grid). Flag visual layout break at **Medium confidence**.
+
+5. **Repeat for each section type**: Work through the section types listed in step 1, injecting and checking one section type at a time.
+
+6. **Page reload after all checks** (mandatory): After all LAYOUT-03 injection checks on a page are complete, reload the page with `playwright-cli navigate [same url]` to restore the original DOM state. This prevents mutated content from producing false positives in subsequent checks (LAYOUT-04 placeholder scan, screenshots, structural fingerprint).
+
+7. **Route interception escalation path** (per D-18): When a spec explicitly requests locale-driven or API-response-based content testing, use `playwright-cli route` to mock API responses with long data instead of DOM injection. Follow the established route pattern:
+
+   ```
+   playwright-cli route "*/api/products*" "{\"body\": \"[{\\\"name\\\": \\\"Donaudampfschifffahrtsgesellschaft Produktionsprogramm\\\", \\\"price\\\": 1234567890.99}]\", \"contentType\": \"application/json\"}"
+   ```
+
+   Clean up with `playwright-cli route-clear "*/api/products*"` after testing. This path is spec-driven — only use when the spec declares it.
+
+Confidence: eval-confirmed overflow after injection = High. Screenshot visual layout break after injection = Medium.
+
+#### Placeholder & Draft Content Detection (LAYOUT-04)
+
+Detect leftover development content: Lorem ipsum, TODO markers, placeholder image URLs, generic placeholder data, and vague CTAs. Dual approach: `playwright-cli eval` regex scan as primary (high confidence) + LLM screenshot judgment for ambiguous visual cases (medium confidence).
+
+1. **Regex scan over visible text and attributes** (per D-20, D-21): Run `playwright-cli eval` to scan visible text content (via `TreeWalker`), `alt` attributes, `title` attributes, `aria-label` attributes, and `<meta>` content attributes against placeholder patterns. Filter for visible elements only (`el.offsetParent !== null`).
+
+   ```
+   playwright-cli eval "() => {
+     const findings = [];
+
+     const textPatterns = [
+       { pattern: /lorem|ipsum|dolor sit amet|consectetur adipiscing/i, label: 'Lorem ipsum text' },
+       { pattern: /\\b(TODO|FIXME|HACK|XXX)\\b/, label: 'TODO/FIXME marker in visible content' },
+       { pattern: /\\[Your (Name|Company|Email|Phone|Address)\\]/i, label: 'Bracket placeholder' },
+       { pattern: /\\bexample\\.com\\b/i, label: 'example.com placeholder URL' },
+       { pattern: /\\btest@test\\.com\\b/i, label: 'test@test.com placeholder email' },
+       { pattern: /\\b123-456-7890\\b/, label: 'Placeholder phone number' },
+       { pattern: /\\bJohn Doe\\b|\\bJane Doe\\b/i, label: 'Generic placeholder name' }
+     ];
+
+     const imgPatterns = [
+       { pattern: /placehold\\.it|via\\.placeholder\\.com|lorempixel|picsum\\.photos|dummyimage/i, label: 'Placeholder image URL' }
+     ];
+
+     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+     let node;
+     while ((node = walker.nextNode())) {
+       if (!node.parentElement || node.parentElement.offsetParent === null) continue;
+       const text = node.textContent.trim();
+       if (!text) continue;
+       textPatterns.forEach(({ pattern, label }) => {
+         if (pattern.test(text)) {
+           findings.push({
+             type: label, location: 'visible text',
+             snippet: text.slice(0, 80), tag: node.parentElement.tagName
+           });
+         }
+       });
+     }
+
+     document.querySelectorAll('[alt], [title], [aria-label]').forEach(el => {
+       ['alt', 'title', 'aria-label'].forEach(attr => {
+         const val = el.getAttribute(attr);
+         if (!val) return;
+         textPatterns.forEach(({ pattern, label }) => {
+           if (pattern.test(val)) {
+             findings.push({ type: label, location: attr, snippet: val.slice(0, 80), tag: el.tagName });
+           }
+         });
+       });
+     });
+
+     document.querySelectorAll('img').forEach(img => {
+       const src = img.currentSrc || img.src;
+       imgPatterns.forEach(({ pattern, label }) => {
+         if (pattern.test(src)) {
+           findings.push({ type: label, location: 'img src', snippet: src.slice(-80), tag: 'IMG', alt: img.alt });
+         }
+       });
+     });
+
+     document.querySelectorAll('meta[content]').forEach(el => {
+       const content = el.getAttribute('content') || '';
+       textPatterns.forEach(({ pattern, label }) => {
+         if (pattern.test(content)) {
+           findings.push({ type: label, location: 'meta content', snippet: content.slice(0, 80), name: el.getAttribute('name') || el.getAttribute('property') });
+         }
+       });
+     });
+
+     return findings;
+   }"
+   ```
+
+   Eval regex match = **High confidence**.
+
+2. **Allowlist check** (per D-23): Before recording any finding from step 1, check whether the matched text appears in the spec's `placeholder_allowlist` field. If the spec declares `placeholder_allowlist: [TODO, Learn more]`, suppress any finding where the matched snippet contains an allowlisted string. Note suppressed findings in the report: "Suppressed N placeholder finding(s) matching spec allowlist."
+
+3. **LLM screenshot judgment** (per D-22): Take a viewport screenshot with `playwright-cli screenshot` and visually assess:
+   - **Vague CTAs** — "Click here", "Learn more", "Submit" without surrounding context that clarifies the action. Flag at **Medium confidence**.
+   - **Casing inconsistency** — mixed Title Case and sentence case across same-type elements only (e.g., nav link labels vs nav link labels, NOT headlines vs button labels). Do not flag brand names in ALL CAPS as inconsistency. Flag at **Medium confidence**.
+   - **Placeholder images** — gray boxes, stock photo watermarks, broken image icons that suggest filler rather than real content. Flag at **Medium confidence**.
+
+   Scope casing checks to same-type elements to avoid false positives from intentional typographic hierarchy differences.
+
+Confidence: eval regex match in visible text/attributes = High. Placeholder image URL in img src = High. LLM screenshot judgment (vague CTA, casing inconsistency, placeholder image) = Medium. Allowlist-suppressed match = not reported.
+
+#### Reporting Layout & Content Integrity Findings
+
+Present layout and content integrity findings grouped by confidence level, consistent with the existing design verification, UX state verification, and accessibility findings format.
+
+| Finding type | Confidence |
+| --- | --- |
+| Content clipping detected (scrollWidth > clientWidth, any element) | High |
+| Overflow confirmed after content injection (scrollWidth > clientWidth) | High |
+| Placeholder regex match in visible text or attribute | High |
+| Placeholder image URL in img src | High |
+| Missing landmark region across pages (no header/nav/footer on a page) | High |
+| Missing shared region entirely (link text returns null on a page) | High |
+| Sibling gap outlier (>20% deviation from sibling median) | Medium |
+| Asymmetric container padding (>4px imbalance) | Medium |
+| Grid/flex gap inconsistency across similar containers | Medium |
+| Nav link count deviation across pages (>1 link difference) | Medium |
+| Nav link text present on one page but absent another | Medium |
+| Visual layout break after content injection (screenshot judgment) | Medium |
+| Vague CTA detected (screenshot visual judgment) | Medium |
+| Casing inconsistency across same-type elements (screenshot judgment) | Medium |
+| Placeholder image visual detection (screenshot judgment) | Medium |
+| Visual alignment/spacing judgment from screenshot | Medium |
 
 ### Design Reference
 
