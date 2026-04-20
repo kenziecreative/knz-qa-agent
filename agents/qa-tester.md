@@ -1931,7 +1931,7 @@ Compare rendered CSS across browser engines. Use `getComputedStyle` and `getBoun
 
 **When this runs:** Only when the agent is executing a multi-engine run (multiple engines listed in spec's `## Browsers` section). During a single-engine run, skip PERF-02 entirely and note "Cross-browser comparison requires multi-engine run — skipped (single engine active)."
 
-**Target properties (~18 for comparison):**
+**Target properties (~17 for comparison):**
 
 | Property | Category | Notes |
 | --- | --- | --- |
@@ -1952,7 +1952,6 @@ Compare rendered CSS across browser engines. Use `getComputedStyle` and `getBoun
 | `textRendering` | Typography | geometricPrecision vs auto |
 | `alignItems` | Layout | "normal" vs "stretch" resolution |
 | `justifyContent` | Layout | "normal" vs "flex-start" resolution |
-| `fontSmoothing` | Typography | -webkit-font-smoothing (WebKit only) |
 
 **Intentional divergences (EXEMPT — do not flag):** per D-10:
 - Native form controls: `<select>`, `<input type="date">`, `<input type="range">`
