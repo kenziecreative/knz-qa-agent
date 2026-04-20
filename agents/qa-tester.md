@@ -1418,6 +1418,197 @@ Present UX state verification findings grouped by confidence level, consistent w
 | Transition duration inconsistency across same element type | Medium |
 | First-run/onboarding state not detected on fresh session | Observation |
 
+### Layout & Content Integrity
+
+Tier 2 layout and content integrity verification — runs when `layout-integrity` is listed in the spec's `## Visual Focus` section. All four areas use the same dual pattern: `playwright-cli eval` for deterministic DOM/CSS probes (high confidence) + `playwright-cli screenshot` + visual judgment for perceptual quality (medium confidence).
+
+**Security note:** When reading CSS custom properties via `playwright-cli eval`, do not include property names beginning with `--auth`, `--token`, `--key`, or `--secret` in reports.
+
+**Environment note:** DOM content injection (LAYOUT-03) mutates live page state. Use only in test environments — never against production data. Reload the page after all LAYOUT-03 checks before proceeding.
+
+#### Spacing & Alignment Checks (LAYOUT-01)
+
+Verify spacing consistency, element alignment, and content clipping WITHOUT a design reference — infer correctness from internal consistency (sibling comparison, padding symmetry). This is distinct from DESIGN-01 (which compares to a reference image).
+
+1. **Sibling gap comparison** (per D-02): Run `playwright-cli eval` to query sibling element sets, compute inter-element vertical gaps via `getBoundingClientRect()`, and flag outliers deviating more than 20% from the sibling median. Priority containers: elements matching `[class*="card"], ul, ol, nav, [role="list"], [role="grid"], table tbody, [class*="grid"]`. Require at least 3 visible siblings (filter with `el.offsetParent !== null`) before computing gaps. Skip containers with fewer than 3 visible children — comparison is not meaningful.
+
+   ```
+   playwright-cli eval "() => {
+     const OUTLIER_THRESHOLD = 0.2;
+     function median(arr) {
+       const sorted = [...arr].sort((a, b) => a - b);
+       const mid = Math.floor(sorted.length / 2);
+       return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+     }
+     const results = [];
+     const containers = document.querySelectorAll(
+       '[class*=\"card\"], ul, ol, nav, [role=\"list\"], [role=\"grid\"], table tbody, [class*=\"grid\"]'
+     );
+     containers.forEach(container => {
+       const children = Array.from(container.children).filter(el => el.offsetParent !== null);
+       if (children.length < 3) return;
+       const gaps = [];
+       for (let i = 1; i < children.length; i++) {
+         const prev = children[i - 1].getBoundingClientRect();
+         const curr = children[i].getBoundingClientRect();
+         const gap = curr.top - prev.bottom;
+         if (Math.abs(gap) < 200) gaps.push(gap);
+       }
+       if (gaps.length < 2) return;
+       const med = median(gaps);
+       const outliers = gaps
+         .map((g, i) => ({ index: i + 1, gap: g }))
+         .filter(({ gap }) => med !== 0 && Math.abs(gap - med) / Math.abs(med) > OUTLIER_THRESHOLD);
+       if (outliers.length > 0) {
+         results.push({
+           container: container.tagName + (container.className ? '.' + String(container.className).split(' ')[0] : ''),
+           medianGap: med,
+           outliers
+         });
+       }
+     });
+     return results;
+   }"
+   ```
+
+   Cap results at 20 containers to avoid noise on complex pages. If results exceed 20, report the first 20 and note "additional containers not reported — page has extensive sibling sets."
+
+2. **Padding symmetry** (per D-03): Run `playwright-cli eval` to check parent-child padding balance via `getComputedStyle()`. Compare `paddingTop` vs `paddingBottom` and `paddingLeft` vs `paddingRight` for containers matching `[class*="card"], [class*="panel"], [class*="box"], section, article, [class*="container"]`. Flag containers where vertical or horizontal padding imbalance exceeds 4px.
+
+   ```
+   playwright-cli eval "() => {
+     const containers = Array.from(
+       document.querySelectorAll('[class*=\"card\"], [class*=\"panel\"], [class*=\"box\"], section, article, [class*=\"container\"]')
+     ).filter(el => el.offsetParent !== null);
+     return containers.map(el => {
+       const s = getComputedStyle(el);
+       const pt = parseFloat(s.paddingTop), pb = parseFloat(s.paddingBottom);
+       const pl = parseFloat(s.paddingLeft), pr = parseFloat(s.paddingRight);
+       return {
+         tag: el.tagName,
+         class: String(el.className).slice(0, 50),
+         paddingTop: pt, paddingBottom: pb,
+         paddingLeft: pl, paddingRight: pr,
+         verticalImbalance: Math.abs(pt - pb) > 4,
+         horizontalImbalance: Math.abs(pl - pr) > 4
+       };
+     }).filter(el => el.verticalImbalance || el.horizontalImbalance);
+   }"
+   ```
+
+   Asymmetric padding is frequently intentional (more bottom padding for visual breathing room). Flag at **Medium confidence** with rationale noting this possibility.
+
+3. **Grid/flex integrity** (per D-04): Run `playwright-cli eval` to query all flex and grid containers. Record `display`, `gap`, `alignItems`, `justifyContent`, and visible child count for each. Compare `gap` values across containers of the same type — inconsistent gap values within the same layout pattern (e.g., two flex rows of cards using different gap values) = **Medium confidence** finding.
+
+   ```
+   playwright-cli eval "() => {
+     const containers = Array.from(document.querySelectorAll('*')).filter(el => {
+       const d = getComputedStyle(el).display;
+       return (d === 'flex' || d === 'grid') && el.offsetParent !== null;
+     });
+     const results = [];
+     containers.forEach(el => {
+       const s = getComputedStyle(el);
+       const children = Array.from(el.children).filter(c => c.offsetParent !== null);
+       if (children.length < 2) return;
+       results.push({
+         tag: el.tagName,
+         class: String(el.className).slice(0, 60),
+         display: s.display,
+         gap: s.gap,
+         alignItems: s.alignItems,
+         justifyContent: s.justifyContent,
+         childCount: children.length
+       });
+     });
+     return results;
+   }"
+   ```
+
+4. **Content clipping** (per D-05): Run `playwright-cli eval` to check `scrollWidth > clientWidth` or `scrollHeight > clientHeight` on ALL visible elements (not just text elements as in DESIGN-02). Filter with `el.offsetParent !== null` to exclude hidden elements. This extends the DESIGN-02 text overflow pattern to images, flex children, and any other element type.
+
+   ```
+   playwright-cli eval "() => {
+     const overflowing = [];
+     document.querySelectorAll('*').forEach(el => {
+       if (el.offsetParent === null) return;
+       if (el.scrollWidth > el.clientWidth || el.scrollHeight > el.clientHeight) {
+         overflowing.push({
+           tag: el.tagName,
+           text: (el.textContent || '').slice(0, 60),
+           scrollW: el.scrollWidth, clientW: el.clientWidth,
+           scrollH: el.scrollHeight, clientH: el.clientHeight
+         });
+       }
+     });
+     return overflowing;
+   }"
+   ```
+
+   Eval-confirmed clipping = **High confidence**.
+
+5. **Screenshot supplement** (per D-06): For complex layouts where DOM structure does not yield clean sibling sets (steps 1-3 returned few or no results), take a viewport screenshot with `playwright-cli screenshot` and visually assess overall alignment and spacing balance. Flag visual alignment issues at **Medium confidence**.
+
+Confidence: eval-confirmed overflow (scrollWidth > clientWidth) = High. Sibling gap outlier (>20% deviation from median) = Medium. Asymmetric padding (>4px imbalance) = Medium (design intent may be intentional). Grid/flex gap inconsistency = Medium. Visual alignment judgment from screenshot = Medium.
+
+#### Cross-Page Structural Consistency (LAYOUT-02)
+
+Verify that shared page regions (header, navigation, footer) have consistent DOM structure and link content across all pages in the spec. This complements DESIGN-05 (which compares CSS computed style values across pages) — LAYOUT-02 compares structural/DOM consistency: same header structure, same footer presence, same nav links.
+
+1. **Structural fingerprint** (per D-09): On each page URL in the spec, run `playwright-cli eval` to query landmark elements and record element count and child count per landmark role. Query both ARIA role selectors and semantic HTML elements:
+
+   ```
+   playwright-cli eval "() => {
+     const landmarks = [
+       '[role=\"banner\"]', 'header',
+       '[role=\"navigation\"]', 'nav',
+       '[role=\"main\"]', 'main',
+       '[role=\"contentinfo\"]', 'footer'
+     ];
+     const fingerprint = {};
+     landmarks.forEach(sel => {
+       const els = document.querySelectorAll(sel);
+       fingerprint[sel] = {
+         count: els.length,
+         childCounts: Array.from(els).map(el => el.children.length)
+       };
+     });
+     return fingerprint;
+   }"
+   ```
+
+   Compare fingerprints across pages. A landmark region present on one page but absent on another (e.g., page A has a `footer` but page B does not) = **High confidence** finding. Child count differences in shared landmarks = **Observation** (different pages may have legitimately different content within the same landmark).
+
+2. **Link text sampling** (per D-10): On each page, run `playwright-cli eval` to extract link text arrays from header, nav, and footer regions. Normalize link text by lowercasing, trimming whitespace, and collapsing internal whitespace.
+
+   ```
+   playwright-cli eval "() => {
+     function linkTexts(regionSel) {
+       const region = document.querySelector(regionSel);
+       if (!region) return null;
+       return Array.from(region.querySelectorAll('a[href]'))
+         .map(a => a.textContent.trim().toLowerCase().replace(/\\s+/g, ' '))
+         .filter(t => t.length > 0);
+     }
+     return {
+       header: linkTexts('[role=\"banner\"], header'),
+       nav: linkTexts('[role=\"navigation\"], nav'),
+       footer: linkTexts('[role=\"contentinfo\"], footer')
+     };
+   }"
+   ```
+
+   Compare link arrays across pages:
+   - Region returns `null` on one page but has links on another = **High confidence** (missing region).
+   - Link count differs by more than 1 between pages = **Medium confidence** (some pages legitimately have additional nav items, e.g., a logged-in state with extra menu items).
+   - Specific link text present on one page but absent on another = **Medium confidence** — report which link is missing and on which page.
+
+3. **Screenshot supplement** (per D-12): Take a viewport screenshot of each page and visually confirm shared regions appear in expected positions (header at top, footer at bottom, nav in consistent location). Flag visual position inconsistency at **Medium confidence**.
+
+4. **Single-page fallback**: If the spec covers only one URL, cross-page comparison is not possible. Note: "Cross-page consistency requires multiple pages — structural fingerprint sampled on this page for reference." Record sampled values in the report without flagging any findings.
+
+Confidence: Missing landmark region across pages (eval-confirmed) = High. Missing shared region entirely (link text returns null) = High. Link count deviation > 1 across pages = Medium. Link text present on one page but absent another = Medium. Visual position inconsistency = Medium. Single-page spec = no findings (observation only).
+
 ### Design Reference
 
 When a `## Design Reference` section is present in the spec, use the provided image paths during visual verification:
