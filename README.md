@@ -122,6 +122,18 @@ Generate a cross-session QA report from persisted test results, including trend 
 /qa:report --project ~/Projects/my-app --format json
 ```
 
+### `/qa:guide` - Usage Guidance
+
+Get context-aware recommendations on which QA command to run next, based on current project state.
+
+```bash
+# Get guidance for a project
+/qa:guide --project ~/Projects/my-app
+/qa:guide --project .
+```
+
+Reads `.qa/` state and `docs/ORCHESTRATION.md` to produce a short 2-4 bullet recommendation. Works from any session — no conversation history needed.
+
 ## Spec Format
 
 Specs live in `.qa/` directory as Markdown files.
@@ -367,11 +379,14 @@ knz-qa-agent/
 │   └── .mcp.json            # MCP server config (currently empty)
 ├── agents/
 │   └── qa-tester.md         # QA tester agent definition
+├── docs/
+│   └── ORCHESTRATION.md     # Orchestration guide for AI agents and developers
 ├── skills/
 │   ├── run/SKILL.md         # Full test execution
 │   ├── check/SKILL.md       # Phase verification gate
 │   ├── init/SKILL.md        # Initialize QA structure
 │   ├── gen/SKILL.md         # Generate specs
+│   ├── guide/SKILL.md       # /qa:guide — context-aware usage guidance
 │   ├── monitor/SKILL.md     # Continuous monitoring
 │   └── report/SKILL.md      # Compile results
 ├── hooks/
@@ -394,6 +409,7 @@ knz-qa-agent/
 ## Development Notes
 
 - See [LEARNINGS.md](LEARNINGS.md) for architectural decisions and patterns
+- See [docs/ORCHESTRATION.md](docs/ORCHESTRATION.md) for orchestration agent usage and AI integration patterns
 - Planning tracked in `.planning/` directory (GSD workflow)
 - Current milestone: v0.2 - Robust Web/UI Testing (7 phases)
 
@@ -403,6 +419,8 @@ MIT
 
 ## Version History
 
+- **0.3.0** (in progress) - Visual & UX Design Verification
+  - Usage guidance: orchestration reference docs and `/qa:guide` skill
 - **0.2.0** (in progress) - Robust web/UI testing
   - Plugin foundation cleanup (skills-only, browser automation via `playwright-cli`)
   - Agent architecture (memory, hooks, background execution)

@@ -4,7 +4,7 @@ A Claude Code plugin that tests web applications like a human would — with int
 
 ## What This Is
 
-This is the source code for the `qa-agent` Claude Code plugin. It provides skills, an agent, and hooks that enable AI-powered QA testing of web applications. When installed as a plugin in a user's project, it adds `/qa:run`, `/qa:check`, `/qa:gen`, `/qa:init`, `/qa:monitor`, and `/qa:report` commands.
+This is the source code for the `qa-agent` Claude Code plugin. It provides skills, an agent, and hooks that enable AI-powered QA testing of web applications. When installed as a plugin in a user's project, it adds `/qa:run`, `/qa:check`, `/qa:gen`, `/qa:init`, `/qa:monitor`, `/qa:report`, and `/qa:guide` commands.
 
 ## Project Structure
 
@@ -20,11 +20,14 @@ skills/
 ├── gen/SKILL.md         # /qa:gen — generate spec from description or docs
 ├── init/SKILL.md        # /qa:init — scaffold .qa directory in a project
 ├── monitor/SKILL.md     # /qa:monitor — recurring smoke tests via /loop
-└── report/SKILL.md      # /qa:report — cross-session QA reports with trends
+├── report/SKILL.md      # /qa:report — cross-session QA reports with trends
+└── guide/SKILL.md       # /qa:guide — context-aware usage guidance
 hooks/
 ├── hooks.json           # Hook definitions (SessionStart, Stop)
 ├── session-start.md     # Loads QA memory on session start
 └── stop.md              # Persists QA observations on session end
+docs/
+└── ORCHESTRATION.md     # AI agent orchestration reference — how to invoke and integrate the plugin
 examples/                # Example spec files
 LEARNINGS.md             # Architecture decisions and patterns for this project
 README.md                # User-facing documentation
@@ -84,7 +87,7 @@ Each skill in `skills/*/SKILL.md` has:
 - Argument parsing logic — how user input maps to behavior
 - Agent invocation template — the prompt sent to `qa-tester` when spawning it
 
-Skills that spawn the agent: `run`, `check`, `gen`, `monitor`. Skills that don't: `init`, `report`.
+Skills that spawn the agent: `run`, `check`, `gen`, `monitor`. Skills that don't: `init`, `report`, `guide`.
 
 ### Adding New Capabilities
 
