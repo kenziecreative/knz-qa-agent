@@ -296,6 +296,49 @@ Without this section, Tier 1 baseline accessibility checks always run (keyboard 
 
 Can also be activated at generation time: `/qa:gen dashboard --a11y-depth deep`
 
+#### Visual Focus
+
+Add a `## Visual Focus` section to activate Tier 2 structured visual verification for specific areas:
+
+```markdown
+## Visual Focus
+- design-verification
+- layout-integrity
+```
+
+Available areas: `design-verification`, `ux-states`, `layout-integrity`, `performance-responsive`
+
+Without this section, Tier 1 baseline visual observations run during functional testing. With this section, the agent runs the full Tier 2 structured methodology for each listed area.
+
+#### Design Reference
+
+Add a `## Design Reference` section to provide mockup images for visual comparison during `design-verification`:
+
+```markdown
+## Design Reference
+
+### desktop
+- home-default: .qa/designs/desktop-home.png
+
+### mobile
+- home-default: .qa/designs/mobile-home.png
+```
+
+Each viewport gets a subsection. Each entry maps a state name to an image path (relative to project root). When absent, no design comparison runs (backward compatible).
+
+#### Browsers
+
+Add a `## Browsers` section to run the full test suite across multiple browser engines:
+
+```markdown
+## Browsers
+- chromium
+- webkit
+- firefox
+```
+
+Valid engines: `chromium` (Chrome/Edge), `webkit` (Safari), `firefox` (Gecko). When absent, only Chromium runs. Activate browser selection at run time with `/qa:run --project <path> --browsers`.
+
 See [examples/SPEC-FORMAT.md](examples/SPEC-FORMAT.md) for complete format documentation and a full example spec.
 
 ## Reports

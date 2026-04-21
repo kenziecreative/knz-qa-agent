@@ -254,6 +254,18 @@ Controls the depth of visual verification testing. When present, the agent runs 
 - layout-integrity
 ```
 
+**Optional modifier -- continuous breakpoint sweep:**
+
+When `performance-responsive` is listed, the default Phase 1 sweep tests at 6 discrete widths (320, 375, 768, 1024, 1280, 1440px). To also run a continuous sweep in ~50px increments (Phase 2), add `breakpoint-sweep: continuous` inside the `## Visual Focus` section:
+
+```markdown
+## Visual Focus
+- performance-responsive
+breakpoint-sweep: continuous
+```
+
+When `breakpoint-sweep: continuous` is present, continuous sweep activates from the start rather than only when a Phase 1 width fails.
+
 ### Design Reference (v2)
 
 Provides mockup image paths for visual comparison during design verification testing. Uses keyed subsections per viewport with state-specific image paths as nested bullet items.
@@ -306,6 +318,34 @@ Specifies which browser engines to test. When present, the qa-run skill runs the
 - chromium
 - webkit
 ```
+
+### placeholder_allowlist (v2)
+
+A top-level spec field that suppresses false-positive placeholder detections from the `layout-integrity` visual check. When the agent's placeholder regex matches text that is intentionally present (e.g., a legitimate "Learn more" CTA), listing it here prevents it from being reported as a finding.
+
+**Syntax:**
+
+```markdown
+placeholder_allowlist: [TODO, Learn more]
+```
+
+**Behavior:**
+
+- Field absent: All placeholder regex matches are reported normally
+- Field present: Any placeholder finding whose matched text contains a listed string is suppressed
+- Suppressed findings are noted in the report: "Suppressed N placeholder finding(s) matching spec allowlist"
+- The field is only active when `layout-integrity` is included in `## Visual Focus`
+
+**Example:**
+
+```markdown
+placeholder_allowlist: [TODO, Learn more, Click here]
+
+## Visual Focus
+- layout-integrity
+```
+
+Place `placeholder_allowlist` at the top level of the spec, outside any section header. Strings are matched as substrings -- if "Learn more" is in the list, any placeholder finding containing "Learn more" anywhere in its matched text is suppressed.
 
 ### Test Scenarios
 The core of the spec. Each scenario should have:

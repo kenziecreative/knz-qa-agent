@@ -56,6 +56,8 @@ The `qa-tester` agent (`agents/qa-tester.md`) is the workhorse. It contains:
 - Structured accessibility testing (Tier 1 baseline + Tier 2 deep checks)
 - Network intelligence (timing, error correlation, mixed content)
 - Spec v2 features (dependencies, data-driven scenarios, tags, environments)
+- Visual & UX design verification (Tier 2 -- design reference comparison, UX states, layout integrity, performance/responsive, triggered by `## Visual Focus` in specs)
+- Cross-browser engine testing (Chromium, WebKit, Firefox via `## Browsers` in specs)
 
 Skills orchestrate the agent — they parse user arguments, resolve specs/environments/tags, and spawn the agent with a structured prompt.
 
