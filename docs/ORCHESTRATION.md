@@ -12,7 +12,7 @@ Machine-parseable lookup table. Read this first to select the right skill.
 |-------|---------|---------------|---------------|
 | `/qa:init` | Scaffold `.qa/` directory and template spec | No | `path` |
 | `/qa:gen` | Generate a spec from description, docs, or URL | Yes | `<spec-name>`, `--from`, `--a11y-depth` |
-| `/qa:run` | Execute tests from spec files or ad-hoc instructions | Yes | `--project`, `--spec`, `--url`, `--tag`, `--env` |
+| `/qa:run` | Execute tests from spec files or ad-hoc instructions | Yes | `--project`, `--spec`, `--url`, `--tag`, `--env`, `--browsers` |
 | `/qa:check` | Verify phase deliverables as a GSD gate check | Yes | `--url`, `--phase` |
 | `/qa:monitor` | Recurring smoke tests via /loop, persists regression alerts | Yes | `--project`, `--url`, `--tag`, `--interval`, `--runs` |
 | `/qa:report` | Cross-session report with trend analysis and GitHub issue creation | No | `--project`, `--format`, `--since`, `--create-issues` |
@@ -264,6 +264,7 @@ Execute QA tests from spec files or ad-hoc instructions. The most frequently use
 | `--url <base-url>` | No* | from spec | Base URL to test against (overrides spec's Base URL) |
 | `--tag <tag>` | No | all scenarios | Filter to scenarios matching this tag. Comma-separated for OR logic: `--tag smoke,critical` |
 | `--env <profile>` | No | first profile | Environment profile name from spec's `## Environments` section |
+| `--browsers` | No | from spec | Use browser engines from spec's `## Browsers` section (chromium, webkit, firefox). Defaults to chromium if `## Browsers` absent. |
 | `task` (quoted) | No* | — | Ad-hoc test description when not using a spec file |
 
 *Either `--project` or (`--url` + ad-hoc `task`) must be provided.
