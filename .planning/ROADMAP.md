@@ -14,7 +14,7 @@ This milestone bridges the gap between "does it work?" and "does it look and fee
 - [x] **Phase 11: Layout & Content Integrity** - Spacing/alignment, cross-page consistency, realistic-data overflow, placeholder detection (completed 2026-04-20)
 - [x] **Phase 12: Performance & Responsive** - Core Web Vitals, cross-browser rendering, breakpoint sweep, UX anti-pattern detection (completed 2026-04-20)
 - [x] **Phase 13: Usage Guidance** - ORCHESTRATION.md reference doc and /qa:guide skill (completed 2026-04-21)
-- [ ] **Phase 14: Documentation Gap Closure** - Update ORCHESTRATION.md, SPEC-FORMAT.md, README.md, CLAUDE.md for v0.3 discoverability
+- [x] **Phase 14: Documentation Gap Closure** - Update ORCHESTRATION.md, SPEC-FORMAT.md, README.md, CLAUDE.md for v0.3 discoverability (completed 2026-04-21)
 
 ## Phase Details
 
@@ -166,11 +166,11 @@ Plans:
   5. README.md v2 Features section lists Visual Focus, Design Reference, and Browsers
   6. CLAUDE.md Agent Architecture section updated for v0.3 methodology
 
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 
 Plans:
-- [ ] 14-01-PLAN.md — Add Visual Testing section and --browsers argument row to ORCHESTRATION.md
-- [ ] 14-02-PLAN.md — Add breakpoint-sweep: continuous and placeholder_allowlist to SPEC-FORMAT.md, Visual Focus/Design Reference/Browsers entries to README.md, v0.3 bullets to CLAUDE.md
+- [x] 14-01-PLAN.md — Add Visual Testing section and --browsers argument row to ORCHESTRATION.md
+- [x] 14-02-PLAN.md — Add breakpoint-sweep: continuous and placeholder_allowlist to SPEC-FORMAT.md, Visual Focus/Design Reference/Browsers entries to README.md, v0.3 bullets to CLAUDE.md
 
 ## Progress
 
@@ -184,4 +184,4 @@ Execution order: Phase 8 first. Then Phases 9 / 10 / 11 / 12 / 13 in parallel (a
 | 11. Layout & Content Integrity | 2/2 | Complete    | 2026-04-20 |
 | 12. Performance & Responsive | 2/2 | Complete    | 2026-04-20 |
 | 13. Usage Guidance | 2/2 | Complete    | 2026-04-21 |
-| 14. Documentation Gap Closure | 0/2 | Not started | - |
+| 14. Documentation Gap Closure | 2/2 | Complete   | 2026-04-21 |
