@@ -482,6 +482,78 @@ Use `/qa:guide` when entering a project for the first time, when unsure which sk
 
 ---
 
+## Visual Testing
+
+Visual testing is Tier 2 opt-in functionality. Tier 1 visual observations (noting anomalies during functional testing) always run. Tier 2 structured visual checks activate only when a spec includes a `## Visual Focus` section — parallel to how `## Accessibility Focus` activates Tier 2 accessibility checks.
+
+### Activating Visual Testing
+
+Add a `## Visual Focus` section to the spec:
+
+```markdown
+## Visual Focus
+- design-verification
+- layout-integrity
+```
+
+Available areas:
+
+| Area | What It Checks |
+|------|---------------|
+| `design-verification` | Compare live page against design reference images |
+| `ux-states` | Verify empty, loading, error, and interaction states |
+| `layout-integrity` | Spacing, alignment, grid integrity, content clipping |
+| `performance-responsive` | Core Web Vitals, cross-browser rendering, viewport sweep |
+
+- Present with no items listed: All four areas run (full Tier 2)
+- Present with specific areas listed: Only those areas run
+- Absent: Tier 1 only (visual anomalies noted during functional testing)
+
+### Design Reference
+
+Provide mockup images for visual comparison during `design-verification`. Add a `## Design Reference` section to the spec:
+
+```markdown
+## Design Reference
+
+### desktop
+- home-logged-out: .qa/designs/desktop-home.png
+
+### mobile
+- home-logged-out: .qa/designs/mobile-home.png
+```
+
+If a viewport subsection is absent, the agent skips visual diff for that viewport and notes "no design reference for [viewport]" in the report.
+
+### Cross-Browser Testing
+
+Specify which browser engines to run by adding a `## Browsers` section to the spec:
+
+```markdown
+## Browsers
+- chromium
+- webkit
+- firefox
+```
+
+Valid engines: `chromium` (Chrome/Edge), `webkit` (Safari), `firefox` (Gecko). When the section is absent, only Chromium runs (backward compatible).
+
+Invoke via: `/qa:run --project <path> --browsers`
+
+The agent reports findings per engine: `[webkit] Scenario X: FAIL — rendering divergence on nav menu`
+
+### Tier 2 Coverage Summary
+
+| Area | Runs When |
+|------|-----------|
+| Design verification | `design-verification` in `## Visual Focus` AND `## Design Reference` section present |
+| UX state verification | `ux-states` in `## Visual Focus` |
+| Layout & content integrity | `layout-integrity` in `## Visual Focus` |
+| Performance & responsive | `performance-responsive` in `## Visual Focus` |
+| Breakpoint sweep (continuous) | `performance-responsive` active AND `breakpoint-sweep: continuous` in `## Visual Focus`, OR any Phase 1 breakpoint fails |
+
+---
+
 ## Getting Started (For Developers)
 
 ### Installation
