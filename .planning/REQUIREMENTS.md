@@ -1,0 +1,131 @@
+# Requirements: QA Agent
+
+**Defined:** 2026-04-19
+**Core Value:** Tests verify features actually work for users
+
+## v0.3 Requirements
+
+Requirements for Visual & UX Design Verification milestone. Each maps to roadmap phases.
+
+### Design Verification
+
+- [ ] **DESIGN-01**: Agent can compare a live page against design reference images or HTML layouts and report/fix visual deviations with root cause diagnosis
+- [ ] **DESIGN-02**: Agent verifies font loading, font consistency across pages, text overflow handling, and line length readability
+- [ ] **DESIGN-03**: Agent detects broken images, aspect ratio distortion, missing lazy-load placeholders, and upscaled images
+- [ ] **DESIGN-04**: Agent verifies color token usage, hover/focus color states, and dark mode/theme switching consistency
+- [ ] **DESIGN-05**: Agent enforces design system consistency when defined, or infers and enforces cross-page consistency when no formal system exists
+
+### UX State Verification
+
+- [ ] **STATE-01**: Agent verifies empty states, loading states, error illustration states, and first-run/onboarding states exist
+- [ ] **STATE-02**: Agent systematically sweeps every interactive component through its full state matrix (default, hover, focus, active, disabled, loading, error, success)
+- [ ] **STATE-03**: Agent checks hover state coverage, cursor correctness, toast/notification behavior, and scroll behavior (sticky headers, anchor scroll)
+- [ ] **STATE-04**: Agent verifies transition smoothness, transition consistency across similar elements, and loading animation presence
+
+### Layout & Content Integrity
+
+- [ ] **LAYOUT-01**: Agent checks spacing consistency, element alignment, grid/flex integrity, and content clipping
+- [ ] **LAYOUT-02**: Agent verifies header/footer, component, and interaction pattern consistency across pages
+- [ ] **LAYOUT-03**: Agent tests layout with realistic-length content (long names, large numbers, localization strings)
+- [ ] **LAYOUT-04**: Agent detects placeholder text (Lorem ipsum, TODO), filler data, casing inconsistency, and vague CTAs
+
+### Performance & Responsive
+
+- [ ] **PERF-01**: Agent measures Core Web Vitals (CLS, LCP, INP) and identifies which elements/interactions cause poor scores
+- [ ] **PERF-02**: Agent runs visual checks across browser engines (Chromium, WebKit) and reports rendering differences
+- [ ] **PERF-03**: Agent sweeps viewport widths to catch horizontal scroll, content overlap, and off-by-one breakpoint bugs
+- [ ] **PERF-04**: Agent detects UX anti-patterns (modal without close, cookie banner overlap, pre-checked opt-ins, infinite scroll without position)
+
+### Infrastructure
+
+- [ ] **INFRA-01**: Visual tiering infrastructure — `## Visual Focus` spec section controls Tier 2 opt-in (parallels `## Accessibility Focus`)
+- [ ] **INFRA-02**: `## Design Reference` spec format section for mockup image paths per viewport and state
+- [ ] **INFRA-03**: `## Browsers` spec format section for cross-browser engine selection
+- [ ] **INFRA-04**: docs/ORCHESTRATION.md — static reference doc teaching orchestrating agents how to use the QA plugin
+- [ ] **INFRA-05**: `/qa:guide` skill — context-aware usage guidance that reads project state and ORCHESTRATION.md
+
+## v0.2 Requirements (Validated)
+
+All 64 requirements from v0.2 milestone shipped and validated. See MILESTONES.md for details.
+
+### Summary
+
+- FOUND-01 through FOUND-06: Plugin Foundation — Complete
+- ARCH-01 through ARCH-06: Agent Architecture — Complete
+- NET-01 through NET-05: Network Intelligence — Complete
+- VIEW-01 through VIEW-04: Multi-Viewport — Complete
+- PERS-01 through PERS-03: Multi-Persona — Complete
+- FORM-01 through FORM-05: Form Intelligence — Complete
+- SPA-01 through SPA-04: SPA Awareness — Complete
+- ERR-01 through ERR-03: Error Recovery — Complete
+- A11Y-01 through A11Y-17: Structured Accessibility — Complete
+- SPEC-01 through SPEC-08: Spec Format v2 — Complete
+- MON-01 through MON-03: Continuous Monitoring — Complete
+- RPT-01 through RPT-05: Reporting — Complete
+
+## Future Requirements
+
+Deferred to future release. Tracked but not in current roadmap.
+
+### Advanced Visual
+
+- **VIS-01**: Pixel-level diff comparison using image hashing
+- **VIS-02**: Design token extraction from Figma API
+- **VIS-03**: Automated visual regression baseline management
+
+### UX Evaluation
+
+- **UX-01**: Cognitive walkthrough methodology
+- **UX-02**: Heuristic evaluation against Nielsen's 10 heuristics
+- **UX-03**: Multi-lens persona testing (beyond auth roles — cognitive, situational, domain expertise)
+
+## Out of Scope
+
+| Feature | Reason |
+|---------|--------|
+| Figma API integration | Adds external dependency; mockup images are sufficient for v0.3 |
+| Automated CSS fixes without approval | Agent should diagnose and propose/fix, not silently change styles |
+| Visual regression CI pipeline | Infrastructure concern outside plugin scope |
+| Pixel-perfect diffing | Requires external image comparison libraries; visual judgment sufficient |
+| CLI/terminal testing | Different domain; separate agent project |
+| Screen reader testing | Requires VoiceOver/NVDA/JAWS integration |
+| Color contrast ratio calculation | Requires computed color analysis + WCAG math |
+| Complex ARIA widget validation | Requires deep a11y expertise; accessibility agent |
+
+## Traceability
+
+Which phases cover which requirements. Updated during roadmap creation.
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| DESIGN-01 | Phase 9 | Pending |
+| DESIGN-02 | Phase 9 | Pending |
+| DESIGN-03 | Phase 9 | Pending |
+| DESIGN-04 | Phase 9 | Pending |
+| DESIGN-05 | Phase 9 | Pending |
+| STATE-01 | Phase 10 | Pending |
+| STATE-02 | Phase 10 | Pending |
+| STATE-03 | Phase 10 | Pending |
+| STATE-04 | Phase 10 | Pending |
+| LAYOUT-01 | Phase 11 | Pending |
+| LAYOUT-02 | Phase 11 | Pending |
+| LAYOUT-03 | Phase 11 | Pending |
+| LAYOUT-04 | Phase 11 | Pending |
+| PERF-01 | Phase 12 | Pending |
+| PERF-02 | Phase 12 | Pending |
+| PERF-03 | Phase 12 | Pending |
+| PERF-04 | Phase 12 | Pending |
+| INFRA-01 | Phase 8, 14 | Pending |
+| INFRA-02 | Phase 8, 14 | Pending |
+| INFRA-03 | Phase 8, 14 | Pending |
+| INFRA-04 | Phase 13, 14 | Pending |
+| INFRA-05 | Phase 13, 14 | Pending |
+
+**Coverage:**
+- v0.3 requirements: 22 total
+- Mapped to phases: 22
+- Unmapped: 0 ✓
+
+---
+*Requirements defined: 2026-04-19*
+*Last updated: 2026-04-19 — Traceability updated after roadmap creation*

@@ -12,8 +12,9 @@ This milestone bridges the gap between "does it work?" and "does it look and fee
 - [ ] **Phase 9: Design Verification** - Design reference comparison, typography, images/media, color/theme, cross-page consistency
 - [x] **Phase 10: UX State Verification** - Empty/loading/error states, interaction state matrix, interactive feedback, animation quality (completed 2026-04-20)
 - [x] **Phase 11: Layout & Content Integrity** - Spacing/alignment, cross-page consistency, realistic-data overflow, placeholder detection (completed 2026-04-20)
-- [ ] **Phase 12: Performance & Responsive** - Core Web Vitals, cross-browser rendering, breakpoint sweep, UX anti-pattern detection
-- [ ] **Phase 13: Usage Guidance** - ORCHESTRATION.md reference doc and /qa:guide skill
+- [x] **Phase 12: Performance & Responsive** - Core Web Vitals, cross-browser rendering, breakpoint sweep, UX anti-pattern detection (completed 2026-04-20)
+- [x] **Phase 13: Usage Guidance** - ORCHESTRATION.md reference doc and /qa:guide skill (completed 2026-04-21)
+- [ ] **Phase 14: Documentation Gap Closure** - Update ORCHESTRATION.md, SPEC-FORMAT.md, README.md, CLAUDE.md for v0.3 discoverability
 
 ## Phase Details
 
@@ -120,11 +121,11 @@ Plans:
   3. Agent sweeps viewport widths and catches horizontal scroll, content overlap, and off-by-one breakpoint transitions
   4. Agent flags UX anti-patterns: modal without close button, cookie banner blocking content, pre-checked opt-ins, infinite scroll without position recovery
 
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 - [x] 12-01-PLAN.md — Add Performance & Responsive section header, Core Web Vitals (PERF-01), Cross-Browser Rendering (PERF-02), remove stub note, extend confidence table
-- [ ] 12-02-PLAN.md — Add Breakpoint Sweep (PERF-03), UX Anti-Pattern Detection (PERF-04), Reporting table
+- [x] 12-02-PLAN.md — Add Breakpoint Sweep (PERF-03), UX Anti-Pattern Detection (PERF-04), Reporting table
 
 ### Phase 13: Usage Guidance
 
@@ -141,13 +142,35 @@ Plans:
   2. `/qa:guide` skill reads the current project state and returns context-aware guidance on which QA commands to use and when
   3. A developer new to the plugin can read ORCHESTRATION.md and know exactly how to use every skill without reading source files
 
-**Plans**: TBD
+**Plans:** 2/2 plans complete
+
+Plans:
+- [x] 13-01-PLAN.md — Create docs/ORCHESTRATION.md reference document for orchestrating agents and developers
+- [x] 13-02-PLAN.md — Create /qa:guide skill and update README.md + CLAUDE.md for discoverability
+
+### Phase 14: Documentation Gap Closure
+
+**Goal**: Close all documentation-layer gaps identified by milestone audit — update ORCHESTRATION.md, SPEC-FORMAT.md, README.md, and CLAUDE.md so users and orchestrating agents can discover and use v0.3 visual capabilities
+
+**Depends on**: Phase 13 (ORCHESTRATION.md must exist)
+
+**Requirements**: INFRA-01, INFRA-02, INFRA-03, INFRA-04, INFRA-05
+
+**Gap Closure:** Closes gaps MISSING-01 through MISSING-06 from v0.3 milestone audit
+
+**Success Criteria** (what must be TRUE):
+  1. ORCHESTRATION.md has a visual testing section covering Visual Focus, Design Reference, Browsers, and all Tier 2 methodology areas
+  2. ORCHESTRATION.md /qa:run argument table includes `--browsers` flag
+  3. SPEC-FORMAT.md documents `breakpoint-sweep: continuous` opt-in field with example
+  4. SPEC-FORMAT.md documents `placeholder_allowlist` field with example
+  5. README.md v2 Features section lists Visual Focus, Design Reference, and Browsers
+  6. CLAUDE.md Agent Architecture section updated for v0.3 methodology
+
+**Plans:** 0
 
 ## Progress
 
-Execution order: Phase 8 first. Then Phases 9 / 10 / 11 / 12 / 13 in parallel (all independent after Phase 8).
-
-Phase 13 has zero dependencies — it can run during Phase 8 or any time.
+Execution order: Phase 8 first. Then Phases 9 / 10 / 11 / 12 / 13 in parallel (all independent after Phase 8). Phase 14 after all others complete.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -155,5 +178,6 @@ Phase 13 has zero dependencies — it can run during Phase 8 or any time.
 | 9. Design Verification | 0/2 | Not started | - |
 | 10. UX State Verification | 2/2 | Complete    | 2026-04-20 |
 | 11. Layout & Content Integrity | 2/2 | Complete    | 2026-04-20 |
-| 12. Performance & Responsive | 1/2 | In Progress|  |
-| 13. Usage Guidance | 0/? | Not started | - |
+| 12. Performance & Responsive | 2/2 | Complete    | 2026-04-20 |
+| 13. Usage Guidance | 2/2 | Complete    | 2026-04-21 |
+| 14. Documentation Gap Closure | 0/0 | Not started | - |
