@@ -29,13 +29,15 @@ Tests should verify that features **actually work** for users, not just that cod
 - Spec format v2 (dependencies, data-driven, tags, environments, a11y depth) — v0.2
 - Continuous monitoring `/qa:monitor` & cross-session reporting — v0.2
 - Browser automation via `playwright-cli` (replaces Playwright MCP) — v0.2
+- Usage guidance (docs/ORCHESTRATION.md + /qa:guide skill for orchestrating agents) — v0.3
+- Visual & UX design verification (design reference, typography, states, layout, images, animations, color, consistency, overflow, web vitals, cross-browser, placeholders, breakpoints, UX smells) — v0.3
+- Documentation gap closure (ORCHESTRATION.md visual testing, SPEC-FORMAT.md fields, README/CLAUDE updates) — v0.3
 
 ### Active
 
 <!-- Current scope. Building toward these. -->
 
-- [ ] Visual & UX design verification (design reference comparison, typography, states, layout, feedback, images, animations, color, consistency, overflow, interaction states, web vitals, cross-browser, placeholders, breakpoints, UX smells)
-- [ ] Usage guidance (docs/ORCHESTRATION.md + /qa:guide skill for orchestrating agents)
+None — v0.3 milestone complete.
 
 ### Future (v0.3 Candidates)
 
@@ -119,4 +121,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-20 — Phase 10 complete: agent systematically verifies all UI states (empty/loading/error/first-run), interaction state matrix, interactive feedback quality, and animation/transition quality*
+*Last updated: 2026-04-21 — Phase 14 complete: documentation gap closure — all v0.3 docs updated for discoverability*
