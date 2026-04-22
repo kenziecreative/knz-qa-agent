@@ -39,7 +39,7 @@ Tests should verify that features **actually work** for users, not just that cod
 
 None — v0.3 milestone complete.
 
-### Future (v0.3 Candidates)
+### Future
 
 <!-- Captured thinking for future milestones. See linked documents for full detail. -->
 
@@ -56,28 +56,12 @@ None — v0.3 milestone complete.
 - GUI testing (non-web) — Different tooling required (Appium, etc.)
 - Parallel scenario execution — Added complexity, sequential is sufficient for now
 
-## Current Milestone: v0.3.0 Visual & UX Design Verification
+## Current State
 
-**Goal:** Bridge the gap between "does it work?" and "does it look and feel right?" — adding visual/UX design verification capabilities and orchestration guidance.
+**Shipped:** v0.3 (2026-04-22) — Visual & UX Design Verification
+**Next milestone:** Not yet planned
 
-**Target features:**
-- Design reference comparison (mockup vs live page with root cause diagnosis)
-- Typography verification (font loading, consistency, overflow, readability)
-- Empty, loading, and error state verification
-- Layout & spacing precision checks
-- Interactive feedback quality (hover, cursor, toast, scroll)
-- Image & media quality (broken images, aspect ratio, lazy loading)
-- Animation & transition quality
-- Color & theme consistency
-- Cross-page consistency
-- Content overflow with realistic data
-- Interaction state matrix (systematic state sweep)
-- Core Web Vitals (CLS, LCP, INP)
-- Cross-browser rendering
-- Placeholder & draft content detection
-- Breakpoint transition sweep
-- UX smell pattern detection
-- Usage guidance (docs/ORCHESTRATION.md + /qa:guide skill)
+v0.3 shipped visual/UX design verification: design reference comparison, typography, image/media quality, color/theme, cross-page consistency, UX state verification (empty/loading/error/interaction matrix), layout/content integrity, Core Web Vitals, cross-browser rendering, breakpoint sweep, UX anti-pattern detection, placeholder detection, and orchestration guidance (ORCHESTRATION.md + /qa:guide).
 
 ## Context
 
@@ -102,6 +86,11 @@ The focus is exclusively on web/UI testing. CLI testing was considered but defer
 | Web-only focus | Deep domain coverage > breadth; CLI can be separate agent | Current |
 | Tier 2 accessibility as own phase | Enough depth to warrant focused attention, not an afterthought | Current |
 | Baseline a11y integrated into functional testing | Same browser session, same context, one report | Good |
+| Tier 1/Tier 2 visual framing (parallels a11y) | Visual Focus opt-in mirrors Accessibility Focus; consistent mental model | Good |
+| Eval probes over screenshots for measurement | Screenshots can't measure CSS values, cursor state, computed styles | Good |
+| Lab-environment labeling for Web Vitals | Prevents false confidence from synthetic metrics | Good |
+| playwright-cli run-code for page-level APIs | emulateMedia, PerformanceObserver need page object, not element refs | Good |
+| Placeholder allowlist as spec field | Avoids false positives on intentional placeholder text | Good |
 
 ## Evolution
 
@@ -121,4 +110,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-21 — Phase 14 complete: documentation gap closure — all v0.3 docs updated for discoverability*
+*Last updated: 2026-04-22 after v0.3 milestone*
